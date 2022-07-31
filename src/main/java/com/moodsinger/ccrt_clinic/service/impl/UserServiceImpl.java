@@ -22,10 +22,12 @@ import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorMessages;
 import com.moodsinger.ccrt_clinic.io.entity.RoleEntity;
 import com.moodsinger.ccrt_clinic.io.entity.UserEntity;
 import com.moodsinger.ccrt_clinic.io.enums.Role;
+import com.moodsinger.ccrt_clinic.io.enums.VerificationStatus;
 import com.moodsinger.ccrt_clinic.io.repository.UserRepository;
 import com.moodsinger.ccrt_clinic.service.RoleService;
 import com.moodsinger.ccrt_clinic.service.UserService;
 import com.moodsinger.ccrt_clinic.shared.Utils;
+import com.moodsinger.ccrt_clinic.shared.dto.RoleDto;
 import com.moodsinger.ccrt_clinic.shared.dto.UserDto;
 
 @Service
@@ -56,7 +58,8 @@ public class UserServiceImpl implements UserService {
     System.out.println("----------------" + userDetails.getUserType() + "------------------");
     Set<RoleEntity> roles = new HashSet<>();
     RoleEntity role = modelMapper.map(
-        roleService.getOrCreateRole(userDetails.getUserType().equals(Role.USER.name()) ? Role.USER : Role.DOCTOR),
+        roleService.getOrCreateRole(userDetails.getUserType().equals(Role.ADMIN.name()) ? Role.ADMIN
+            : userDetails.getUserType().equals(Role.DOCTOR.name()) ? Role.DOCTOR : Role.USER),
         RoleEntity.class);
     roles.add(role);
     // https://youtube.com/clip/UgkxSEHC1SCU_h5ppeoKllC4GFT9GNfvezxr
@@ -122,6 +125,47 @@ public class UserServiceImpl implements UserService {
       throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
           ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
     UserDto userDto = new ModelMapper().map(foundUserEntity, UserDto.class);
+    return userDto;
+  }
+
+  @Transactional
+  @Override
+  public UserDto updateUserRole(String userId, UserDto updateDetails) {
+    UserEntity foundUserEntity = userRepository.findByUserId(userId);
+    if (foundUserEntity == null) {
+      throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
+          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
+    }
+    Role role = Role.valueOf(updateDetails.getRole());
+    if (role == null) {
+      throw new UserServiceException(ExceptionErrorCodes.USER_TYPE_NOT_VALID.name(),
+          ExceptionErrorMessages.USER_TYPE_NOT_VALID.getMessage());
+    }
+    Set<RoleEntity> roles = new HashSet<>();
+    RoleDto newRoleDto = roleService.getOrCreateRole(role);
+    RoleEntity newRoleEntity = new ModelMapper().map(newRoleDto, RoleEntity.class);
+    roles.add(newRoleEntity);
+    foundUserEntity.setRoles(roles);
+    UserEntity updatedUserEntity = userRepository.save(foundUserEntity);
+    UserDto userDto = new ModelMapper().map(updatedUserEntity, UserDto.class);
+    return userDto;
+  }
+
+  @Transactional
+  @Override
+  public UserDto updateUserVerificationStatus(String userId, UserDto updateDetails) {
+    if (!utils.validateVerificationStatus(updateDetails.getVerificationStatus()))
+      throw new UserServiceException(ExceptionErrorCodes.MALFORMED_JSON_BODY.name(),
+          ExceptionErrorMessages.MALFORMED_JSON_BODY.getMessage(), HttpStatus.BAD_REQUEST);
+
+    UserEntity foundUserEntity = userRepository.findByUserId(userId);
+    if (foundUserEntity == null) {
+      throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
+          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
+    }
+    foundUserEntity.setVerificationStatus(VerificationStatus.valueOf(updateDetails.getVerificationStatus()));
+    UserEntity updatedUserEntity = userRepository.save(foundUserEntity);
+    UserDto userDto = new ModelMapper().map(updatedUserEntity, UserDto.class);
     return userDto;
   }
 

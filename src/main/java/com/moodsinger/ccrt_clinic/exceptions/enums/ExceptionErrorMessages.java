@@ -8,6 +8,7 @@ public enum ExceptionErrorMessages {
   USER_NOT_CREATED("User isn't created."),
   FORBIDDEN("User doesn't have the permission to perform this operation."),
   REQUIRED_REQUEST_BODY("Request body is required."),
+  MALFORMED_JSON_BODY("Request is not well formed."),
   USER_TYPE_NOT_VALID("User type is not valid.");
 
   private String message;

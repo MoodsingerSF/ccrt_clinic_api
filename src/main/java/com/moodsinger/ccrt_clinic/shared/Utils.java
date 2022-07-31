@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import com.moodsinger.ccrt_clinic.AppProperties;
 import com.moodsinger.ccrt_clinic.io.enums.Role;
+import com.moodsinger.ccrt_clinic.io.enums.VerificationStatus;
 
 @Component
 public class Utils {
@@ -55,5 +56,13 @@ public class Utils {
     if (!isNonNullAndNonEmpty(userType))
       return false;
     return userType.equals(Role.USER.name()) || userType.equals(Role.DOCTOR.name());
+  }
+
+  public boolean validateVerificationStatus(String verificationStatus) {
+    if (!isNonNullAndNonEmpty(verificationStatus))
+      return false;
+    return verificationStatus.equals(VerificationStatus.ACCEPTED.name())
+        || verificationStatus.equals(VerificationStatus.REJECTED.name())
+        || verificationStatus.equals(VerificationStatus.PENDING.name());
   }
 }

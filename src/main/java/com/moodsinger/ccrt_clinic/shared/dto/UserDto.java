@@ -11,6 +11,8 @@ public class UserDto {
   private String encryptedPassword;
   private Set<RoleDto> roles;
   private String userType;
+  private String role;
+  private String verificationStatus;
 
   public String getUserId() {
     return userId;
@@ -74,5 +76,21 @@ public class UserDto {
 
   public void setUserType(String userType) {
     this.userType = userType;
+  }
+
+  public String getRole() {
+    return role;
+  }
+
+  public void setRole(String role) {
+    this.role = role;
+  }
+
+  public String getVerificationStatus() {
+    return verificationStatus;
+  }
+
+  public void setVerificationStatus(String verificationStatus) {
+    this.verificationStatus = verificationStatus;
   }
 }

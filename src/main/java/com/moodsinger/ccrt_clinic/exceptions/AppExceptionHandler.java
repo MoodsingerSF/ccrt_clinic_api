@@ -19,6 +19,7 @@ public class AppExceptionHandler {
 
   @ExceptionHandler(value = { Exception.class })
   public ResponseEntity<ErrorMessage> handleUnhandledException(Exception exception) {
+    exception.printStackTrace();
     ErrorMessage errorMessage = new ErrorMessage("INTERNAL_SERVER_ERROR", exception.getMessage());
     return new ResponseEntity<ErrorMessage>(errorMessage, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
   }

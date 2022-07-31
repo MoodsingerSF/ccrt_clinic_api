@@ -18,6 +18,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.moodsinger.ccrt_clinic.io.enums.Role;
+
 // import com.moodsinger.ccrt_clinic.io.enums.Role;
 
 @EnableWebSecurity
@@ -35,8 +37,14 @@ public class WebSecurity {
 
     httpSecurity.csrf().disable().authorizeRequests().antMatchers(HttpMethod.POST, SecurityConstants.SIGN_UP_URL)
         .permitAll()
-        // .antMatchers(HttpMethod.GET, "/users/**")
-        // .hasAnyAuthority("USER",)
+        .antMatchers(HttpMethod.GET, SecurityConstants.SIGN_UP_URL)
+        .hasAnyAuthority(Role.ADMIN.name())
+        .antMatchers(HttpMethod.POST, "/users/admin")
+        .hasAnyAuthority(Role.ADMIN.name())
+        .antMatchers(HttpMethod.PUT, "/users/{userId}/role")
+        .hasAnyAuthority(Role.ADMIN.name())
+        .antMatchers(HttpMethod.PUT, "/users/{userId}/verification-status")
+        .hasAnyAuthority(Role.ADMIN.name())
         .antMatchers(HttpMethod.POST, SecurityConstants.LOG_IN_URL).permitAll().anyRequest()
         .authenticated().and().addFilter(new AuthenticationFilter(authenticationManager(authenticationConfiguration)))
         .addFilter(new AuthorizationFilter(authenticationManager(authenticationConfiguration)))

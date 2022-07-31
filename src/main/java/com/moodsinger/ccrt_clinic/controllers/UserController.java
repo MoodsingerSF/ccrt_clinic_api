@@ -1,23 +1,19 @@
 package com.moodsinger.ccrt_clinic.controllers;
 
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.moodsinger.ccrt_clinic.exceptions.UserServiceException;
 import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorCodes;
 import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorMessages;
+import com.moodsinger.ccrt_clinic.io.enums.Role;
 import com.moodsinger.ccrt_clinic.model.request.UserSignupRequestModel;
 import com.moodsinger.ccrt_clinic.model.request.UserUpdateRequestModel;
 import com.moodsinger.ccrt_clinic.model.response.UserRest;
-import com.moodsinger.ccrt_clinic.security.SecurityConstants;
 import com.moodsinger.ccrt_clinic.service.UserService;
 import com.moodsinger.ccrt_clinic.shared.Utils;
 import com.moodsinger.ccrt_clinic.shared.dto.UserDto;
-
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
-
-import java.security.Key;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +23,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 
 @RestController
 @RequestMapping("users")
@@ -42,7 +37,7 @@ public class UserController {
   public UserRest createUser(@RequestBody UserSignupRequestModel userSignupRequestModel) {
     System.out.println(userSignupRequestModel);
     // check validity of request
-    checkUserSignupRequestBody(userSignupRequestModel);
+    checkUserSignupRequestBody(userSignupRequestModel, false);
 
     // create user
     ModelMapper modelMapper = new ModelMapper();
@@ -52,6 +47,13 @@ public class UserController {
     UserDto createdUserDto = userService.createUser(userDto);
     // returning created user
     UserRest userRest = modelMapper.map(createdUserDto, UserRest.class);
+    return userRest;
+  }
+
+  @GetMapping
+  public UserRest getUser(@RequestParam("email") String email) {
+    UserDto foundUserDto = userService.getUserByEmail(email);
+    UserRest userRest = new ModelMapper().map(foundUserDto, UserRest.class);
     return userRest;
   }
 
@@ -74,7 +76,44 @@ public class UserController {
 
   }
 
-  private void checkUserSignupRequestBody(UserSignupRequestModel userSignupRequestModel) {
+  @PutMapping("/{userId}/role")
+  public UserRest updateUserRole(@PathVariable String userId,
+      @RequestBody UserUpdateRequestModel userUpdateRequestModel) {
+
+    ModelMapper modelMapper = new ModelMapper();
+    UserDto updateRequestDto = modelMapper.map(userUpdateRequestModel, UserDto.class);
+    UserDto foundUserDto = userService.updateUserRole(userId, updateRequestDto);
+    UserRest userRest = new ModelMapper().map(foundUserDto, UserRest.class);
+    return userRest;
+  }
+
+  @PutMapping("/{userId}/verification-status")
+  public UserRest updateUserVerificationStatus(@PathVariable String userId,
+      @RequestBody UserUpdateRequestModel userUpdateRequestModel) {
+
+    ModelMapper modelMapper = new ModelMapper();
+    UserDto updateRequestDto = modelMapper.map(userUpdateRequestModel, UserDto.class);
+    UserDto foundUserDto = userService.updateUserVerificationStatus(userId, updateRequestDto);
+    UserRest userRest = new ModelMapper().map(foundUserDto, UserRest.class);
+    return userRest;
+  }
+
+  @PostMapping("/admin")
+  public UserRest createAdmin(@RequestBody UserSignupRequestModel userSignupRequestModel) {
+    checkUserSignupRequestBody(userSignupRequestModel, true);
+    userSignupRequestModel.setUserType(Role.ADMIN.name());
+    // create user
+    ModelMapper modelMapper = new ModelMapper();
+    UserDto userDto = modelMapper.map(userSignupRequestModel, UserDto.class);
+
+    // save user
+    UserDto createdUserDto = userService.createUser(userDto);
+    // returning created user
+    UserRest userRest = modelMapper.map(createdUserDto, UserRest.class);
+    return userRest;
+  }
+
+  private void checkUserSignupRequestBody(UserSignupRequestModel userSignupRequestModel, boolean isUserTypeOptional) {
     String firstName = userSignupRequestModel.getFirstName();
     String lastName = userSignupRequestModel.getLastName();
     String email = userSignupRequestModel.getEmail();
@@ -93,7 +132,7 @@ public class UserController {
     if (!utils.validatePassword(password))
       throw new UserServiceException(ExceptionErrorCodes.PASSWORD_NOT_VALID.name(),
           ExceptionErrorMessages.PASSWORD_NOT_VALID.getMessage(), HttpStatus.BAD_REQUEST);
-    if (!utils.validateUserType(userType))
+    if (!isUserTypeOptional && !utils.validateUserType(userType))
       throw new UserServiceException(ExceptionErrorCodes.USER_TYPE_NOT_VALID.name(),
           ExceptionErrorMessages.USER_TYPE_NOT_VALID.getMessage(), HttpStatus.BAD_REQUEST);
   }
