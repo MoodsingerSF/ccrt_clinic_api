@@ -45,6 +45,8 @@ public class WebSecurity {
         .hasAnyAuthority(Role.ADMIN.name())
         .antMatchers(HttpMethod.PUT, "/users/{userId}/verification-status")
         .hasAnyAuthority(Role.ADMIN.name())
+        .antMatchers(HttpMethod.GET, "/blogs")
+        .permitAll()
         .antMatchers(HttpMethod.POST, SecurityConstants.LOG_IN_URL).permitAll().anyRequest()
         .authenticated().and().addFilter(new AuthenticationFilter(authenticationManager(authenticationConfiguration)))
         .addFilter(new AuthorizationFilter(authenticationManager(authenticationConfiguration)))

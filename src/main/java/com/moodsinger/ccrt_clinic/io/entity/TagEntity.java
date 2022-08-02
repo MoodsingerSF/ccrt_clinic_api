@@ -16,14 +16,23 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "tags")
 public class TagEntity {
+
+  public TagEntity() {
+  }
+
+  public TagEntity(String name) {
+    this.name = name;
+  }
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long id;
 
-  @Column(nullable = false)
+  @Column(nullable = false, unique = true)
   private String name;
 
-  @ManyToMany(mappedBy = "tags")
+  @ManyToMany(cascade = { CascadeType.MERGE, CascadeType.REFRESH,
+      CascadeType.DETACH }, fetch = FetchType.LAZY, mappedBy = "tags")
   private List<BlogEntity> blogs = new ArrayList<>();
 
   public long getId() {
@@ -48,5 +57,10 @@ public class TagEntity {
 
   public void setBlogs(List<BlogEntity> blogs) {
     this.blogs = blogs;
+  }
+
+  @Override
+  public String toString() {
+    return "TagEntity [blogs=" + blogs + ", id=" + id + ", name=" + name + "]";
   }
 }

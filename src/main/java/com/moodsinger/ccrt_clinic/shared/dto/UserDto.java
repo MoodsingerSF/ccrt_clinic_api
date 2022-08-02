@@ -3,6 +3,7 @@ package com.moodsinger.ccrt_clinic.shared.dto;
 import java.util.Set;
 
 public class UserDto {
+  private long id;
   private String userId;
   private String firstName;
   private String lastName;
@@ -92,5 +93,13 @@ public class UserDto {
 
   public void setVerificationStatus(String verificationStatus) {
     this.verificationStatus = verificationStatus;
+  }
+
+  public long getId() {
+    return id;
+  }
+
+  public void setId(long id) {
+    this.id = id;
   }
 }

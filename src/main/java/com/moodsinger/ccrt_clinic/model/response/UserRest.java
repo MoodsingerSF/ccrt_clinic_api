@@ -5,6 +5,7 @@ public class UserRest {
   private String firstName;
   private String lastName;
   private String email;
+  private String imageUrl;
 
   public String getUserId() {
     return userId;
@@ -36,6 +37,14 @@ public class UserRest {
 
   public void setEmail(String email) {
     this.email = email;
+  }
+
+  public String getImageUrl() {
+    return imageUrl;
+  }
+
+  public void setImageUrl(String imageUrl) {
+    this.imageUrl = imageUrl;
   }
 
 }

@@ -9,6 +9,7 @@ public enum ExceptionErrorMessages {
   FORBIDDEN("User doesn't have the permission to perform this operation."),
   REQUIRED_REQUEST_BODY("Request body is required."),
   MALFORMED_JSON_BODY("Request is not well formed."),
+  FILE_SAVE_ERROR("The file couldn't be saved."),
   USER_TYPE_NOT_VALID("User type is not valid.");
 
   private String message;

@@ -25,6 +25,10 @@ public class Utils {
     return generateRandomString(length);
   }
 
+  public String generateBlogId(int length) {
+    return generateRandomString(length);
+  }
+
   private String generateRandomString(int length) {
     StringBuilder stringBuilder = new StringBuilder();
     for (int i = 0; i < length; i++) {

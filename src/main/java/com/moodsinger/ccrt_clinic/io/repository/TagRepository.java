@@ -7,5 +7,5 @@ import com.moodsinger.ccrt_clinic.io.entity.TagEntity;
 
 @Repository
 public interface TagRepository extends PagingAndSortingRepository<TagEntity, Long> {
-
+  TagEntity findByName(String name);
 }

@@ -1,5 +1,7 @@
 package com.moodsinger.ccrt_clinic.service;
 
-public interface BlogService {
+import com.moodsinger.ccrt_clinic.shared.dto.BlogDto;
 
+public interface BlogService {
+  BlogDto createBlog(BlogDto blogDto);
 }

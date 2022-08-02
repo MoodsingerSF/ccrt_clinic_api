@@ -51,7 +51,7 @@ public class UserEntity {
   @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
   private Set<RoleEntity> roles;
 
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "creator", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   private Set<BlogEntity> blogs = new HashSet<>();
 
   public long getId() {
