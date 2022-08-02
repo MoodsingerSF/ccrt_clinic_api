@@ -12,6 +12,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Component
 public class FileUploadUtil {
+  public static final String BLOG_UPLOAD_DIR = "blogs";
+
   public String saveFile(String uploadDir, String fileName,
       MultipartFile multipartFile) throws IOException {
     Path uploadPath = Paths.get(uploadDir);

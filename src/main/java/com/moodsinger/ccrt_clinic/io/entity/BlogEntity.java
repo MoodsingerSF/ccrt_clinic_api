@@ -22,6 +22,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import com.moodsinger.ccrt_clinic.io.enums.VerificationStatus;
 
@@ -44,7 +45,8 @@ public class BlogEntity {
   @Column(nullable = false)
   private String title;
 
-  @Column(nullable = false)
+  @Column(nullable = false, length = 10000)
+
   private String description;
 
   @Column(nullable = false)
@@ -52,7 +54,7 @@ public class BlogEntity {
 
   @Column(nullable = false)
   @Temporal(TemporalType.TIMESTAMP)
-  @CreationTimestamp
+  @UpdateTimestamp
   private Date creationTime;
 
   @Column(nullable = false)

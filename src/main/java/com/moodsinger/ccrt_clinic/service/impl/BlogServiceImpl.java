@@ -2,13 +2,18 @@ package com.moodsinger.ccrt_clinic.service.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +31,6 @@ import com.moodsinger.ccrt_clinic.io.repository.BlogRepository;
 import com.moodsinger.ccrt_clinic.io.repository.UserRepository;
 import com.moodsinger.ccrt_clinic.service.BlogService;
 import com.moodsinger.ccrt_clinic.service.TagService;
-import com.moodsinger.ccrt_clinic.service.UserService;
 import com.moodsinger.ccrt_clinic.shared.FileUploadUtil;
 import com.moodsinger.ccrt_clinic.shared.Utils;
 import com.moodsinger.ccrt_clinic.shared.dto.BlogDto;
@@ -39,35 +43,37 @@ public class BlogServiceImpl implements BlogService {
   private AppProperties appProperties;
 
   @Autowired
-  private UserService userService;
+  private TagService tagService;
 
   @Autowired
-  private TagService tagService;
-  @Autowired
   private BlogRepository blogRepository;
+
   @Autowired
   private UserRepository userRepository;
+
   @Autowired
   private Utils utils;
 
   @Autowired
   private FileUploadUtil fileUploadUtil;
 
+  @Autowired
+  private ModelMapper modelMapper;
+
   @Transactional
   @Override
   public BlogDto createBlog(BlogDto blogDto) {
-    ModelMapper modelMapper = new ModelMapper();
-    modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
     String blogId = utils.generateBlogId(15);
-    String uploadDir = "blogs" + File.separator + blogId;
+    String uploadDir = FileUploadUtil.BLOG_UPLOAD_DIR + File.separator + blogId;
     MultipartFile image = blogDto.getImage();
     String fileName = StringUtils.cleanPath(image.getOriginalFilename());
     try {
-      fileUploadUtil.saveFile(uploadDir, fileName, image);
+      fileUploadUtil.saveFile(uploadDir, getFileName(fileName), image);
       BlogEntity blogEntity = modelMapper.map(blogDto, BlogEntity.class);
 
       blogEntity.setBlogId(blogId);
-      blogEntity.setImageUrl(appProperties.getProperty("baseUrl") + "blogs/" + blogId + "/" + fileName);
+      blogEntity.setImageUrl(
+          getImageUrl(blogId, fileName));
       UserEntity creatorEntity = userRepository.findByUserId(blogDto.getCreatorUserId());
       if (creatorEntity == null)
         throw new BlogServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
@@ -95,6 +101,114 @@ public class BlogServiceImpl implements BlogService {
       e.printStackTrace();
       throw new BlogServiceException("", "");
     }
+  }
+
+  @Override
+  public List<BlogDto> getBlogs(int page, int limit) {
+    List<BlogDto> blogs = new ArrayList<>();
+    Pageable pageable = PageRequest.of(page, limit, Sort.by("id").descending());
+    Slice<BlogEntity> pageElements = blogRepository.findAll(pageable);
+    List<BlogEntity> blogEntities = pageElements.getContent();
+    for (BlogEntity blogEntity : blogEntities) {
+      blogs.add(modelMapper.map(blogEntity, BlogDto.class));
+    }
+    return blogs;
+  }
+
+  @Override
+  public BlogDto getBlog(String blogId) {
+    BlogEntity foundBlogEntity = blogRepository.findByBlogId(blogId);
+    if (foundBlogEntity == null)
+      throw new BlogServiceException(ExceptionErrorCodes.BLOG_NOT_FOUND.name(),
+          ExceptionErrorMessages.BLOG_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
+    BlogDto blog = modelMapper.map(foundBlogEntity, BlogDto.class);
+    return blog;
+  }
+
+  @Transactional
+  @Override
+  public BlogDto updateBlog(String blogId, BlogDto blogDetails) {
+    BlogEntity foundBlogEntity = blogRepository.findByBlogId(blogId);
+    if (foundBlogEntity == null)
+      throw new BlogServiceException(ExceptionErrorCodes.BLOG_NOT_FOUND.name(),
+          ExceptionErrorMessages.BLOG_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
+    System.out.println(blogDetails);
+    if (!foundBlogEntity.getCreator().getUserId().equals(blogDetails.getCreatorUserId())) {
+      throw new BlogServiceException(ExceptionErrorCodes.FORBIDDEN.name(),
+          ExceptionErrorMessages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
+    }
+    String title = blogDetails.getTitle();
+    String description = blogDetails.getDescription();
+    List<String> tags = blogDetails.getTagStrings();
+    MultipartFile image = blogDetails.getImage();
+    if (title != null)
+      foundBlogEntity.setTitle(title);
+
+    if (description != null)
+      foundBlogEntity.setDescription(description);
+
+    if (image != null) {
+      try {
+        String fileName = StringUtils.cleanPath(image.getOriginalFilename());
+        fileUploadUtil.saveFile(FileUploadUtil.BLOG_UPLOAD_DIR + File.separator + blogId,
+            getFileName(fileName), image);
+
+        foundBlogEntity
+            .setImageUrl(getImageUrl(blogId, fileName));
+
+      } catch (Exception e) {
+        throw new BlogServiceException(ExceptionErrorCodes.FILE_SAVE_ERROR.name(),
+            ExceptionErrorMessages.FILE_SAVE_ERROR.getMessage());
+      }
+    }
+    if (tags != null && !tags.isEmpty()) {
+      Set<TagEntity> tagEntities = new HashSet<>();
+      foundBlogEntity.setTags(tagEntities);
+      if (tags != null && tags.size() != 0) {
+        for (String tag : tags) {
+          TagEntity newTagEntity = tagService.getOrCreateTag(new TagDto(tag));
+          foundBlogEntity.getTags().add(newTagEntity);
+          newTagEntity.getBlogs().add(foundBlogEntity);
+        }
+
+      }
+    }
+    BlogEntity updatedBlogEntity = blogRepository.save(foundBlogEntity);
+    BlogDto updatedBlog = modelMapper.map(updatedBlogEntity, BlogDto.class);
+    return updatedBlog;
+  }
+
+  private String getImageUrl(String blogId, String fileName) {
+    return appProperties.getProperty("baseUrl") + blogId + "/index." + utils.getFileExtension(fileName);
+  }
+
+  private String getFileName(String fileName) {
+    return "index." + utils.getFileExtension(fileName);
+  }
+
+  @Override
+  public List<BlogDto> getBlogs(int page, int limit, String tag) {
+
+    Pageable pageable = PageRequest.of(page, limit);
+    Page<BlogEntity> pageEntities = blogRepository.findByTagsName(tag, pageable);
+    List<BlogEntity> blogEntities = pageEntities.getContent();
+    List<BlogDto> blogs = new ArrayList<>();
+    for (BlogEntity blogEntity : blogEntities) {
+      blogs.add(modelMapper.map(blogEntity, BlogDto.class));
+    }
+    return blogs;
+  }
+
+  @Override
+  public void deleteBlog(String blogId) {
+    BlogEntity foundBlogEntity = blogRepository.findByBlogId(blogId);
+    if (foundBlogEntity == null) {
+      throw new BlogServiceException(ExceptionErrorCodes.BLOG_NOT_FOUND.name(),
+          ExceptionErrorMessages.BLOG_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    blogRepository.delete(foundBlogEntity);
+
   }
 
 }

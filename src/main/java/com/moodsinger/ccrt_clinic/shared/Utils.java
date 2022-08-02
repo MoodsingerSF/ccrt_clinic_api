@@ -2,6 +2,7 @@ package com.moodsinger.ccrt_clinic.shared;
 
 import java.security.SecureRandom;
 import java.util.Random;
+import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -68,5 +69,14 @@ public class Utils {
     return verificationStatus.equals(VerificationStatus.ACCEPTED.name())
         || verificationStatus.equals(VerificationStatus.REJECTED.name())
         || verificationStatus.equals(VerificationStatus.PENDING.name());
+  }
+
+  public String getFileExtension(String str) {
+    StringTokenizer stringTokenizer = new StringTokenizer(str, ".");
+    String extension = "";
+    while (stringTokenizer.hasMoreTokens()) {
+      extension = stringTokenizer.nextToken();
+    }
+    return extension;
   }
 }

@@ -7,4 +7,5 @@ public interface TagService {
   TagDto createTag(TagDto tagDto);
 
   TagEntity getOrCreateTag(TagDto tagDto);
+
 }
