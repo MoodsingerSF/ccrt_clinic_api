@@ -49,6 +49,8 @@ public class WebSecurity {
         .permitAll()
         .antMatchers(HttpMethod.GET, "/blogs/{blogId}")
         .permitAll()
+        .antMatchers(HttpMethod.GET, "/blogs/{blogId}/related-blogs")
+        .permitAll()
         .antMatchers(HttpMethod.POST, SecurityConstants.LOG_IN_URL).permitAll().anyRequest()
         .authenticated().and().addFilter(new AuthenticationFilter(authenticationManager(authenticationConfiguration)))
         .addFilter(new AuthorizationFilter(authenticationManager(authenticationConfiguration)))

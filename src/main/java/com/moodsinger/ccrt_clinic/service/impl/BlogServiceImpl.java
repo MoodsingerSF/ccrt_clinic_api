@@ -211,4 +211,25 @@ public class BlogServiceImpl implements BlogService {
 
   }
 
+  @Override
+  public List<BlogDto> getRelatedBlogs(String blogId, int page, int limit) {
+    BlogEntity foundBlogEntity = blogRepository.findByBlogId(blogId);
+    if (foundBlogEntity == null) {
+      throw new BlogServiceException(ExceptionErrorCodes.BLOG_NOT_FOUND.name(),
+          ExceptionErrorMessages.BLOG_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
+    }
+    List<Long> tagIds = new ArrayList<>();
+    for (TagEntity tagEntity : foundBlogEntity.getTags()) {
+      tagIds.add(tagEntity.getId());
+    }
+    Pageable pageable = PageRequest.of(page, limit, Sort.by("id").descending());
+    Page<BlogEntity> pageBlogEntities = blogRepository.findBlogsByTagList(tagIds, pageable);
+    List<BlogEntity> blogEntities = pageBlogEntities.getContent();
+    List<BlogDto> blogDtos = new ArrayList<>();
+    for (BlogEntity blogEntity : blogEntities) {
+      blogDtos.add(modelMapper.map(blogEntity, BlogDto.class));
+    }
+    return blogDtos;
+  }
+
 }

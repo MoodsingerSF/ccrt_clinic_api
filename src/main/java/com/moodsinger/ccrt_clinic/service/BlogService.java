@@ -16,4 +16,6 @@ public interface BlogService {
   BlogDto updateBlog(String blogId, BlogDto blogDetails);
 
   void deleteBlog(String blogId);
+
+  List<BlogDto> getRelatedBlogs(String blogId, int page, int limit);
 }

@@ -87,9 +87,14 @@ public class BlogController {
   }
 
   @GetMapping(path = "/{blogId}/related-blogs")
-  public BlogRest getRelatedBlogs(@PathVariable String blogId) {
-    BlogDto blogDto = blogService.getBlog(blogId);
-    BlogRest blogRest = modelMapper.map(blogDto, BlogRest.class);
-    return blogRest;
+  public List<BlogRest> getRelatedBlogs(@PathVariable String blogId,
+      @RequestParam(name = "page", defaultValue = "0", required = false) int page,
+      @RequestParam(name = "limit", defaultValue = "15", required = false) int limit) {
+    List<BlogDto> foundBlogDtos = blogService.getRelatedBlogs(blogId, page, limit);
+    List<BlogRest> blogRests = new ArrayList<>();
+    for (BlogDto blogDto : foundBlogDtos) {
+      blogRests.add(modelMapper.map(blogDto, BlogRest.class));
+    }
+    return blogRests;
   }
 }
