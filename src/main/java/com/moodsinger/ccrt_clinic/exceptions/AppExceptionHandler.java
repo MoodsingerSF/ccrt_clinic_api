@@ -23,6 +23,12 @@ public class AppExceptionHandler {
     return new ResponseEntity<ErrorMessage>(errorMessage, new HttpHeaders(), exception.getHttpStatus());
   }
 
+  @ExceptionHandler(value = { OtpServiceException.class })
+  public ResponseEntity<ErrorMessage> handleOtpServiceException(OtpServiceException exception) {
+    ErrorMessage errorMessage = new ErrorMessage(exception.getCode(), exception.getMessage());
+    return new ResponseEntity<ErrorMessage>(errorMessage, new HttpHeaders(), exception.getHttpStatus());
+  }
+
   @ExceptionHandler(value = { Exception.class })
   public ResponseEntity<ErrorMessage> handleUnhandledException(Exception exception) {
     exception.printStackTrace();

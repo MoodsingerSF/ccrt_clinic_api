@@ -32,7 +32,7 @@ public class OtpBlacklistEntity {
   @CreationTimestamp
   private Date timeOfBlocking;
 
-  @Column(nullable = false)
+  @Column(nullable = true)
   @Temporal(TemporalType.TIMESTAMP)
   private Date timeOfUnblocking;
 

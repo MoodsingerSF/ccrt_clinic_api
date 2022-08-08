@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Component
 public class FileUploadUtil {
   public static final String BLOG_UPLOAD_DIR = "blogs";
+  public static final String PROFILE_PICTURE_UPLOAD_DIR = "users";
 
   public String saveFile(String uploadDir, String fileName,
       MultipartFile multipartFile) throws IOException {

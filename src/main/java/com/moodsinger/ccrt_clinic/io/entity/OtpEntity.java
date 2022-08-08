@@ -22,7 +22,7 @@ public class OtpEntity {
   private long id;
 
   @Column(nullable = false, length = 30)
-  private String otp_id;
+  private String otpId;
 
   @Column(nullable = false, length = 120)
   private String email;
@@ -45,14 +45,6 @@ public class OtpEntity {
 
   public void setId(long id) {
     this.id = id;
-  }
-
-  public String getOtp_id() {
-    return otp_id;
-  }
-
-  public void setOtp_id(String otp_id) {
-    this.otp_id = otp_id;
   }
 
   public String getEmail() {
@@ -93,5 +85,13 @@ public class OtpEntity {
 
   public void setOtpUsedAt(Date otpUsedAt) {
     this.otpUsedAt = otpUsedAt;
+  }
+
+  public String getOtpId() {
+    return otpId;
+  }
+
+  public void setOtpId(String otpId) {
+    this.otpId = otpId;
   }
 }

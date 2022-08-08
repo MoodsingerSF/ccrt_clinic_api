@@ -43,6 +43,9 @@ public class UserEntity {
   @Column(nullable = false)
   private String encryptedPassword;
 
+  @Column(nullable = true)
+  private String profileImageUrl;
+
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
   private VerificationStatus verificationStatus = VerificationStatus.PENDING;
@@ -124,6 +127,14 @@ public class UserEntity {
 
   public void setVerificationStatus(VerificationStatus verificationStatus) {
     this.verificationStatus = verificationStatus;
+  }
+
+  public String getProfileImageUrl() {
+    return profileImageUrl;
+  }
+
+  public void setProfileImageUrl(String profileImageUrl) {
+    this.profileImageUrl = profileImageUrl;
   }
 
 }

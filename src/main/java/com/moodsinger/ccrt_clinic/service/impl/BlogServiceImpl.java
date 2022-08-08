@@ -27,8 +27,10 @@ import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorMessages;
 import com.moodsinger.ccrt_clinic.io.entity.BlogEntity;
 import com.moodsinger.ccrt_clinic.io.entity.TagEntity;
 import com.moodsinger.ccrt_clinic.io.entity.UserEntity;
+import com.moodsinger.ccrt_clinic.io.enums.VerificationStatus;
 import com.moodsinger.ccrt_clinic.io.repository.BlogRepository;
 import com.moodsinger.ccrt_clinic.io.repository.UserRepository;
+import com.moodsinger.ccrt_clinic.model.request.BlogVerificationStatusUpdateRequestModel;
 import com.moodsinger.ccrt_clinic.service.BlogService;
 import com.moodsinger.ccrt_clinic.service.TagService;
 import com.moodsinger.ccrt_clinic.shared.FileUploadUtil;
@@ -104,10 +106,10 @@ public class BlogServiceImpl implements BlogService {
   }
 
   @Override
-  public List<BlogDto> getBlogs(int page, int limit) {
+  public List<BlogDto> getBlogs(int page, int limit, VerificationStatus verificationStatus) {
     List<BlogDto> blogs = new ArrayList<>();
     Pageable pageable = PageRequest.of(page, limit, Sort.by("id").descending());
-    Slice<BlogEntity> pageElements = blogRepository.findAll(pageable);
+    Slice<BlogEntity> pageElements = blogRepository.findAllByVerificationStatus(verificationStatus, pageable);
     List<BlogEntity> blogEntities = pageElements.getContent();
     for (BlogEntity blogEntity : blogEntities) {
       blogs.add(modelMapper.map(blogEntity, BlogDto.class));
@@ -179,7 +181,7 @@ public class BlogServiceImpl implements BlogService {
   }
 
   private String getImageUrl(String blogId, String fileName) {
-    return appProperties.getProperty("baseUrl") + blogId + "/index." + utils.getFileExtension(fileName);
+    return appProperties.getProperty("baseUrl") + "blogs/" + blogId + "/index." + utils.getFileExtension(fileName);
   }
 
   private String getFileName(String fileName) {
@@ -190,7 +192,8 @@ public class BlogServiceImpl implements BlogService {
   public List<BlogDto> getBlogs(int page, int limit, String tag) {
 
     Pageable pageable = PageRequest.of(page, limit);
-    Page<BlogEntity> pageEntities = blogRepository.findByTagsName(tag, pageable);
+    Page<BlogEntity> pageEntities = blogRepository.findByTagsNameAndVerificationStatus(tag, VerificationStatus.ACCEPTED,
+        pageable);
     List<BlogEntity> blogEntities = pageEntities.getContent();
     List<BlogDto> blogs = new ArrayList<>();
     for (BlogEntity blogEntity : blogEntities) {
@@ -223,13 +226,31 @@ public class BlogServiceImpl implements BlogService {
       tagIds.add(tagEntity.getId());
     }
     Pageable pageable = PageRequest.of(page, limit, Sort.by("id").descending());
-    Page<BlogEntity> pageBlogEntities = blogRepository.findBlogsByTagList(tagIds, pageable);
+    Page<BlogEntity> pageBlogEntities = blogRepository.findBlogsByTagList(tagIds, VerificationStatus.ACCEPTED,
+        pageable);
     List<BlogEntity> blogEntities = pageBlogEntities.getContent();
     List<BlogDto> blogDtos = new ArrayList<>();
     for (BlogEntity blogEntity : blogEntities) {
       blogDtos.add(modelMapper.map(blogEntity, BlogDto.class));
     }
     return blogDtos;
+  }
+
+  @Override
+  public BlogDto updateBlogVerificationStatus(String blogId,
+      BlogVerificationStatusUpdateRequestModel blogVerificationStatusUpdateRequestModel) {
+    BlogEntity foundBlogEntity = blogRepository.findByBlogId(blogId);
+    if (foundBlogEntity == null) {
+      throw new BlogServiceException(ExceptionErrorCodes.BLOG_NOT_FOUND.name(),
+          ExceptionErrorMessages.BLOG_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
+    }
+    if (blogVerificationStatusUpdateRequestModel.getVerificationStatus().equals(VerificationStatus.ACCEPTED.name()))
+      foundBlogEntity.setVerificationStatus(VerificationStatus.ACCEPTED);
+    if (blogVerificationStatusUpdateRequestModel.getVerificationStatus().equals(VerificationStatus.REJECTED.name()))
+      foundBlogEntity.setVerificationStatus(VerificationStatus.REJECTED);
+    BlogEntity updatedBlogEntity = blogRepository.save(foundBlogEntity);
+    BlogDto updatedBlogDto = modelMapper.map(updatedBlogEntity, BlogDto.class);
+    return updatedBlogDto;
   }
 
 }

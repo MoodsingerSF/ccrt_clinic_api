@@ -14,6 +14,8 @@ public class UserDto {
   private String userType;
   private String role;
   private String verificationStatus;
+  private String profileImageUrl;
+  private String code;
 
   public String getUserId() {
     return userId;
@@ -101,5 +103,21 @@ public class UserDto {
 
   public void setId(long id) {
     this.id = id;
+  }
+
+  public String getProfileImageUrl() {
+    return profileImageUrl;
+  }
+
+  public void setProfileImageUrl(String profileImageUrl) {
+    this.profileImageUrl = profileImageUrl;
+  }
+
+  public String getCode() {
+    return code;
+  }
+
+  public void setCode(String code) {
+    this.code = code;
   }
 }

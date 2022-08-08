@@ -3,11 +3,13 @@ package com.moodsinger.ccrt_clinic.controllers;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.moodsinger.ccrt_clinic.exceptions.UserServiceException;
 import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorCodes;
 import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorMessages;
 import com.moodsinger.ccrt_clinic.io.enums.Role;
+import com.moodsinger.ccrt_clinic.io.enums.VerificationStatus;
 import com.moodsinger.ccrt_clinic.model.request.UserSignupRequestModel;
 import com.moodsinger.ccrt_clinic.model.request.UserUpdateRequestModel;
 import com.moodsinger.ccrt_clinic.model.response.UserRest;
@@ -15,9 +17,13 @@ import com.moodsinger.ccrt_clinic.service.UserService;
 import com.moodsinger.ccrt_clinic.shared.Utils;
 import com.moodsinger.ccrt_clinic.shared.dto.UserDto;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,14 +39,15 @@ public class UserController {
   @Autowired
   private Utils utils;
 
+  @Autowired
+  private ModelMapper modelMapper;
+
   @PostMapping
   public UserRest createUser(@RequestBody UserSignupRequestModel userSignupRequestModel) {
-    System.out.println(userSignupRequestModel);
     // check validity of request
     checkUserSignupRequestBody(userSignupRequestModel, false);
 
     // create user
-    ModelMapper modelMapper = new ModelMapper();
     UserDto userDto = modelMapper.map(userSignupRequestModel, UserDto.class);
 
     // save user
@@ -57,6 +64,19 @@ public class UserController {
     return userRest;
   }
 
+  @GetMapping("/doctors")
+  public List<UserRest> getDoctors(
+      @RequestParam(name = "page", defaultValue = "0", required = false) int page,
+      @RequestParam(name = "limit", defaultValue = "15", required = false) int limit,
+      @RequestParam(value = "status", required = false, defaultValue = "ACCEPTED") VerificationStatus verificationStatus) {
+    List<UserDto> foundDoctors = userService.getDoctors(page, limit, verificationStatus);
+    List<UserRest> foundDoctorsRest = new ArrayList<>();
+    for (UserDto userDto : foundDoctors) {
+      foundDoctorsRest.add(modelMapper.map(userDto, UserRest.class));
+    }
+    return foundDoctorsRest;
+  }
+
   @GetMapping("/{userId}")
   public UserRest getUserDetails(@PathVariable String userId) {
     UserDto foundUserDto = userService.getUserByUserId(userId);
@@ -68,7 +88,6 @@ public class UserController {
   public UserRest updateUserDetails(@PathVariable String userId,
       @RequestBody UserUpdateRequestModel userUpdateRequestModel) {
 
-    ModelMapper modelMapper = new ModelMapper();
     UserDto updateRequestDto = modelMapper.map(userUpdateRequestModel, UserDto.class);
     UserDto foundUserDto = userService.updateUser(userId, updateRequestDto);
     UserRest userRest = new ModelMapper().map(foundUserDto, UserRest.class);
@@ -76,11 +95,18 @@ public class UserController {
 
   }
 
+  @PutMapping(path = "/{userId}/profile-picture", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+  public UserRest updateProfilePicture(@PathVariable String userId,
+      @RequestParam("image") MultipartFile image) {
+    UserDto createdUserDto = userService.updateProfilePicture(userId, image);
+    UserRest createdUserRest = modelMapper.map(createdUserDto, UserRest.class);
+    return createdUserRest;
+
+  }
+
   @PutMapping("/{userId}/role")
   public UserRest updateUserRole(@PathVariable String userId,
       @RequestBody UserUpdateRequestModel userUpdateRequestModel) {
-
-    ModelMapper modelMapper = new ModelMapper();
     UserDto updateRequestDto = modelMapper.map(userUpdateRequestModel, UserDto.class);
     UserDto foundUserDto = userService.updateUserRole(userId, updateRequestDto);
     UserRest userRest = new ModelMapper().map(foundUserDto, UserRest.class);
@@ -91,7 +117,6 @@ public class UserController {
   public UserRest updateUserVerificationStatus(@PathVariable String userId,
       @RequestBody UserUpdateRequestModel userUpdateRequestModel) {
 
-    ModelMapper modelMapper = new ModelMapper();
     UserDto updateRequestDto = modelMapper.map(userUpdateRequestModel, UserDto.class);
     UserDto foundUserDto = userService.updateUserVerificationStatus(userId, updateRequestDto);
     UserRest userRest = new ModelMapper().map(foundUserDto, UserRest.class);
@@ -103,7 +128,6 @@ public class UserController {
     checkUserSignupRequestBody(userSignupRequestModel, true);
     userSignupRequestModel.setUserType(Role.ADMIN.name());
     // create user
-    ModelMapper modelMapper = new ModelMapper();
     UserDto userDto = modelMapper.map(userSignupRequestModel, UserDto.class);
 
     // save user

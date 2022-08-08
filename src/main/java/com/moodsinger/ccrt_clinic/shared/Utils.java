@@ -1,6 +1,9 @@
 package com.moodsinger.ccrt_clinic.shared;
 
 import java.security.SecureRandom;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
@@ -21,19 +24,28 @@ public class Utils {
 
   private Random random = new SecureRandom();
   private final String ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+  private final String DIGITS = "0123456789";
+
+  public String generateOtpCode(int length) {
+    return generateRandomString(length, DIGITS);
+  }
+
+  public String generateOtpId(int length) {
+    return generateRandomString(length, ALPHABET);
+  }
 
   public String generateUserId(int length) {
-    return generateRandomString(length);
+    return generateRandomString(length, ALPHABET);
   }
 
   public String generateBlogId(int length) {
-    return generateRandomString(length);
+    return generateRandomString(length, ALPHABET);
   }
 
-  private String generateRandomString(int length) {
+  private String generateRandomString(int length, String alphabet) {
     StringBuilder stringBuilder = new StringBuilder();
     for (int i = 0; i < length; i++) {
-      stringBuilder.append(ALPHABET.charAt(random.nextInt(ALPHABET.length())));
+      stringBuilder.append(alphabet.charAt(random.nextInt(alphabet.length())));
     }
     return stringBuilder.toString();
   }
@@ -78,5 +90,14 @@ public class Utils {
       extension = stringTokenizer.nextToken();
     }
     return extension;
+  }
+
+  public long findDifference(Date start_date,
+      Date end_date) {
+    long difference_In_Time = end_date.getTime() - start_date.getTime();
+    long difference_In_Minutes = (difference_In_Time
+        / (1000 * 60))
+        % 60;
+    return difference_In_Minutes;
   }
 }

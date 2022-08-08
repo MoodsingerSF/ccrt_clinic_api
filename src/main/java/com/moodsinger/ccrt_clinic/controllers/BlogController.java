@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +19,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.moodsinger.ccrt_clinic.io.enums.VerificationStatus;
 import com.moodsinger.ccrt_clinic.model.request.BlogCreationRequestModel;
+import com.moodsinger.ccrt_clinic.model.request.BlogVerificationStatusUpdateRequestModel;
 import com.moodsinger.ccrt_clinic.model.response.BlogRest;
 import com.moodsinger.ccrt_clinic.service.BlogService;
 import com.moodsinger.ccrt_clinic.shared.dto.BlogDto;
@@ -49,11 +50,12 @@ public class BlogController {
   @GetMapping
   public List<BlogRest> getBlogs(@RequestParam(name = "page", defaultValue = "0", required = false) int page,
       @RequestParam(name = "limit", defaultValue = "15", required = false) int limit,
-      @RequestParam(name = "tag", required = false) String tag) {
+      @RequestParam(name = "tag", required = false) String tag,
+      @RequestParam(name = "status", required = false, defaultValue = "ACCEPTED") VerificationStatus verificationStatus) {
     List<BlogRest> returnedBlogs = new ArrayList<>();
     List<BlogDto> currentPageBlogs;
     if (tag == null) {
-      currentPageBlogs = blogService.getBlogs(page, limit);
+      currentPageBlogs = blogService.getBlogs(page, limit, verificationStatus);
     } else {
       currentPageBlogs = blogService.getBlogs(page, limit, tag);
     }
@@ -84,6 +86,14 @@ public class BlogController {
   public ResponseEntity<String> deleteBlog(@PathVariable String blogId) {
     blogService.deleteBlog(blogId);
     return new ResponseEntity<>("SUCCESS", HttpStatus.NO_CONTENT);
+  }
+
+  @PutMapping(path = "/{blogId}/verification-status")
+  public BlogRest updateUserVerificationStatus(@PathVariable String blogId,
+      @RequestBody BlogVerificationStatusUpdateRequestModel blogVerificationStatusUpdateRequestModel) {
+    BlogDto updatedBlogDto = blogService.updateBlogVerificationStatus(blogId, blogVerificationStatusUpdateRequestModel);
+    BlogRest updatedBlogRest = modelMapper.map(updatedBlogDto, BlogRest.class);
+    return updatedBlogRest;
   }
 
   @GetMapping(path = "/{blogId}/related-blogs")

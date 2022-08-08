@@ -10,13 +10,18 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.moodsinger.ccrt_clinic.io.entity.BlogEntity;
+import com.moodsinger.ccrt_clinic.io.enums.VerificationStatus;
 
 @Repository
 public interface BlogRepository extends PagingAndSortingRepository<BlogEntity, Long> {
   BlogEntity findByBlogId(String blogId);
 
-  Page<BlogEntity> findByTagsName(String name, Pageable pageable);
+  Page<BlogEntity> findAllByVerificationStatus(VerificationStatus verificationStatus, Pageable pageable);
 
-  @Query("select distinct b from BlogEntity b join b.tags t where t.id in :tagIds")
-  Page<BlogEntity> findBlogsByTagList(@Param("tagIds") List<Long> tagIds, Pageable pageable);
+  Page<BlogEntity> findByTagsNameAndVerificationStatus(String name, VerificationStatus verificationStatus,
+      Pageable pageable);
+
+  @Query("select distinct b from BlogEntity b join b.tags t where t.id in :tagIds and b.verificationStatus=:verificationStatus")
+  Page<BlogEntity> findBlogsByTagList(@Param("tagIds") List<Long> tagIds,
+      @Param("verificationStatus") VerificationStatus verificationStatus, Pageable pageable);
 }

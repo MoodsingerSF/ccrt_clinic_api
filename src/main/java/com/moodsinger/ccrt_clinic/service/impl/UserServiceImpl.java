@@ -1,5 +1,7 @@
 package com.moodsinger.ccrt_clinic.service.impl;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -7,6 +9,9 @@ import java.util.Set;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -15,7 +20,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.moodsinger.ccrt_clinic.AppProperties;
 import com.moodsinger.ccrt_clinic.exceptions.UserServiceException;
 import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorCodes;
 import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorMessages;
@@ -26,6 +34,7 @@ import com.moodsinger.ccrt_clinic.io.enums.VerificationStatus;
 import com.moodsinger.ccrt_clinic.io.repository.UserRepository;
 import com.moodsinger.ccrt_clinic.service.RoleService;
 import com.moodsinger.ccrt_clinic.service.UserService;
+import com.moodsinger.ccrt_clinic.shared.FileUploadUtil;
 import com.moodsinger.ccrt_clinic.shared.Utils;
 import com.moodsinger.ccrt_clinic.shared.dto.RoleDto;
 import com.moodsinger.ccrt_clinic.shared.dto.UserDto;
@@ -43,7 +52,16 @@ public class UserServiceImpl implements UserService {
   private Utils utils;
 
   @Autowired
+  private FileUploadUtil fileUploadUtil;
+
+  @Autowired
   private BCryptPasswordEncoder bCryptPasswordEncoder;
+
+  @Autowired
+  private AppProperties appProperties;
+
+  @Autowired
+  private ModelMapper modelMapper;
 
   @Transactional
   @Override
@@ -54,8 +72,10 @@ public class UserServiceImpl implements UserService {
     // adding public user id
     userEntity.setUserId(utils.generateUserId(30));
     userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(userDetails.getPassword()));
+    if (userDetails.getRole().equals(Role.USER.name())) {
+      userEntity.setVerificationStatus(VerificationStatus.ACCEPTED);
+    }
 
-    System.out.println("----------------" + userDetails.getUserType() + "------------------");
     Set<RoleEntity> roles = new HashSet<>();
     RoleEntity role = modelMapper.map(
         roleService.getOrCreateRole(userDetails.getUserType().equals(Role.ADMIN.name()) ? Role.ADMIN
@@ -115,7 +135,9 @@ public class UserServiceImpl implements UserService {
     for (RoleEntity role : roles) {
       authorities.add(new SimpleGrantedAuthority(role.getName().name()));
     }
-    return new User(foundUserEntity.getEmail(), foundUserEntity.getEncryptedPassword(), authorities);
+    return new User(foundUserEntity.getEmail(), foundUserEntity.getEncryptedPassword(),
+        foundUserEntity.getVerificationStatus().equals(VerificationStatus.ACCEPTED), true, true, true,
+        authorities);
   }
 
   @Override
@@ -167,6 +189,50 @@ public class UserServiceImpl implements UserService {
     UserEntity updatedUserEntity = userRepository.save(foundUserEntity);
     UserDto userDto = new ModelMapper().map(updatedUserEntity, UserDto.class);
     return userDto;
+  }
+
+  @Override
+  public UserDto updateProfilePicture(String userId, MultipartFile image) {
+    UserEntity foundUserEntity = userRepository.findByUserId(userId);
+    if (foundUserEntity == null) {
+      throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
+          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
+    }
+    String fileName = StringUtils.cleanPath(image.getOriginalFilename());
+    try {
+      fileUploadUtil.saveFile(FileUploadUtil.PROFILE_PICTURE_UPLOAD_DIR + File.separator + userId,
+          getFileName(fileName), image);
+      foundUserEntity
+          .setProfileImageUrl(getImageUrl(userId, fileName));
+      UserEntity savedUserEntity = userRepository.save(foundUserEntity);
+      UserDto userDto = modelMapper.map(savedUserEntity, UserDto.class);
+      return userDto;
+    } catch (IOException e) {
+      throw new UserServiceException(ExceptionErrorCodes.FILE_SAVE_ERROR.name(),
+          ExceptionErrorMessages.FILE_SAVE_ERROR.getMessage());
+    }
+
+  }
+
+  private String getImageUrl(String userId, String fileName) {
+    return appProperties.getProperty("baseUrl") + "users/" + userId + "/index." + utils.getFileExtension(fileName);
+  }
+
+  private String getFileName(String fileName) {
+    return "index." + utils.getFileExtension(fileName);
+  }
+
+  @Override
+  public List<UserDto> getDoctors(int page, int limit, VerificationStatus verificationStatus) {
+    Pageable pageable = PageRequest.of(page, limit);
+    Page<UserEntity> foundDoctorsPage = userRepository.findByRoleAndVerificationStatus(Role.DOCTOR, verificationStatus,
+        pageable);
+    List<UserEntity> foundDoctors = foundDoctorsPage.getContent();
+    List<UserDto> foundDoctorsDto = new ArrayList<>();
+    for (UserEntity userEntity : foundDoctors) {
+      foundDoctorsDto.add(modelMapper.map(userEntity, UserDto.class));
+    }
+    return foundDoctorsDto;
   }
 
 }

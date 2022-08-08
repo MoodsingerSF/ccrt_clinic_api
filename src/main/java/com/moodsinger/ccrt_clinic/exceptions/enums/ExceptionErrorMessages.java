@@ -10,8 +10,12 @@ public enum ExceptionErrorMessages {
   REQUIRED_REQUEST_BODY("Request body is required."),
   MALFORMED_JSON_BODY("Request is not well formed."),
   FILE_SAVE_ERROR("The file couldn't be saved."),
+  OTP_CODE_EXPIRED("Otp code has expired."),
+  OTP_CODE_MISMATCH("Otp code hasn't matched."),
   BLOG_NOT_FOUND(
       "The blog you are looking for is not available. It may have been removed or you are looking for an invalid blog."),
+  USER_OTP_SERVICE_BLOCKED(
+      "Too many requests within a short amount of time. User is blocked temporarily. Please try again later."),
   USER_TYPE_NOT_VALID("User type is not valid.");
 
   private String message;
