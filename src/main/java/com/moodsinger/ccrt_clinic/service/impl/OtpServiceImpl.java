@@ -47,7 +47,7 @@ public class OtpServiceImpl implements OtpService {
     List<OtpBlacklistEntity> foundEntries = otpBlacklistRepository.findAllByEmail(otpDto.getEmail());
     boolean isBlocked = false;
     for (OtpBlacklistEntity otpBlacklistEntity : foundEntries) {
-      if (utils.findDifference(otpBlacklistEntity.getTimeOfBlocking(), new Date()) <= Long
+      if (utils.findDifferenceBetweenDatesInMinute(otpBlacklistEntity.getTimeOfBlocking(), new Date()) <= Long
           .parseLong(appProperties.getProperty("blockDuration"))) {
         isBlocked = true;
       }
@@ -56,7 +56,7 @@ public class OtpServiceImpl implements OtpService {
       List<OtpEntity> allOtps = otpRepository.findAllByEmail(otpDto.getEmail());
       long otpTries = 0;
       for (OtpEntity otpEntity : allOtps) {
-        if (utils.findDifference(otpEntity.getCreationTime(), new Date()) <= Long
+        if (utils.findDifferenceBetweenDatesInMinute(otpEntity.getCreationTime(), new Date()) <= Long
             .parseLong(appProperties.getProperty("blockDuration"))) {
           otpTries++;
         }
@@ -85,14 +85,14 @@ public class OtpServiceImpl implements OtpService {
   public void validateOtp(OtpDto otpDto) {
     OtpEntity otpEntity = otpRepository.findByOtpId(otpDto.getOtpId());
 
-    if (utils.findDifference(otpEntity.getCreationTime(), new Date()) > Long
+    if (utils.findDifferenceBetweenDatesInMinute(otpEntity.getCreationTime(), new Date()) > Long
         .parseLong(appProperties.getProperty("blockDuration"))) {
       throw new OtpServiceException(ExceptionErrorCodes.OTP_CODE_EXPIRED.name(),
-          ExceptionErrorMessages.OTP_CODE_EXPIRED.getMessage(), HttpStatus.OK);
+          ExceptionErrorMessages.OTP_CODE_EXPIRED.getMessage(), HttpStatus.EXPECTATION_FAILED);
     }
     if (!otpDto.getCode().equals(otpEntity.getCode())) {
       throw new OtpServiceException(ExceptionErrorCodes.OTP_CODE_MISMATCH.name(),
-          ExceptionErrorMessages.OTP_CODE_MISMATCH.getMessage(), HttpStatus.OK);
+          ExceptionErrorMessages.OTP_CODE_MISMATCH.getMessage(), HttpStatus.EXPECTATION_FAILED);
     }
 
   }

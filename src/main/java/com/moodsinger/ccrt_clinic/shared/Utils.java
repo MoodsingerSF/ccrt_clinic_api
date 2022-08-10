@@ -92,12 +92,14 @@ public class Utils {
     return extension;
   }
 
-  public long findDifference(Date start_date,
+  public long findDifferenceBetweenDatesInMinute(Date start_date,
       Date end_date) {
+
     long difference_In_Time = end_date.getTime() - start_date.getTime();
     long difference_In_Minutes = (difference_In_Time
-        / (1000 * 60))
-        % 60;
+        / (1000 * 60));
+    // System.out.println("..............difference_In_Minutes = " +
+    // difference_In_Minutes + "....................");
     return difference_In_Minutes;
   }
 }

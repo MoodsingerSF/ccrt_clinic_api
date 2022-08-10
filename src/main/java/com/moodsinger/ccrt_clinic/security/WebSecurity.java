@@ -35,8 +35,10 @@ public class WebSecurity {
     AuthenticationConfiguration authenticationConfiguration = httpSecurity
         .getSharedObject(AuthenticationConfiguration.class);
 
-    httpSecurity.csrf().disable().authorizeRequests().antMatchers(HttpMethod.POST, SecurityConstants.SIGN_UP_URL)
+    httpSecurity.cors().and().csrf().disable().authorizeRequests()
+        .antMatchers(HttpMethod.POST, SecurityConstants.SIGN_UP_URL)
         .permitAll()
+        .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
         .antMatchers(HttpMethod.GET, SecurityConstants.SIGN_UP_URL)
         .hasAnyAuthority(Role.ADMIN.name())
         .antMatchers(HttpMethod.POST, "/users/admin")
@@ -57,6 +59,8 @@ public class WebSecurity {
         .permitAll()
         .antMatchers(HttpMethod.POST, "/otp")
         .permitAll()
+        // .antMatchers(HttpMethod.OPTIONS, "/otp")
+        // .permitAll()
         .antMatchers(HttpMethod.POST, "/otp/validation")
         .permitAll()
         .antMatchers(HttpMethod.POST, SecurityConstants.LOG_IN_URL).permitAll().anyRequest()
@@ -75,10 +79,11 @@ public class WebSecurity {
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     final CorsConfiguration corsConfiguration = new CorsConfiguration();
-    corsConfiguration.setAllowedOrigins(Arrays.asList("http://localhost:8080"));
-    corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "DELETE", "PUT"));
-    corsConfiguration.setAllowCredentials(true);
+    corsConfiguration.setAllowedOrigins(Arrays.asList("*"));
+    corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "DELETE", "PUT", "OPTIONS"));
+    corsConfiguration.setAllowCredentials(false);
     corsConfiguration.setAllowedHeaders(Arrays.asList("*"));
+    corsConfiguration.setExposedHeaders(Arrays.asList("Authorization", "UserId"));
 
     Map<String, CorsConfiguration> mapping = new HashMap<>();
     mapping.put("/**", corsConfiguration);
