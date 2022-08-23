@@ -1,8 +1,6 @@
 package com.moodsinger.ccrt_clinic.shared;
 
 import java.security.SecureRandom;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
 import java.util.StringTokenizer;

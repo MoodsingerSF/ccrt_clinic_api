@@ -72,7 +72,7 @@ public class UserServiceImpl implements UserService {
     // adding public user id
     userEntity.setUserId(utils.generateUserId(30));
     userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(userDetails.getPassword()));
-    if (userDetails.getUserType().equals(Role.USER.name())) {
+    if (userDetails.getUserType().equals(Role.USER.name()) || userDetails.getUserType().equals(Role.ADMIN.name())) {
       userEntity.setVerificationStatus(VerificationStatus.ACCEPTED);
     }
 

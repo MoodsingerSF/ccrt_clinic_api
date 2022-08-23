@@ -23,4 +23,6 @@ public interface BlogService {
 
   BlogDto updateBlogVerificationStatus(String blogId,
       BlogVerificationStatusUpdateRequestModel blogVerificationStatusUpdateRequestModel);
+
+  long getBlogCount(VerificationStatus verificationStatus);
 }

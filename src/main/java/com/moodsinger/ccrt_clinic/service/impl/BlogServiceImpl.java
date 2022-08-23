@@ -253,4 +253,10 @@ public class BlogServiceImpl implements BlogService {
     return updatedBlogDto;
   }
 
+  @Override
+  public long getBlogCount(VerificationStatus verificationStatus) {
+    long cnt = blogRepository.countByVerificationStatus(verificationStatus);
+    return cnt;
+  }
+
 }

@@ -18,6 +18,7 @@ public class BlogDto {
   private Date creationTime;
   private MultipartFile image;
   private Set<TagDto> tags = new HashSet<>();
+  private int totalBlogs;
 
   public BlogDto() {
   }
@@ -107,6 +108,14 @@ public class BlogDto {
 
   public void setTags(Set<TagDto> tags) {
     this.tags = tags;
+  }
+
+  public int getTotalBlogs() {
+    return this.totalBlogs;
+  }
+
+  public void setTotalBlogs(int totalBlogs) {
+    this.totalBlogs = totalBlogs;
   }
 
 }

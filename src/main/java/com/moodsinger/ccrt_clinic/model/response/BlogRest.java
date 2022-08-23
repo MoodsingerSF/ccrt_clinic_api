@@ -11,6 +11,7 @@ public class BlogRest {
   private Set<TagRest> tags;
   private UserRest creator;
   private Date creationTime;
+  private int totalBlogs;
 
   public String getBlogId() {
     return blogId;
@@ -66,5 +67,13 @@ public class BlogRest {
 
   public void setTags(Set<TagRest> tags) {
     this.tags = tags;
+  }
+
+  public int getTotalBlogs() {
+    return totalBlogs;
+  }
+
+  public void setTotalBlogs(int totalBlogs) {
+    this.totalBlogs = totalBlogs;
   }
 }

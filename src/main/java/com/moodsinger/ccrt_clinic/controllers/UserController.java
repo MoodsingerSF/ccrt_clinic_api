@@ -12,9 +12,14 @@ import com.moodsinger.ccrt_clinic.io.enums.Role;
 import com.moodsinger.ccrt_clinic.io.enums.VerificationStatus;
 import com.moodsinger.ccrt_clinic.model.request.UserSignupRequestModel;
 import com.moodsinger.ccrt_clinic.model.request.UserUpdateRequestModel;
+import com.moodsinger.ccrt_clinic.model.response.BlogRest;
+import com.moodsinger.ccrt_clinic.model.response.RoleRest;
 import com.moodsinger.ccrt_clinic.model.response.UserRest;
+import com.moodsinger.ccrt_clinic.service.UserBlogService;
 import com.moodsinger.ccrt_clinic.service.UserService;
 import com.moodsinger.ccrt_clinic.shared.Utils;
+import com.moodsinger.ccrt_clinic.shared.dto.BlogDto;
+import com.moodsinger.ccrt_clinic.shared.dto.RoleDto;
 import com.moodsinger.ccrt_clinic.shared.dto.UserDto;
 
 import java.util.ArrayList;
@@ -41,6 +46,9 @@ public class UserController {
 
   @Autowired
   private ModelMapper modelMapper;
+
+  @Autowired
+  private UserBlogService userBlogService;
 
   @PostMapping
   public UserRest createUser(@RequestBody UserSignupRequestModel userSignupRequestModel) {
@@ -129,12 +137,23 @@ public class UserController {
     userSignupRequestModel.setUserType(Role.ADMIN.name());
     // create user
     UserDto userDto = modelMapper.map(userSignupRequestModel, UserDto.class);
-
     // save user
     UserDto createdUserDto = userService.createUser(userDto);
     // returning created user
     UserRest userRest = modelMapper.map(createdUserDto, UserRest.class);
     return userRest;
+  }
+
+  @GetMapping("/{userId}/blogs")
+  public List<BlogRest> getUserBlogs(@PathVariable String userId,
+      @RequestParam(name = "page", defaultValue = "0", required = false) int page,
+      @RequestParam(name = "limit", defaultValue = "15", required = false) int limit) {
+    List<BlogDto> blogDtos = userBlogService.getUserBlogs(userId, page, limit);
+    List<BlogRest> blogRests = new ArrayList<>();
+    for (BlogDto blogDto : blogDtos) {
+      blogRests.add(modelMapper.map(blogDto, BlogRest.class));
+    }
+    return blogRests;
   }
 
   private void checkUserSignupRequestBody(UserSignupRequestModel userSignupRequestModel, boolean isUserTypeOptional) {

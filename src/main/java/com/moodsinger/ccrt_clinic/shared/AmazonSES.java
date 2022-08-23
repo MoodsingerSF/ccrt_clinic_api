@@ -10,7 +10,6 @@ import com.amazonaws.services.simpleemail.model.Content;
 import com.amazonaws.services.simpleemail.model.Destination;
 import com.amazonaws.services.simpleemail.model.Message;
 import com.amazonaws.services.simpleemail.model.SendEmailRequest;
-import com.moodsinger.ccrt_clinic.shared.dto.UserDto;
 
 @Component
 public class AmazonSES {

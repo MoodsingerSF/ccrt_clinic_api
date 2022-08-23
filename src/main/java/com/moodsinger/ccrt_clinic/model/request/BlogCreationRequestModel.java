@@ -2,14 +2,11 @@ package com.moodsinger.ccrt_clinic.model.request;
 
 import java.util.List;
 
-import org.springframework.web.multipart.MultipartFile;
-
 public class BlogCreationRequestModel {
   private String title;
   private String description;
   private List<String> tagStrings;
   private String creatorUserId;
-  private MultipartFile image;
 
   public String getTitle() {
     return title;
@@ -25,14 +22,6 @@ public class BlogCreationRequestModel {
 
   public void setDescription(String description) {
     this.description = description;
-  }
-
-  public MultipartFile getImage() {
-    return image;
-  }
-
-  public void setImage(MultipartFile image) {
-    this.image = image;
   }
 
   public String getCreatorUserId() {
@@ -53,8 +42,8 @@ public class BlogCreationRequestModel {
 
   @Override
   public String toString() {
-    return "BlogCreationRequestModel [creatorUserId=" + creatorUserId + ", description=" + description + ", image="
-        + image + ", tagStrings=" + tagStrings + ", title=" + title + "]";
+    return "BlogCreationRequestModel [creatorUserId=" + creatorUserId + ", description=" + description + ", tagStrings="
+        + tagStrings + ", title=" + title + "]";
   }
 
 }

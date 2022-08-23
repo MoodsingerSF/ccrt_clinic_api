@@ -1,11 +1,16 @@
 package com.moodsinger.ccrt_clinic.model.response;
 
+import java.util.Set;
+
+import com.moodsinger.ccrt_clinic.shared.dto.RoleDto;
+
 public class UserRest {
   private String userId;
   private String firstName;
   private String lastName;
   private String email;
   private String profileImageUrl;
+  private Set<RoleDto> roles;
 
   public String getUserId() {
     return userId;
@@ -45,6 +50,14 @@ public class UserRest {
 
   public void setProfileImageUrl(String profileImageUrl) {
     this.profileImageUrl = profileImageUrl;
+  }
+
+  public Set<RoleDto> getRoles() {
+    return roles;
+  }
+
+  public void setRoles(Set<RoleDto> roles) {
+    this.roles = roles;
   }
 
 }
