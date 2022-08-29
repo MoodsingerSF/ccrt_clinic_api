@@ -14,6 +14,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+// import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -59,14 +60,16 @@ public class WebSecurity {
         .permitAll()
         .antMatchers(HttpMethod.POST, "/otp")
         .permitAll()
-        // .antMatchers(HttpMethod.OPTIONS, "/otp")
-        // .permitAll()
+        .antMatchers(HttpMethod.GET, "/doctors/{userId}/schedule")
+        .permitAll()
         .antMatchers(HttpMethod.POST, "/otp/validation")
         .permitAll()
         .antMatchers(HttpMethod.POST, SecurityConstants.LOG_IN_URL).permitAll().anyRequest()
         .authenticated().and().addFilter(new AuthenticationFilter(authenticationManager(authenticationConfiguration)))
         .addFilter(new AuthorizationFilter(authenticationManager(authenticationConfiguration)))
         .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+    // .and().formLogin()
+    // .failureHandler(authenticationFailureHandler());
     return httpSecurity.build();
   }
 
@@ -75,6 +78,11 @@ public class WebSecurity {
       throws Exception {
     return authenticationConfiguration.getAuthenticationManager();
   }
+
+  // @Bean
+  // public AuthenticationFailureHandler authenticationFailureHandler() {
+  // return new CustomAuthenticationFailureHandler();
+  // }
 
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {

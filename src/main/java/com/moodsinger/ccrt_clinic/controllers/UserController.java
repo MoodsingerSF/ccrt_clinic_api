@@ -2,6 +2,7 @@ package com.moodsinger.ccrt_clinic.controllers;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -105,7 +106,7 @@ public class UserController {
 
   @PutMapping(path = "/{userId}/profile-picture", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
   public UserRest updateProfilePicture(@PathVariable String userId,
-      @RequestParam("image") MultipartFile image) {
+      @RequestPart("image") MultipartFile image) {
     UserDto createdUserDto = userService.updateProfilePicture(userId, image);
     UserRest createdUserRest = modelMapper.map(createdUserDto, UserRest.class);
     return createdUserRest;

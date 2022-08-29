@@ -1,6 +1,9 @@
 package com.moodsinger.ccrt_clinic.shared;
 
 import java.security.SecureRandom;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
 import java.util.StringTokenizer;
@@ -29,6 +32,14 @@ public class Utils {
   }
 
   public String generateOtpId(int length) {
+    return generateRandomString(length, ALPHABET);
+  }
+
+  public String generateSlotId(int length) {
+    return generateRandomString(length, ALPHABET);
+  }
+
+  public String generateDoctorScheduleId(int length) {
     return generateRandomString(length, ALPHABET);
   }
 
@@ -99,5 +110,10 @@ public class Utils {
     // System.out.println("..............difference_In_Minutes = " +
     // difference_In_Minutes + "....................");
     return difference_In_Minutes;
+  }
+
+  public Date getDateFromTimeString(String timeString) throws ParseException {
+    DateFormat formatter = new SimpleDateFormat("HH:mm:ss");
+    return formatter.parse(timeString);
   }
 }

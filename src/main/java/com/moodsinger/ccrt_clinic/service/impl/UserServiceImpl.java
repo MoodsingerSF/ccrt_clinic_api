@@ -32,6 +32,7 @@ import com.moodsinger.ccrt_clinic.io.entity.UserEntity;
 import com.moodsinger.ccrt_clinic.io.enums.Role;
 import com.moodsinger.ccrt_clinic.io.enums.VerificationStatus;
 import com.moodsinger.ccrt_clinic.io.repository.UserRepository;
+import com.moodsinger.ccrt_clinic.service.DoctorScheduleService;
 import com.moodsinger.ccrt_clinic.service.RoleService;
 import com.moodsinger.ccrt_clinic.service.UserService;
 import com.moodsinger.ccrt_clinic.shared.FileUploadUtil;
@@ -63,6 +64,9 @@ public class UserServiceImpl implements UserService {
   @Autowired
   private ModelMapper modelMapper;
 
+  @Autowired
+  private DoctorScheduleService doctorScheduleService;
+
   @Transactional
   @Override
   public UserDto createUser(UserDto userDetails) {
@@ -74,6 +78,8 @@ public class UserServiceImpl implements UserService {
     userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(userDetails.getPassword()));
     if (userDetails.getUserType().equals(Role.USER.name()) || userDetails.getUserType().equals(Role.ADMIN.name())) {
       userEntity.setVerificationStatus(VerificationStatus.ACCEPTED);
+    } else if (userDetails.getUserType().equals(Role.DOCTOR.name())) {
+      userEntity.setVerificationStatus(VerificationStatus.PENDING);
     }
 
     Set<RoleEntity> roles = new HashSet<>();
@@ -91,6 +97,11 @@ public class UserServiceImpl implements UserService {
     if (createdUserEntity == null)
       throw new UserServiceException(ExceptionErrorCodes.USER_NOT_CREATED.name(),
           ExceptionErrorMessages.USER_NOT_CREATED.getMessage());
+    else {
+      if (userDetails.getUserType().equals(Role.DOCTOR.name())) {
+        doctorScheduleService.initialize(createdUserEntity);
+      }
+    }
 
     UserDto userDto = modelMapper.map(createdUserEntity, UserDto.class);
     return userDto;

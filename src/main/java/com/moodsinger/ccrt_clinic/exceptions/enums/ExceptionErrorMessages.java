@@ -16,6 +16,13 @@ public enum ExceptionErrorMessages {
       "The blog you are looking for is not available. It may have been removed or you are looking for an invalid blog."),
   USER_OTP_SERVICE_BLOCKED(
       "Too many requests within a short amount of time. User is blocked temporarily. Please try again later."),
+  DOCTOR_SCHEDULE_CREATION_ERROR("Doctor schedule was not initialized properly."),
+  DOCTOR_REQUEST_PENDING_APPROVAL(
+      "Your request to sign up as a doctor is currently in review. You will be notified via email after the verification of your identity."),
+  SLOT_NOT_CREATED("Slot couldn't be created"),
+  SCHEDULE_NOT_FOUND("Schedule couldn't be found. Please sign up as a doctor."),
+  OVERLAPPING_SLOT("Overlapping slot is found."),
+  SLOT_NOT_FOUND("Slot couldn't be found."),
   USER_TYPE_NOT_VALID("User type is not valid.");
 
   private String message;
