@@ -1,5 +1,6 @@
 package com.moodsinger.ccrt_clinic.io.entity;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,7 +18,11 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
+import com.moodsinger.ccrt_clinic.io.enums.Gender;
 import com.moodsinger.ccrt_clinic.io.enums.VerificationStatus;
 
 @Entity
@@ -56,6 +61,30 @@ public class UserEntity {
 
   @OneToMany(mappedBy = "creator", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   private Set<BlogEntity> blogs = new HashSet<>();
+
+  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+  private Set<PatientReportEntity> patientReports;
+
+  @Enumerated(EnumType.STRING)
+  private Gender gender;
+
+  @Temporal(TemporalType.DATE)
+  private Date birthDate;
+
+  @Transient
+  private int age;
+
+  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+  private Set<ExperienceEntity> experiences;
+
+  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+  private Set<EducationEntity> educationEntities;
+
+  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+  private Set<TrainingEntity> trainingEntities;
+
+  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+  private Set<AwardEntity> awards;
 
   public long getId() {
     return this.id;
@@ -135,6 +164,54 @@ public class UserEntity {
 
   public void setProfileImageUrl(String profileImageUrl) {
     this.profileImageUrl = profileImageUrl;
+  }
+
+  public Set<PatientReportEntity> getPatientReports() {
+    return patientReports;
+  }
+
+  public void setPatientReports(Set<PatientReportEntity> patientReports) {
+    this.patientReports = patientReports;
+  }
+
+  public Gender getGender() {
+    return gender;
+  }
+
+  public void setGender(Gender gender) {
+    this.gender = gender;
+  }
+
+  public Date getBirthDate() {
+    return birthDate;
+  }
+
+  public void setBirthDate(Date birthDate) {
+    this.birthDate = birthDate;
+  }
+
+  public int getAge() {
+    return age;
+  }
+
+  public void setAge(int age) {
+    this.age = age;
+  }
+
+  public Set<ExperienceEntity> getExperiences() {
+    return experiences;
+  }
+
+  public void setExperiences(Set<ExperienceEntity> experiences) {
+    this.experiences = experiences;
+  }
+
+  public Set<EducationEntity> getEducationEntities() {
+    return educationEntities;
+  }
+
+  public void setEducationEntities(Set<EducationEntity> educationEntities) {
+    this.educationEntities = educationEntities;
   }
 
 }

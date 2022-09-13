@@ -14,13 +14,11 @@ import com.moodsinger.ccrt_clinic.io.enums.VerificationStatus;
 import com.moodsinger.ccrt_clinic.model.request.UserSignupRequestModel;
 import com.moodsinger.ccrt_clinic.model.request.UserUpdateRequestModel;
 import com.moodsinger.ccrt_clinic.model.response.BlogRest;
-import com.moodsinger.ccrt_clinic.model.response.RoleRest;
 import com.moodsinger.ccrt_clinic.model.response.UserRest;
 import com.moodsinger.ccrt_clinic.service.UserBlogService;
 import com.moodsinger.ccrt_clinic.service.UserService;
 import com.moodsinger.ccrt_clinic.shared.Utils;
 import com.moodsinger.ccrt_clinic.shared.dto.BlogDto;
-import com.moodsinger.ccrt_clinic.shared.dto.RoleDto;
 import com.moodsinger.ccrt_clinic.shared.dto.UserDto;
 
 import java.util.ArrayList;
