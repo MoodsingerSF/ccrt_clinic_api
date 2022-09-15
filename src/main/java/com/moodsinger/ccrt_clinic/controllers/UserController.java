@@ -9,23 +9,32 @@ import org.springframework.web.multipart.MultipartFile;
 import com.moodsinger.ccrt_clinic.exceptions.UserServiceException;
 import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorCodes;
 import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorMessages;
+import com.moodsinger.ccrt_clinic.io.enums.AppointmentStatus;
+import com.moodsinger.ccrt_clinic.io.enums.Gender;
 import com.moodsinger.ccrt_clinic.io.enums.Role;
 import com.moodsinger.ccrt_clinic.io.enums.VerificationStatus;
 import com.moodsinger.ccrt_clinic.model.request.UserSignupRequestModel;
 import com.moodsinger.ccrt_clinic.model.request.UserUpdateRequestModel;
+import com.moodsinger.ccrt_clinic.model.response.AppointmentRest;
 import com.moodsinger.ccrt_clinic.model.response.BlogRest;
+import com.moodsinger.ccrt_clinic.model.response.ResourceRest;
 import com.moodsinger.ccrt_clinic.model.response.UserRest;
+import com.moodsinger.ccrt_clinic.service.UserAppointmentService;
 import com.moodsinger.ccrt_clinic.service.UserBlogService;
 import com.moodsinger.ccrt_clinic.service.UserService;
 import com.moodsinger.ccrt_clinic.shared.Utils;
+import com.moodsinger.ccrt_clinic.shared.dto.AppointmentDto;
 import com.moodsinger.ccrt_clinic.shared.dto.BlogDto;
+import com.moodsinger.ccrt_clinic.shared.dto.ResourceDto;
 import com.moodsinger.ccrt_clinic.shared.dto.UserDto;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,6 +57,9 @@ public class UserController {
 
   @Autowired
   private UserBlogService userBlogService;
+
+  @Autowired
+  private UserAppointmentService userAppointmentService;
 
   @PostMapping
   public UserRest createUser(@RequestBody UserSignupRequestModel userSignupRequestModel) {
@@ -155,12 +167,66 @@ public class UserController {
     return blogRests;
   }
 
+  @GetMapping("/{userId}/appointments")
+  public List<AppointmentRest> getUserAppointments(@PathVariable String userId,
+      @RequestParam(name = "page", defaultValue = "0", required = false) int page,
+      @RequestParam(name = "limit", defaultValue = "15", required = false) int limit,
+      @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam(name = "date", required = true) Date date,
+      @RequestParam(name = "status", required = false) AppointmentStatus status) {
+    List<AppointmentDto> appointmentDtos = userAppointmentService.getUserAppointments(userId, page, limit, status,
+        date);
+    List<AppointmentRest> appointmentRests = new ArrayList<>();
+    for (AppointmentDto appointmentDto : appointmentDtos) {
+      appointmentRests.add(modelMapper.map(appointmentDto, AppointmentRest.class));
+    }
+    return appointmentRests;
+  }
+
+  // @PostMapping("/{userId}/appointments/{appointmentId}/cancel")
+  // public AppointmentRest cancelAppointment(@PathVariable(name = "userId")
+  // String userId,
+  // @PathVariable(name = "appointmentId") String appointmentId) {
+  // AppointmentDto appointmentDto =
+  // userAppointmentService.cancelAppointment(userId, appointmentId);
+  // return modelMapper.map(appointmentDto, AppointmentRest.class);
+  // }
+  @PostMapping("/{userId}/reports")
+  public ResourceRest addReport(@PathVariable String userId,
+      @RequestPart(name = "image", required = true) MultipartFile image,
+      @RequestPart(name = "title", required = true) String title) {
+    ResourceDto resourceDto = userService.addResource(userId, title, image);
+    return modelMapper.map(resourceDto, ResourceRest.class);
+  }
+
+  @GetMapping("/{userId}/reports")
+  public List<ResourceRest> retrieveReports(@PathVariable String userId) {
+    List<ResourceDto> appointmentResources = userService.getResources(userId);
+    List<ResourceRest> appointmentResourceRests = new ArrayList<>();
+    for (ResourceDto resourceDto : appointmentResources) {
+      appointmentResourceRests.add(modelMapper.map(resourceDto, ResourceRest.class));
+    }
+
+    return appointmentResourceRests;
+  }
+
+  @PutMapping("/{userId}/reports/{resourceId}")
+  public ResourceRest updateReport(@PathVariable(name = "userId") String userId,
+      @PathVariable(name = "resourceId") String resourceId,
+      @RequestPart(name = "image", required = true) MultipartFile image) {
+    ResourceDto resourceDto = userService.updateResource(userId, resourceId,
+        image);
+    return modelMapper.map(resourceDto, ResourceRest.class);
+  }
+
   private void checkUserSignupRequestBody(UserSignupRequestModel userSignupRequestModel, boolean isUserTypeOptional) {
     String firstName = userSignupRequestModel.getFirstName();
     String lastName = userSignupRequestModel.getLastName();
     String email = userSignupRequestModel.getEmail();
     String password = userSignupRequestModel.getPassword();
     String userType = userSignupRequestModel.getUserType();
+    Gender gender = userSignupRequestModel.getGender();
+    Date birthDate = userSignupRequestModel.getBirthDate();
+    String specialization = userSignupRequestModel.getSpecialization();
 
     if (!utils.isNonNullAndNonEmpty(firstName))
       throw new UserServiceException(ExceptionErrorCodes.FIRST_NAME_NOT_VALID.name(),
@@ -177,6 +243,16 @@ public class UserController {
     if (!isUserTypeOptional && !utils.validateUserType(userType))
       throw new UserServiceException(ExceptionErrorCodes.USER_TYPE_NOT_VALID.name(),
           ExceptionErrorMessages.USER_TYPE_NOT_VALID.getMessage(), HttpStatus.BAD_REQUEST);
+    if (!utils.validateGender(gender))
+      throw new UserServiceException(ExceptionErrorCodes.GENDER_NOT_VALID.name(),
+          ExceptionErrorMessages.GENDER_NOT_VALID.getMessage(), HttpStatus.BAD_REQUEST);
+    if (!utils.validateBirthDate(birthDate))
+      throw new UserServiceException(ExceptionErrorCodes.BIRTH_DATE_NOT_VALID.name(),
+          ExceptionErrorMessages.BIRTH_DATE_NOT_VALID.getMessage(), HttpStatus.BAD_REQUEST);
+    if (userType.equals(Role.DOCTOR.name()) && !utils.validateSpecialization(specialization)) {
+      throw new UserServiceException(ExceptionErrorCodes.SPECIALIZATION_NOT_VALID.name(),
+          ExceptionErrorMessages.SPECIALIZATION_NOT_VALID.getMessage(), HttpStatus.BAD_REQUEST);
+    }
   }
 
 }

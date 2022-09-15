@@ -27,16 +27,19 @@ import com.moodsinger.ccrt_clinic.AppProperties;
 import com.moodsinger.ccrt_clinic.exceptions.UserServiceException;
 import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorCodes;
 import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorMessages;
+import com.moodsinger.ccrt_clinic.io.entity.PatientReportEntity;
 import com.moodsinger.ccrt_clinic.io.entity.RoleEntity;
 import com.moodsinger.ccrt_clinic.io.entity.UserEntity;
 import com.moodsinger.ccrt_clinic.io.enums.Role;
 import com.moodsinger.ccrt_clinic.io.enums.VerificationStatus;
+import com.moodsinger.ccrt_clinic.io.repository.PatientReportRepository;
 import com.moodsinger.ccrt_clinic.io.repository.UserRepository;
 import com.moodsinger.ccrt_clinic.service.DoctorScheduleService;
 import com.moodsinger.ccrt_clinic.service.RoleService;
 import com.moodsinger.ccrt_clinic.service.UserService;
 import com.moodsinger.ccrt_clinic.shared.FileUploadUtil;
 import com.moodsinger.ccrt_clinic.shared.Utils;
+import com.moodsinger.ccrt_clinic.shared.dto.ResourceDto;
 import com.moodsinger.ccrt_clinic.shared.dto.RoleDto;
 import com.moodsinger.ccrt_clinic.shared.dto.UserDto;
 
@@ -67,11 +70,13 @@ public class UserServiceImpl implements UserService {
   @Autowired
   private DoctorScheduleService doctorScheduleService;
 
+  @Autowired
+  private PatientReportRepository patientReportRepository;
+
   @Transactional
   @Override
   public UserDto createUser(UserDto userDetails) {
-    ModelMapper modelMapper = new ModelMapper();
-    // crate user entity
+    // create user entity
     UserEntity userEntity = modelMapper.map(userDetails, UserEntity.class);
     // adding public user id
     userEntity.setUserId(utils.generateUserId(30));
@@ -244,6 +249,69 @@ public class UserServiceImpl implements UserService {
       foundDoctorsDto.add(modelMapper.map(userEntity, UserDto.class));
     }
     return foundDoctorsDto;
+  }
+
+  @Override
+  public ResourceDto addResource(String userId, String title, MultipartFile image) {
+    try {
+      UserEntity user = userRepository.findByUserId(userId);
+      if (user == null) {
+        throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
+            ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+      }
+      String resourceId = utils.generateImageId();
+      String url = fileUploadUtil.saveFile(
+          FileUploadUtil.USER_REPORTS_UPLOAD_DIR + File.separator + userId,
+          resourceId + "." + utils.getFileExtension(image.getOriginalFilename()), image);
+      PatientReportEntity patientResourceEntity = new PatientReportEntity();
+      patientResourceEntity.setResourceId(resourceId);
+      patientResourceEntity.setUser(user);
+      patientResourceEntity.setTitle(title);
+      patientResourceEntity.setImageUrl(url);
+      PatientReportEntity createdReportEntity = patientReportRepository.save(patientResourceEntity);
+      return modelMapper.map(createdReportEntity, ResourceDto.class);
+
+    } catch (IOException e) {
+      throw new UserServiceException(ExceptionErrorCodes.FILE_SAVE_ERROR.name(),
+          ExceptionErrorMessages.FILE_SAVE_ERROR.getMessage());
+    }
+  }
+
+  @Override
+  public List<ResourceDto> getResources(String userId) {
+    List<PatientReportEntity> patientReportEntities = patientReportRepository
+        .findAllByUserUserId(userId);
+    List<ResourceDto> resourceDtos = new ArrayList<>();
+    for (PatientReportEntity patientReportEntity : patientReportEntities) {
+      resourceDtos.add(modelMapper.map(patientReportEntity, ResourceDto.class));
+    }
+    return resourceDtos;
+  }
+
+  @Override
+  public ResourceDto updateResource(String userId, String resourceId, MultipartFile image) {
+    try {
+      PatientReportEntity patientReportEntity = patientReportRepository.findByResourceId(resourceId);
+      if (patientReportEntity == null) {
+        throw new UserServiceException(ExceptionErrorCodes.RESOURCE_NOT_FOUND.name(),
+            ExceptionErrorMessages.RESOURCE_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+      }
+
+      if (!patientReportEntity.getUser().getUserId().equals(userId)) {
+        throw new UserServiceException(ExceptionErrorCodes.FORBIDDEN.name(),
+            ExceptionErrorMessages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
+      }
+      String url = fileUploadUtil.saveFile(
+          FileUploadUtil.USER_REPORTS_UPLOAD_DIR + File.separator + userId,
+          utils.generateImageId() + "." + utils.getFileExtension(image.getOriginalFilename()), image);
+      patientReportEntity.setImageUrl(url);
+      PatientReportEntity updatedResourceEntity = patientReportRepository.save(patientReportEntity);
+      return modelMapper.map(updatedResourceEntity, ResourceDto.class);
+
+    } catch (IOException e) {
+      throw new UserServiceException(ExceptionErrorCodes.FILE_SAVE_ERROR.name(),
+          ExceptionErrorMessages.FILE_SAVE_ERROR.getMessage());
+    }
   }
 
 }

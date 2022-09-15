@@ -11,6 +11,9 @@ public class UserRest {
   private String email;
   private String profileImageUrl;
   private Set<RoleDto> roles;
+  private String gender;
+  private String specialization;
+  private String birthDate;
 
   public String getUserId() {
     return userId;
@@ -58,6 +61,30 @@ public class UserRest {
 
   public void setRoles(Set<RoleDto> roles) {
     this.roles = roles;
+  }
+
+  public String getGender() {
+    return gender;
+  }
+
+  public void setGender(String gender) {
+    this.gender = gender;
+  }
+
+  public String getSpecialization() {
+    return specialization;
+  }
+
+  public void setSpecialization(String specialization) {
+    this.specialization = specialization;
+  }
+
+  public String getBirthDate() {
+    return birthDate;
+  }
+
+  public void setBirthDate(String birthDate) {
+    this.birthDate = birthDate;
   }
 
 }

@@ -16,6 +16,9 @@ public class AppointmentResourceEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long id;
 
+  @Column(unique = true, length = 20, nullable = false)
+  private String resourceId;
+
   @ManyToOne
   @JoinColumn(nullable = false)
   private AppointmentEntity appointment;
@@ -56,5 +59,13 @@ public class AppointmentResourceEntity {
 
   public void setImageUrl(String imageUrl) {
     this.imageUrl = imageUrl;
+  }
+
+  public String getResourceId() {
+    return resourceId;
+  }
+
+  public void setResourceId(String resourceId) {
+    this.resourceId = resourceId;
   }
 }

@@ -1,5 +1,11 @@
 package com.moodsinger.ccrt_clinic.model.request;
 
+import java.util.Date;
+
+import org.springframework.format.annotation.DateTimeFormat;
+
+import com.moodsinger.ccrt_clinic.io.enums.Gender;
+
 public class UserSignupRequestModel {
 
   private String firstName;
@@ -7,6 +13,10 @@ public class UserSignupRequestModel {
   private String email;
   private String password;
   private String userType;
+  private Gender gender;
+  private String specialization;
+  @DateTimeFormat(pattern = "yyyy-MM-dd")
+  private Date birthDate;
 
   public String getFirstName() {
     return this.firstName;
@@ -52,5 +62,29 @@ public class UserSignupRequestModel {
 
   public void setUserType(String userType) {
     this.userType = userType;
+  }
+
+  public Gender getGender() {
+    return gender;
+  }
+
+  public void setGender(Gender gender) {
+    this.gender = gender;
+  }
+
+  public String getSpecialization() {
+    return specialization;
+  }
+
+  public void setSpecialization(String specialization) {
+    this.specialization = specialization;
+  }
+
+  public Date getBirthDate() {
+    return birthDate;
+  }
+
+  public void setBirthDate(Date birthDate) {
+    this.birthDate = birthDate;
   }
 }

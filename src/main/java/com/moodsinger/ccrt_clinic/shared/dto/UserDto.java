@@ -1,6 +1,9 @@
 package com.moodsinger.ccrt_clinic.shared.dto;
 
+import java.util.Date;
 import java.util.Set;
+
+import com.moodsinger.ccrt_clinic.io.enums.Gender;
 
 public class UserDto {
   private long id;
@@ -16,6 +19,9 @@ public class UserDto {
   private String verificationStatus;
   private String profileImageUrl;
   private String code;
+  private Gender gender;
+  private String specialization;
+  private Date birthDate;
 
   public String getUserId() {
     return userId;
@@ -119,5 +125,29 @@ public class UserDto {
 
   public void setCode(String code) {
     this.code = code;
+  }
+
+  public Gender getGender() {
+    return gender;
+  }
+
+  public void setGender(Gender gender) {
+    this.gender = gender;
+  }
+
+  public String getSpecialization() {
+    return specialization;
+  }
+
+  public void setSpecialization(String specialization) {
+    this.specialization = specialization;
+  }
+
+  public Date getBirthDate() {
+    return birthDate;
+  }
+
+  public void setBirthDate(Date birthDate) {
+    this.birthDate = birthDate;
   }
 }

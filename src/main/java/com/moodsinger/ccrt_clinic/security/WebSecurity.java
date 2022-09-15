@@ -66,6 +66,8 @@ public class WebSecurity {
         .permitAll()
         .antMatchers(HttpMethod.POST, "/otp/validation")
         .permitAll()
+        .antMatchers(HttpMethod.GET, "/slots/{slotId}/appointments")
+        .permitAll()
         .antMatchers(HttpMethod.GET, "/users/{userId}").permitAll()
         .antMatchers(HttpMethod.POST, SecurityConstants.LOG_IN_URL).permitAll().anyRequest()
         .authenticated().and().addFilter(new AuthenticationFilter(authenticationManager(authenticationConfiguration)))

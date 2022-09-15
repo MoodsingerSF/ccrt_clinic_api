@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.moodsinger.ccrt_clinic.AppProperties;
+import com.moodsinger.ccrt_clinic.io.enums.Gender;
 import com.moodsinger.ccrt_clinic.io.enums.Role;
 import com.moodsinger.ccrt_clinic.io.enums.VerificationStatus;
 
@@ -33,6 +34,22 @@ public class Utils {
 
   public String generateOtpId(int length) {
     return generateRandomString(length, ALPHABET);
+  }
+
+  public String generateAppointmentId() {
+    return generateRandomString(15, ALPHABET);
+  }
+
+  public String generateImageId() {
+    return generateRandomString(15, ALPHABET);
+  }
+
+  public String generatePrescriptionId() {
+    return generateRandomString(20, ALPHABET);
+  }
+
+  public String generatePatientVerificationCode() {
+    return generateRandomString(8, ALPHABET);
   }
 
   public String generateSlotId(int length) {
@@ -63,6 +80,14 @@ public class Utils {
     return val != null && !val.isEmpty();
   }
 
+  public boolean isNonNull(Gender val) {
+    return val != null;
+  }
+
+  public boolean isNonNull(Date val) {
+    return val != null;
+  }
+
   public boolean validateEmail(String email) {
     if (!isNonNullAndNonEmpty(email))
       return false;
@@ -70,6 +95,21 @@ public class Utils {
     Pattern pattern = Pattern.compile(regex);
     Matcher matcher = pattern.matcher(email);
     return matcher.matches();
+  }
+
+  public boolean validateGender(Gender gender) {
+    if (!isNonNull(gender))
+      return false;
+    return gender == Gender.MALE || gender == Gender.FEMALE || gender == Gender.OTHER;
+  }
+
+  public boolean validateBirthDate(Date birthDate) {
+    return isNonNull(birthDate);
+  }
+
+  public boolean validateSpecialization(String specialization) {
+    return isNonNullAndNonEmpty(specialization);
+
   }
 
   public boolean validatePassword(String password) {

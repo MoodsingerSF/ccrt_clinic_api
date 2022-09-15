@@ -31,7 +31,7 @@ public class SlotEntity {
   @Column(unique = true, nullable = false, length = 30)
   private String slotId;
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(nullable = false)
   private DoctorScheduleEntity doctorScheduleEntity;
 

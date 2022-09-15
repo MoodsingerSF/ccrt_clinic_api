@@ -7,6 +7,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.moodsinger.ccrt_clinic.AppProperties;
 import com.moodsinger.ccrt_clinic.exceptions.OtpServiceException;
@@ -42,6 +43,7 @@ public class OtpServiceImpl implements OtpService {
   @Autowired
   private AmazonSES amazonSES;
 
+  @Transactional
   @Override
   public OtpDto sendOtp(OtpDto otpDto) {
     List<OtpBlacklistEntity> foundEntries = otpBlacklistRepository.findAllByEmail(otpDto.getEmail());
@@ -81,6 +83,7 @@ public class OtpServiceImpl implements OtpService {
     }
   }
 
+  @Transactional
   @Override
   public void validateOtp(OtpDto otpDto) {
     OtpEntity otpEntity = otpRepository.findByOtpId(otpDto.getOtpId());

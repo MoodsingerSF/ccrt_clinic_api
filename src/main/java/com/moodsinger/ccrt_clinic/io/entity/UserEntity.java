@@ -74,6 +74,9 @@ public class UserEntity {
   @Transient
   private int age;
 
+  @Column(nullable = true)
+  private String specialization;
+
   @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
   private Set<ExperienceEntity> experiences;
 
@@ -212,6 +215,30 @@ public class UserEntity {
 
   public void setEducationEntities(Set<EducationEntity> educationEntities) {
     this.educationEntities = educationEntities;
+  }
+
+  public String getSpecialization() {
+    return specialization;
+  }
+
+  public void setSpecialization(String specialization) {
+    this.specialization = specialization;
+  }
+
+  public Set<TrainingEntity> getTrainingEntities() {
+    return trainingEntities;
+  }
+
+  public void setTrainingEntities(Set<TrainingEntity> trainingEntities) {
+    this.trainingEntities = trainingEntities;
+  }
+
+  public Set<AwardEntity> getAwards() {
+    return awards;
+  }
+
+  public void setAwards(Set<AwardEntity> awards) {
+    this.awards = awards;
   }
 
 }

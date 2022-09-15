@@ -6,6 +6,9 @@ public enum ExceptionErrorMessages {
   FIRST_NAME_NOT_VALID("First name is not valid."), LAST_NAME_NOT_VALID("Last name is not valid."),
   EMAIL_NOT_VALID("Email is not valid."), PASSWORD_NOT_VALID("password is not valid."),
   USER_NOT_CREATED("User isn't created."),
+  GENDER_NOT_VALID("Gender is not valid. Please provide a valid gender(MALE | FEMALE | OTHER)"),
+  BIRTH_DATE_NOT_VALID("Birth date is not valid. Please provide a valid birth date."),
+  SPECIALIZATION_NOT_VALID("Specialization can not be null for doctors."),
   FORBIDDEN("You don't have the permission to perform this operation."),
   REQUIRED_REQUEST_BODY("Request body is required."),
   MALFORMED_JSON_BODY("Request is not well formed."),
@@ -23,6 +26,12 @@ public enum ExceptionErrorMessages {
   SCHEDULE_NOT_FOUND("Schedule couldn't be found. Please sign up as a doctor."),
   OVERLAPPING_SLOT("Overlapping slot is found."),
   SLOT_NOT_FOUND("Slot couldn't be found."),
+  APPOINTMENT_NOT_FOUND("Appointment couldn't be found. It may either be deleted or does not exist."),
+  RESOURCE_NOT_FOUND("Resource Couldn't be found"),
+  PRESCRIPTION_ALREADY_EXISTS(
+      "Doctor has already added a prescription. You can not add another one. Try modifying the previous one."),
+  APPOINTMENT_VERIFICATION_CODE_MISMATCH(
+      "Appointment verification code didn't match. Please provide the correct code. If you don't have the code, please ask your patient for the code after the appointment finishes."),
   USER_TYPE_NOT_VALID("User type is not valid.");
 
   private String message;

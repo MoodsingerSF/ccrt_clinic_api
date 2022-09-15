@@ -14,6 +14,8 @@ import org.springframework.web.multipart.MultipartFile;
 public class FileUploadUtil {
   public static final String BLOG_UPLOAD_DIR = "blogs";
   public static final String PROFILE_PICTURE_UPLOAD_DIR = "users";
+  public static final String APPOINTMENT_RESOURCES_UPLOAD_DIR = "appointments";
+  public static final String USER_REPORTS_UPLOAD_DIR = "reports";
 
   public String saveFile(String uploadDir, String fileName,
       MultipartFile multipartFile) throws IOException {

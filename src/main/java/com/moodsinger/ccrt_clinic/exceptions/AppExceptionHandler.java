@@ -27,6 +27,12 @@ public class AppExceptionHandler {
     return new ResponseEntity<ErrorMessage>(errorMessage, new HttpHeaders(), exception.getHttpStatus());
   }
 
+  @ExceptionHandler(value = { AppointmentServiceException.class })
+  public ResponseEntity<ErrorMessage> handleAppointmentServiceException(AppointmentServiceException exception) {
+    ErrorMessage errorMessage = new ErrorMessage(exception.getCode(), exception.getMessage());
+    return new ResponseEntity<ErrorMessage>(errorMessage, new HttpHeaders(), exception.getHttpStatus());
+  }
+
   @ExceptionHandler(value = { BlogServiceException.class })
   public ResponseEntity<ErrorMessage> handleBlogServiceException(BlogServiceException exception) {
     ErrorMessage errorMessage = new ErrorMessage(exception.getCode(), exception.getMessage());
