@@ -544,4 +544,27 @@ public class UserServiceImpl implements UserService {
     return modelMapper.map(updatedExperienceEntity, ExperienceDto.class);
   }
 
+  @Override
+  public void deleteExperience(String userId, long experienceId) {
+    UserEntity userEntity = userRepository.findByUserId(userId);
+    if (userEntity == null) {
+      throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
+          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    ExperienceEntity experienceEntity = experienceRepository.findById(experienceId);
+
+    if (experienceEntity == null) {
+      throw new UserServiceException(ExceptionErrorCodes.EDUCATION_NOT_FOUND.name(),
+          ExceptionErrorMessages.EXPERIENCE_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    if (!experienceEntity.getUser().getUserId().equals(userEntity.getUserId())) {
+      throw new UserServiceException(ExceptionErrorCodes.FORBIDDEN.name(),
+          ExceptionErrorMessages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
+    }
+
+    experienceRepository.delete(experienceEntity);
+
+  }
+
 }

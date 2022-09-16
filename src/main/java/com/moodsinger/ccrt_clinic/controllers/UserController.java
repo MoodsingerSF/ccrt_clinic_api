@@ -295,6 +295,13 @@ public class UserController {
     return modelMapper.map(experienceDto, ExperienceRest.class);
   }
 
+  @DeleteMapping("/{userId}/experience/{experienceId}")
+  public ResponseEntity<String> deleteExperience(@PathVariable(name = "userId") String userId,
+      @PathVariable(name = "experienceId") long experienceId) {
+    userService.deleteExperience(userId, experienceId);
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+  }
+
   private void checkUserSignupRequestBody(UserSignupRequestModel userSignupRequestModel, boolean isUserTypeOptional) {
     String firstName = userSignupRequestModel.getFirstName();
     String lastName = userSignupRequestModel.getLastName();
