@@ -454,6 +454,29 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
+  public void deleteTraining(String userId, long trainingId) {
+    UserEntity userEntity = userRepository.findByUserId(userId);
+    if (userEntity == null) {
+      throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
+          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    TrainingEntity trainingEntity = trainingRepository.findById(trainingId);
+
+    if (trainingEntity == null) {
+      throw new UserServiceException(ExceptionErrorCodes.TRAINING_NOT_FOUND.name(),
+          ExceptionErrorMessages.TRAINING_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    if (!trainingEntity.getUser().getUserId().equals(userEntity.getUserId())) {
+      throw new UserServiceException(ExceptionErrorCodes.FORBIDDEN.name(),
+          ExceptionErrorMessages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
+    }
+
+    trainingRepository.delete(trainingEntity);
+
+  }
+
+  @Override
   public AwardDto addAward(String userId, AwardDto awardDto) {
     // TODO Auto-generated method stub
     return null;

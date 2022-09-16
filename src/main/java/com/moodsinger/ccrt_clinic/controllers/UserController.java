@@ -268,6 +268,13 @@ public class UserController {
     return modelMapper.map(trainingDto, TrainingRest.class);
   }
 
+  @DeleteMapping("/{userId}/training/{trainingId}")
+  public ResponseEntity<String> deleteTraining(@PathVariable(name = "userId") String userId,
+      @PathVariable(name = "trainingId") long trainingId) {
+    userService.deleteTraining(userId, trainingId);
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+  }
+
   private void checkUserSignupRequestBody(UserSignupRequestModel userSignupRequestModel, boolean isUserTypeOptional) {
     String firstName = userSignupRequestModel.getFirstName();
     String lastName = userSignupRequestModel.getLastName();
