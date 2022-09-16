@@ -259,6 +259,15 @@ public class UserController {
     return modelMapper.map(trainingDto, TrainingRest.class);
   }
 
+  @PutMapping("/{userId}/training/{trainingId}")
+  public TrainingRest updateTraining(@PathVariable(name = "userId") String userId,
+      @PathVariable(name = "trainingId") long trainingId,
+      @RequestBody TrainingCreationRequestModel trainingCreationRequestModel) {
+    TrainingDto trainingDto = userService.updateTraining(userId, trainingId,
+        modelMapper.map(trainingCreationRequestModel, TrainingDto.class));
+    return modelMapper.map(trainingDto, TrainingRest.class);
+  }
+
   private void checkUserSignupRequestBody(UserSignupRequestModel userSignupRequestModel, boolean isUserTypeOptional) {
     String firstName = userSignupRequestModel.getFirstName();
     String lastName = userSignupRequestModel.getLastName();

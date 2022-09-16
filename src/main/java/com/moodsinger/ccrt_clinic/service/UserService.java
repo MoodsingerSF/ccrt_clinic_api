@@ -45,6 +45,8 @@ public interface UserService extends UserDetailsService {
 
   TrainingDto addTraining(String userId, TrainingDto trainingDto);
 
+  TrainingDto updateTraining(String userId, long trainingId, TrainingDto trainingDto);
+
   AwardDto addAward(String userId, AwardDto awardDto);
 
   ExperienceDto addExperience(String userId, ExperienceDto experienceDto);

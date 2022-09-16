@@ -419,6 +419,41 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
+  public TrainingDto updateTraining(String userId, long trainingId, TrainingDto trainingDto) {
+    UserEntity userEntity = userRepository.findByUserId(userId);
+    if (userEntity == null) {
+      throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
+          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    TrainingEntity trainingEntity = trainingRepository.findById(trainingId);
+
+    if (trainingEntity == null) {
+      throw new UserServiceException(ExceptionErrorCodes.TRAINING_NOT_FOUND.name(),
+          ExceptionErrorMessages.TRAINING_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    if (!trainingEntity.getUser().getUserId().equals(userEntity.getUserId())) {
+      throw new UserServiceException(ExceptionErrorCodes.FORBIDDEN.name(),
+          ExceptionErrorMessages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
+    }
+    if (utils.isNonNullAndNonEmpty(trainingDto.getProgram())) {
+      trainingEntity.setProgram(trainingDto.getProgram());
+    }
+    if (utils.isNonNullAndNonEmpty(trainingDto.getInstitutionName())) {
+      trainingEntity.setInstitutionName(trainingDto.getInstitutionName());
+    }
+
+    if (utils.isNonNull(trainingDto.getStartDate())) {
+      trainingEntity.setStartDate(trainingDto.getStartDate());
+    }
+    if (utils.isNonNull(trainingDto.getEndDate())) {
+      trainingEntity.setEndDate(trainingDto.getEndDate());
+    }
+
+    TrainingEntity updatedTrainingEntity = trainingRepository.save(trainingEntity);
+    return modelMapper.map(updatedTrainingEntity, TrainingDto.class);
+  }
+
+  @Override
   public AwardDto addAward(String userId, AwardDto awardDto) {
     // TODO Auto-generated method stub
     return null;

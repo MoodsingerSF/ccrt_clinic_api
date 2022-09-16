@@ -29,6 +29,7 @@ public enum ExceptionErrorMessages {
   APPOINTMENT_NOT_FOUND("Appointment couldn't be found. It may either be deleted or does not exist."),
   RESOURCE_NOT_FOUND("Resource Couldn't be found"),
   EDUCATION_NOT_FOUND("Education entity couldn't be found."),
+  TRAINING_NOT_FOUND("Training entity couldn't be found."),
   PRESCRIPTION_ALREADY_EXISTS(
       "Doctor has already added a prescription. You can not add another one. Try modifying the previous one."),
   APPOINTMENT_VERIFICATION_CODE_MISMATCH(
