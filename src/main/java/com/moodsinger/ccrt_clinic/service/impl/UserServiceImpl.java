@@ -533,6 +533,30 @@ public class UserServiceImpl implements UserService {
 
   @Transactional
   @Override
+  public void deleteAward(String userId, long awardId) {
+    UserEntity userEntity = userRepository.findByUserId(userId);
+    if (userEntity == null) {
+      throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
+          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    AwardEntity awardEntity = awardRepository.findById(awardId);
+
+    if (awardEntity == null) {
+      throw new UserServiceException(ExceptionErrorCodes.AWARD_NOT_FOUND.name(),
+          ExceptionErrorMessages.AWARD_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    if (!awardEntity.getUser().getUserId().equals(userEntity.getUserId())) {
+      throw new UserServiceException(ExceptionErrorCodes.FORBIDDEN.name(),
+          ExceptionErrorMessages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
+    }
+
+    awardRepository.delete(awardEntity);
+
+  }
+
+  @Transactional
+  @Override
   public ExperienceDto addExperience(String userId, ExperienceDto experienceDto) {
     UserEntity userEntity = userRepository.findByUserId(userId);
     if (userEntity == null) {

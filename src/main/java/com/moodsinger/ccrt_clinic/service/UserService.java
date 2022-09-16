@@ -53,6 +53,8 @@ public interface UserService extends UserDetailsService {
 
   AwardDto updateAward(String userId, long awardId, AwardDto awardDto);
 
+  void deleteAward(String userId, long awardId);
+
   ExperienceDto addExperience(String userId, ExperienceDto experienceDto);
 
   ExperienceDto updateExperience(String userId, long experienceId, ExperienceDto experienceDto);

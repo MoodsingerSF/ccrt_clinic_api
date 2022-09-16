@@ -322,6 +322,13 @@ public class UserController {
     return modelMapper.map(awardDto, AwardRest.class);
   }
 
+  @DeleteMapping("/{userId}/award/{awardId}")
+  public ResponseEntity<String> deleteAward(@PathVariable(name = "userId") String userId,
+      @PathVariable(name = "awardId") long awardId) {
+    userService.deleteAward(userId, awardId);
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+  }
+
   private void checkUserSignupRequestBody(UserSignupRequestModel userSignupRequestModel, boolean isUserTypeOptional) {
     String firstName = userSignupRequestModel.getFirstName();
     String lastName = userSignupRequestModel.getLastName();
