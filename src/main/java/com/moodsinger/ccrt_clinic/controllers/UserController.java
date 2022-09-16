@@ -286,6 +286,15 @@ public class UserController {
     return modelMapper.map(experienceDto, ExperienceRest.class);
   }
 
+  @PutMapping("/{userId}/experience/{experienceId}")
+  public ExperienceRest updateExperience(@PathVariable(name = "userId") String userId,
+      @PathVariable(name = "experienceId") long experienceId,
+      @RequestBody ExperienceCreationRequestModel experienceCreationRequestModel) {
+    ExperienceDto experienceDto = userService.updateExperience(userId, experienceId,
+        modelMapper.map(experienceCreationRequestModel, ExperienceDto.class));
+    return modelMapper.map(experienceDto, ExperienceRest.class);
+  }
+
   private void checkUserSignupRequestBody(UserSignupRequestModel userSignupRequestModel, boolean isUserTypeOptional) {
     String firstName = userSignupRequestModel.getFirstName();
     String lastName = userSignupRequestModel.getLastName();

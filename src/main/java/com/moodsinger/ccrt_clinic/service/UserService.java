@@ -53,4 +53,5 @@ public interface UserService extends UserDetailsService {
 
   ExperienceDto addExperience(String userId, ExperienceDto experienceDto);
 
+  ExperienceDto updateExperience(String userId, long experienceId, ExperienceDto experienceDto);
 }

@@ -503,4 +503,45 @@ public class UserServiceImpl implements UserService {
     return modelMapper.map(createdExperienceEntity, ExperienceDto.class);
   }
 
+  @Override
+  public ExperienceDto updateExperience(String userId, long experienceId, ExperienceDto experienceDto) {
+    UserEntity userEntity = userRepository.findByUserId(userId);
+    if (userEntity == null) {
+      throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
+          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    ExperienceEntity experienceEntity = experienceRepository.findById(experienceId);
+
+    if (experienceEntity == null) {
+      throw new UserServiceException(ExceptionErrorCodes.EXPERIENCE_NOT_FOUND.name(),
+          ExceptionErrorMessages.EXPERIENCE_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    if (!experienceEntity.getUser().getUserId().equals(userEntity.getUserId())) {
+      throw new UserServiceException(ExceptionErrorCodes.FORBIDDEN.name(),
+          ExceptionErrorMessages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
+    }
+    if (utils.isNonNullAndNonEmpty(experienceDto.getTitle())) {
+      experienceEntity.setTitle(experienceDto.getTitle());
+    }
+    if (utils.isNonNullAndNonEmpty(experienceDto.getOrganization())) {
+      experienceEntity.setOrganization(experienceDto.getOrganization());
+    }
+    if (utils.isNonNullAndNonEmpty(experienceDto.getDivision())) {
+      experienceEntity.setDivision(experienceDto.getDivision());
+    }
+    if (utils.isNonNullAndNonEmpty(experienceDto.getDepartment())) {
+      experienceEntity.setDepartment(experienceDto.getDepartment());
+    }
+
+    if (utils.isNonNull(experienceDto.getStartDate())) {
+      experienceEntity.setStartDate(experienceDto.getStartDate());
+    }
+    if (utils.isNonNull(experienceDto.getEndDate())) {
+      experienceEntity.setEndDate(experienceDto.getEndDate());
+    }
+
+    ExperienceEntity updatedExperienceEntity = experienceRepository.save(experienceEntity);
+    return modelMapper.map(updatedExperienceEntity, ExperienceDto.class);
+  }
+
 }
