@@ -322,6 +322,7 @@ public class UserServiceImpl implements UserService {
     }
   }
 
+  @Transactional
   @Override
   public EducationDto addEducation(String userId, EducationDto educationDto) {
     UserEntity userEntity = userRepository.findByUserId(userId);
@@ -335,6 +336,7 @@ public class UserServiceImpl implements UserService {
     return modelMapper.map(createdEducationEntity, EducationDto.class);
   }
 
+  @Transactional
   @Override
   public EducationDto updateEducation(String userId, long educationId, EducationDto educationDto) {
     UserEntity userEntity = userRepository.findByUserId(userId);
@@ -370,6 +372,30 @@ public class UserServiceImpl implements UserService {
 
     EducationEntity updatedEducationEntity = educationRepository.save(educationEntity);
     return modelMapper.map(updatedEducationEntity, EducationDto.class);
+  }
+
+  @Transactional
+  @Override
+  public void deleteEducation(String userId, long educationId) {
+    UserEntity userEntity = userRepository.findByUserId(userId);
+    if (userEntity == null) {
+      throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
+          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    EducationEntity educationEntity = educationRepository.findById(educationId);
+
+    if (educationEntity == null) {
+      throw new UserServiceException(ExceptionErrorCodes.EDUCATION_NOT_FOUND.name(),
+          ExceptionErrorMessages.EDUCATION_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    if (!educationEntity.getUser().getUserId().equals(userEntity.getUserId())) {
+      throw new UserServiceException(ExceptionErrorCodes.FORBIDDEN.name(),
+          ExceptionErrorMessages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
+    }
+
+    educationRepository.delete(educationEntity);
+
   }
 
   @Override

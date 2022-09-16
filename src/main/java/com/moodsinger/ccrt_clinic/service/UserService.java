@@ -41,6 +41,8 @@ public interface UserService extends UserDetailsService {
 
   EducationDto updateEducation(String userId, long educationId, EducationDto educationDto);
 
+  void deleteEducation(String userId, long educationId);
+
   TrainingDto addTraining(String userId, TrainingDto trainingDto);
 
   AwardDto addAward(String userId, AwardDto awardDto);

@@ -40,6 +40,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -236,6 +238,14 @@ public class UserController {
     EducationDto educationDto = userService.updateEducation(userId, educationId,
         modelMapper.map(educationCreationRequestModel, EducationDto.class));
     return modelMapper.map(educationDto, EducationRest.class);
+  }
+
+  @DeleteMapping("/{userId}/education/{educationId}")
+  public ResponseEntity<String> deleteEducation(@PathVariable(name = "userId") String userId,
+      @PathVariable(name = "educationId") long educationId) {
+    userService.deleteEducation(userId, educationId);
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
   }
 
   private void checkUserSignupRequestBody(UserSignupRequestModel userSignupRequestModel, boolean isUserTypeOptional) {
