@@ -336,6 +336,43 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
+  public EducationDto updateEducation(String userId, long educationId, EducationDto educationDto) {
+    UserEntity userEntity = userRepository.findByUserId(userId);
+    if (userEntity == null) {
+      throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
+          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    EducationEntity educationEntity = educationRepository.findById(educationId);
+
+    if (educationEntity == null) {
+      throw new UserServiceException(ExceptionErrorCodes.EDUCATION_NOT_FOUND.name(),
+          ExceptionErrorMessages.EDUCATION_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    if (!educationEntity.getUser().getUserId().equals(userEntity.getUserId())) {
+      throw new UserServiceException(ExceptionErrorCodes.FORBIDDEN.name(),
+          ExceptionErrorMessages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
+    }
+    if (utils.isNonNullAndNonEmpty(educationDto.getDegree())) {
+      educationEntity.setDegree(educationDto.getDegree());
+    }
+    if (utils.isNonNullAndNonEmpty(educationDto.getInstitutionName())) {
+      educationEntity.setInstitutionName(educationDto.getInstitutionName());
+    }
+    if (utils.isNonNullAndNonEmpty(educationDto.getSubject())) {
+      educationEntity.setSubject(educationDto.getSubject());
+    }
+    if (utils.isNonNull(educationDto.getStartDate())) {
+      educationEntity.setStartDate(educationDto.getStartDate());
+    }
+    if (utils.isNonNull(educationDto.getEndDate())) {
+      educationEntity.setEndDate(educationDto.getEndDate());
+    }
+
+    EducationEntity updatedEducationEntity = educationRepository.save(educationEntity);
+    return modelMapper.map(updatedEducationEntity, EducationDto.class);
+  }
+
+  @Override
   public TrainingDto addTraining(String userId, TrainingDto trainingDto) {
     // TODO Auto-generated method stub
     return null;

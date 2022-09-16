@@ -3,6 +3,7 @@ package com.moodsinger.ccrt_clinic.shared.dto;
 import java.util.Date;
 
 public class EducationDto {
+
   private long id;
   private String degree;
   private String subject;
@@ -56,5 +57,11 @@ public class EducationDto {
 
   public void setId(long id) {
     this.id = id;
+  }
+
+  @Override
+  public String toString() {
+    return "EducationDto [degree=" + degree + ", endDate=" + endDate + ", id=" + id + ", institutionName="
+        + institutionName + ", startDate=" + startDate + ", subject=" + subject + "]";
   }
 }

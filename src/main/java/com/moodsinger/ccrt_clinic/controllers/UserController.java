@@ -229,6 +229,15 @@ public class UserController {
     return modelMapper.map(educationDto, EducationRest.class);
   }
 
+  @PutMapping("/{userId}/education/{educationId}")
+  public EducationRest updateEducation(@PathVariable(name = "userId") String userId,
+      @PathVariable(name = "educationId") long educationId,
+      @RequestBody EducationCreationRequestModel educationCreationRequestModel) {
+    EducationDto educationDto = userService.updateEducation(userId, educationId,
+        modelMapper.map(educationCreationRequestModel, EducationDto.class));
+    return modelMapper.map(educationDto, EducationRest.class);
+  }
+
   private void checkUserSignupRequestBody(UserSignupRequestModel userSignupRequestModel, boolean isUserTypeOptional) {
     String firstName = userSignupRequestModel.getFirstName();
     String lastName = userSignupRequestModel.getLastName();

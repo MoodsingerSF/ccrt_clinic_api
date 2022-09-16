@@ -16,6 +16,7 @@ import javax.persistence.TemporalType;
 @Entity
 @Table(name = "education")
 public class EducationEntity {
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long id;
@@ -97,4 +98,9 @@ public class EducationEntity {
     this.endDate = endDate;
   }
 
+  @Override
+  public String toString() {
+    return "EducationEntity [degree=" + degree + ", endDate=" + endDate + ", id=" + id + ", institutionName="
+        + institutionName + ", startDate=" + startDate + ", subject=" + subject + ", user=" + user + "]";
+  }
 }
