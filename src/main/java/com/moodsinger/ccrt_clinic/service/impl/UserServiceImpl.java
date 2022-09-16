@@ -30,11 +30,13 @@ import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorMessages;
 import com.moodsinger.ccrt_clinic.io.entity.EducationEntity;
 import com.moodsinger.ccrt_clinic.io.entity.PatientReportEntity;
 import com.moodsinger.ccrt_clinic.io.entity.RoleEntity;
+import com.moodsinger.ccrt_clinic.io.entity.TrainingEntity;
 import com.moodsinger.ccrt_clinic.io.entity.UserEntity;
 import com.moodsinger.ccrt_clinic.io.enums.Role;
 import com.moodsinger.ccrt_clinic.io.enums.VerificationStatus;
 import com.moodsinger.ccrt_clinic.io.repository.EducationRepository;
 import com.moodsinger.ccrt_clinic.io.repository.PatientReportRepository;
+import com.moodsinger.ccrt_clinic.io.repository.TrainingRepository;
 import com.moodsinger.ccrt_clinic.io.repository.UserRepository;
 import com.moodsinger.ccrt_clinic.service.DoctorScheduleService;
 import com.moodsinger.ccrt_clinic.service.RoleService;
@@ -78,8 +80,12 @@ public class UserServiceImpl implements UserService {
 
   @Autowired
   private PatientReportRepository patientReportRepository;
+
   @Autowired
   private EducationRepository educationRepository;
+
+  @Autowired
+  private TrainingRepository trainingRepository;
 
   @Transactional
   @Override
@@ -398,10 +404,18 @@ public class UserServiceImpl implements UserService {
 
   }
 
+  @Transactional
   @Override
   public TrainingDto addTraining(String userId, TrainingDto trainingDto) {
-    // TODO Auto-generated method stub
-    return null;
+    UserEntity userEntity = userRepository.findByUserId(userId);
+    if (userEntity == null) {
+      throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
+          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    TrainingEntity trainingEntity = modelMapper.map(trainingDto, TrainingEntity.class);
+    trainingEntity.setUser(userEntity);
+    TrainingEntity createdTrainingEntity = trainingRepository.save(trainingEntity);
+    return modelMapper.map(createdTrainingEntity, TrainingDto.class);
   }
 
   @Override

@@ -14,12 +14,14 @@ import com.moodsinger.ccrt_clinic.io.enums.Gender;
 import com.moodsinger.ccrt_clinic.io.enums.Role;
 import com.moodsinger.ccrt_clinic.io.enums.VerificationStatus;
 import com.moodsinger.ccrt_clinic.model.request.EducationCreationRequestModel;
+import com.moodsinger.ccrt_clinic.model.request.TrainingCreationRequestModel;
 import com.moodsinger.ccrt_clinic.model.request.UserSignupRequestModel;
 import com.moodsinger.ccrt_clinic.model.request.UserUpdateRequestModel;
 import com.moodsinger.ccrt_clinic.model.response.AppointmentRest;
 import com.moodsinger.ccrt_clinic.model.response.BlogRest;
 import com.moodsinger.ccrt_clinic.model.response.EducationRest;
 import com.moodsinger.ccrt_clinic.model.response.ResourceRest;
+import com.moodsinger.ccrt_clinic.model.response.TrainingRest;
 import com.moodsinger.ccrt_clinic.model.response.UserRest;
 import com.moodsinger.ccrt_clinic.service.UserAppointmentService;
 import com.moodsinger.ccrt_clinic.service.UserBlogService;
@@ -29,6 +31,7 @@ import com.moodsinger.ccrt_clinic.shared.dto.AppointmentDto;
 import com.moodsinger.ccrt_clinic.shared.dto.BlogDto;
 import com.moodsinger.ccrt_clinic.shared.dto.EducationDto;
 import com.moodsinger.ccrt_clinic.shared.dto.ResourceDto;
+import com.moodsinger.ccrt_clinic.shared.dto.TrainingDto;
 import com.moodsinger.ccrt_clinic.shared.dto.UserDto;
 
 import java.util.ArrayList;
@@ -246,6 +249,14 @@ public class UserController {
     userService.deleteEducation(userId, educationId);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
+  }
+
+  @PostMapping("/{userId}/training")
+  public TrainingRest addTraining(@PathVariable(name = "userId") String userId,
+      @RequestBody TrainingCreationRequestModel trainingCreationRequestModel) {
+    TrainingDto trainingDto = userService.addTraining(userId,
+        modelMapper.map(trainingCreationRequestModel, TrainingDto.class));
+    return modelMapper.map(trainingDto, TrainingRest.class);
   }
 
   private void checkUserSignupRequestBody(UserSignupRequestModel userSignupRequestModel, boolean isUserTypeOptional) {
