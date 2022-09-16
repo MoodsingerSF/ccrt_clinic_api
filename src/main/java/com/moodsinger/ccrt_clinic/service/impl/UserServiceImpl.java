@@ -27,11 +27,13 @@ import com.moodsinger.ccrt_clinic.AppProperties;
 import com.moodsinger.ccrt_clinic.exceptions.UserServiceException;
 import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorCodes;
 import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorMessages;
+import com.moodsinger.ccrt_clinic.io.entity.EducationEntity;
 import com.moodsinger.ccrt_clinic.io.entity.PatientReportEntity;
 import com.moodsinger.ccrt_clinic.io.entity.RoleEntity;
 import com.moodsinger.ccrt_clinic.io.entity.UserEntity;
 import com.moodsinger.ccrt_clinic.io.enums.Role;
 import com.moodsinger.ccrt_clinic.io.enums.VerificationStatus;
+import com.moodsinger.ccrt_clinic.io.repository.EducationRepository;
 import com.moodsinger.ccrt_clinic.io.repository.PatientReportRepository;
 import com.moodsinger.ccrt_clinic.io.repository.UserRepository;
 import com.moodsinger.ccrt_clinic.service.DoctorScheduleService;
@@ -39,8 +41,12 @@ import com.moodsinger.ccrt_clinic.service.RoleService;
 import com.moodsinger.ccrt_clinic.service.UserService;
 import com.moodsinger.ccrt_clinic.shared.FileUploadUtil;
 import com.moodsinger.ccrt_clinic.shared.Utils;
+import com.moodsinger.ccrt_clinic.shared.dto.AwardDto;
+import com.moodsinger.ccrt_clinic.shared.dto.EducationDto;
+import com.moodsinger.ccrt_clinic.shared.dto.ExperienceDto;
 import com.moodsinger.ccrt_clinic.shared.dto.ResourceDto;
 import com.moodsinger.ccrt_clinic.shared.dto.RoleDto;
+import com.moodsinger.ccrt_clinic.shared.dto.TrainingDto;
 import com.moodsinger.ccrt_clinic.shared.dto.UserDto;
 
 @Service
@@ -72,6 +78,8 @@ public class UserServiceImpl implements UserService {
 
   @Autowired
   private PatientReportRepository patientReportRepository;
+  @Autowired
+  private EducationRepository educationRepository;
 
   @Transactional
   @Override
@@ -312,6 +320,37 @@ public class UserServiceImpl implements UserService {
       throw new UserServiceException(ExceptionErrorCodes.FILE_SAVE_ERROR.name(),
           ExceptionErrorMessages.FILE_SAVE_ERROR.getMessage());
     }
+  }
+
+  @Override
+  public EducationDto addEducation(String userId, EducationDto educationDto) {
+    UserEntity userEntity = userRepository.findByUserId(userId);
+    if (userEntity == null) {
+      throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
+          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    EducationEntity educationEntity = modelMapper.map(educationDto, EducationEntity.class);
+    educationEntity.setUser(userEntity);
+    EducationEntity createdEducationEntity = educationRepository.save(educationEntity);
+    return modelMapper.map(createdEducationEntity, EducationDto.class);
+  }
+
+  @Override
+  public TrainingDto addTraining(String userId, TrainingDto trainingDto) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public AwardDto addAward(String userId, AwardDto awardDto) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public ExperienceDto addExperience(String userId, ExperienceDto experienceDto) {
+    // TODO Auto-generated method stub
+    return null;
   }
 
 }

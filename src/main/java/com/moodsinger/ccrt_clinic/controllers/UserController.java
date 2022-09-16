@@ -13,10 +13,12 @@ import com.moodsinger.ccrt_clinic.io.enums.AppointmentStatus;
 import com.moodsinger.ccrt_clinic.io.enums.Gender;
 import com.moodsinger.ccrt_clinic.io.enums.Role;
 import com.moodsinger.ccrt_clinic.io.enums.VerificationStatus;
+import com.moodsinger.ccrt_clinic.model.request.EducationCreationRequestModel;
 import com.moodsinger.ccrt_clinic.model.request.UserSignupRequestModel;
 import com.moodsinger.ccrt_clinic.model.request.UserUpdateRequestModel;
 import com.moodsinger.ccrt_clinic.model.response.AppointmentRest;
 import com.moodsinger.ccrt_clinic.model.response.BlogRest;
+import com.moodsinger.ccrt_clinic.model.response.EducationRest;
 import com.moodsinger.ccrt_clinic.model.response.ResourceRest;
 import com.moodsinger.ccrt_clinic.model.response.UserRest;
 import com.moodsinger.ccrt_clinic.service.UserAppointmentService;
@@ -25,6 +27,7 @@ import com.moodsinger.ccrt_clinic.service.UserService;
 import com.moodsinger.ccrt_clinic.shared.Utils;
 import com.moodsinger.ccrt_clinic.shared.dto.AppointmentDto;
 import com.moodsinger.ccrt_clinic.shared.dto.BlogDto;
+import com.moodsinger.ccrt_clinic.shared.dto.EducationDto;
 import com.moodsinger.ccrt_clinic.shared.dto.ResourceDto;
 import com.moodsinger.ccrt_clinic.shared.dto.UserDto;
 
@@ -216,6 +219,14 @@ public class UserController {
     ResourceDto resourceDto = userService.updateResource(userId, resourceId,
         image);
     return modelMapper.map(resourceDto, ResourceRest.class);
+  }
+
+  @PostMapping("/{userId}/education")
+  public EducationRest addEducation(@PathVariable(name = "userId") String userId,
+      @RequestBody EducationCreationRequestModel educationCreationRequestModel) {
+    EducationDto educationDto = userService.addEducation(userId,
+        modelMapper.map(educationCreationRequestModel, EducationDto.class));
+    return modelMapper.map(educationDto, EducationRest.class);
   }
 
   private void checkUserSignupRequestBody(UserSignupRequestModel userSignupRequestModel, boolean isUserTypeOptional) {

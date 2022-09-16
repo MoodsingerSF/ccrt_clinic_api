@@ -6,7 +6,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.moodsinger.ccrt_clinic.io.enums.VerificationStatus;
+import com.moodsinger.ccrt_clinic.shared.dto.AwardDto;
+import com.moodsinger.ccrt_clinic.shared.dto.EducationDto;
+import com.moodsinger.ccrt_clinic.shared.dto.ExperienceDto;
 import com.moodsinger.ccrt_clinic.shared.dto.ResourceDto;
+import com.moodsinger.ccrt_clinic.shared.dto.TrainingDto;
 import com.moodsinger.ccrt_clinic.shared.dto.UserDto;
 
 public interface UserService extends UserDetailsService {
@@ -28,9 +32,17 @@ public interface UserService extends UserDetailsService {
 
   ResourceDto addResource(String userId, String title, MultipartFile image);
 
-  public List<ResourceDto> getResources(String userId);
+  List<ResourceDto> getResources(String userId);
 
-  public ResourceDto updateResource(String userId, String resourceId,
+  ResourceDto updateResource(String userId, String resourceId,
       MultipartFile image);
+
+  EducationDto addEducation(String userId, EducationDto educationDto);
+
+  TrainingDto addTraining(String userId, TrainingDto trainingDto);
+
+  AwardDto addAward(String userId, AwardDto awardDto);
+
+  ExperienceDto addExperience(String userId, ExperienceDto experienceDto);
 
 }
