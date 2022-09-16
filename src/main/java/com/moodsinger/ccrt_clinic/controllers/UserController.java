@@ -313,6 +313,15 @@ public class UserController {
     return modelMapper.map(awardDto, AwardRest.class);
   }
 
+  @PutMapping("/{userId}/award/{awardId}")
+  public AwardRest updateAward(@PathVariable(name = "userId") String userId,
+      @PathVariable(name = "awardId") long awardId,
+      @RequestBody AwardCreationRequestModel awardCreationRequestModel) {
+    AwardDto awardDto = userService.updateAward(userId, awardId,
+        modelMapper.map(awardCreationRequestModel, AwardDto.class));
+    return modelMapper.map(awardDto, AwardRest.class);
+  }
+
   private void checkUserSignupRequestBody(UserSignupRequestModel userSignupRequestModel, boolean isUserTypeOptional) {
     String firstName = userSignupRequestModel.getFirstName();
     String lastName = userSignupRequestModel.getLastName();

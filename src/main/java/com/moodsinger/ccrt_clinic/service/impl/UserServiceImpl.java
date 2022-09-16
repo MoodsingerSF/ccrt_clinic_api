@@ -504,6 +504,35 @@ public class UserServiceImpl implements UserService {
 
   @Transactional
   @Override
+  public AwardDto updateAward(String userId, long awardId, AwardDto awardDto) {
+    UserEntity userEntity = userRepository.findByUserId(userId);
+    if (userEntity == null) {
+      throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
+          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    AwardEntity awardEntity = awardRepository.findById(awardId);
+
+    if (awardEntity == null) {
+      throw new UserServiceException(ExceptionErrorCodes.AWARD_NOT_FOUND.name(),
+          ExceptionErrorMessages.AWARD_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    if (!awardEntity.getUser().getUserId().equals(userEntity.getUserId())) {
+      throw new UserServiceException(ExceptionErrorCodes.FORBIDDEN.name(),
+          ExceptionErrorMessages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
+    }
+    if (utils.isNonNullAndNonEmpty(awardDto.getName())) {
+      awardEntity.setName(awardDto.getName());
+    }
+    if (utils.isNonNullAndNonEmpty(awardDto.getYear())) {
+      awardEntity.setYear(awardDto.getYear());
+    }
+
+    AwardEntity updatedAwardEntity = awardRepository.save(awardEntity);
+    return modelMapper.map(updatedAwardEntity, AwardDto.class);
+  }
+
+  @Transactional
+  @Override
   public ExperienceDto addExperience(String userId, ExperienceDto experienceDto) {
     UserEntity userEntity = userRepository.findByUserId(userId);
     if (userEntity == null) {
