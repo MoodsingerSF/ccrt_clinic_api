@@ -27,6 +27,7 @@ import com.moodsinger.ccrt_clinic.AppProperties;
 import com.moodsinger.ccrt_clinic.exceptions.UserServiceException;
 import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorCodes;
 import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorMessages;
+import com.moodsinger.ccrt_clinic.io.entity.AwardEntity;
 import com.moodsinger.ccrt_clinic.io.entity.EducationEntity;
 import com.moodsinger.ccrt_clinic.io.entity.ExperienceEntity;
 import com.moodsinger.ccrt_clinic.io.entity.PatientReportEntity;
@@ -35,6 +36,7 @@ import com.moodsinger.ccrt_clinic.io.entity.TrainingEntity;
 import com.moodsinger.ccrt_clinic.io.entity.UserEntity;
 import com.moodsinger.ccrt_clinic.io.enums.Role;
 import com.moodsinger.ccrt_clinic.io.enums.VerificationStatus;
+import com.moodsinger.ccrt_clinic.io.repository.AwardRepository;
 import com.moodsinger.ccrt_clinic.io.repository.EducationRepository;
 import com.moodsinger.ccrt_clinic.io.repository.ExperienceRepository;
 import com.moodsinger.ccrt_clinic.io.repository.PatientReportRepository;
@@ -91,6 +93,9 @@ public class UserServiceImpl implements UserService {
 
   @Autowired
   private ExperienceRepository experienceRepository;
+
+  @Autowired
+  private AwardRepository awardRepository;
 
   @Transactional
   @Override
@@ -483,10 +488,18 @@ public class UserServiceImpl implements UserService {
 
   }
 
+  @Transactional
   @Override
   public AwardDto addAward(String userId, AwardDto awardDto) {
-    // TODO Auto-generated method stub
-    return null;
+    UserEntity userEntity = userRepository.findByUserId(userId);
+    if (userEntity == null) {
+      throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
+          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    AwardEntity awardEntity = modelMapper.map(awardDto, AwardEntity.class);
+    awardEntity.setUser(userEntity);
+    AwardEntity createdAwardEntity = awardRepository.save(awardEntity);
+    return modelMapper.map(createdAwardEntity, AwardDto.class);
   }
 
   @Transactional
@@ -503,6 +516,7 @@ public class UserServiceImpl implements UserService {
     return modelMapper.map(createdExperienceEntity, ExperienceDto.class);
   }
 
+  @Transactional
   @Override
   public ExperienceDto updateExperience(String userId, long experienceId, ExperienceDto experienceDto) {
     UserEntity userEntity = userRepository.findByUserId(userId);
@@ -544,6 +558,7 @@ public class UserServiceImpl implements UserService {
     return modelMapper.map(updatedExperienceEntity, ExperienceDto.class);
   }
 
+  @Transactional
   @Override
   public void deleteExperience(String userId, long experienceId) {
     UserEntity userEntity = userRepository.findByUserId(userId);
