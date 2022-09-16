@@ -14,12 +14,14 @@ import com.moodsinger.ccrt_clinic.io.enums.Gender;
 import com.moodsinger.ccrt_clinic.io.enums.Role;
 import com.moodsinger.ccrt_clinic.io.enums.VerificationStatus;
 import com.moodsinger.ccrt_clinic.model.request.EducationCreationRequestModel;
+import com.moodsinger.ccrt_clinic.model.request.ExperienceCreationRequestModel;
 import com.moodsinger.ccrt_clinic.model.request.TrainingCreationRequestModel;
 import com.moodsinger.ccrt_clinic.model.request.UserSignupRequestModel;
 import com.moodsinger.ccrt_clinic.model.request.UserUpdateRequestModel;
 import com.moodsinger.ccrt_clinic.model.response.AppointmentRest;
 import com.moodsinger.ccrt_clinic.model.response.BlogRest;
 import com.moodsinger.ccrt_clinic.model.response.EducationRest;
+import com.moodsinger.ccrt_clinic.model.response.ExperienceRest;
 import com.moodsinger.ccrt_clinic.model.response.ResourceRest;
 import com.moodsinger.ccrt_clinic.model.response.TrainingRest;
 import com.moodsinger.ccrt_clinic.model.response.UserRest;
@@ -30,6 +32,7 @@ import com.moodsinger.ccrt_clinic.shared.Utils;
 import com.moodsinger.ccrt_clinic.shared.dto.AppointmentDto;
 import com.moodsinger.ccrt_clinic.shared.dto.BlogDto;
 import com.moodsinger.ccrt_clinic.shared.dto.EducationDto;
+import com.moodsinger.ccrt_clinic.shared.dto.ExperienceDto;
 import com.moodsinger.ccrt_clinic.shared.dto.ResourceDto;
 import com.moodsinger.ccrt_clinic.shared.dto.TrainingDto;
 import com.moodsinger.ccrt_clinic.shared.dto.UserDto;
@@ -273,6 +276,14 @@ public class UserController {
       @PathVariable(name = "trainingId") long trainingId) {
     userService.deleteTraining(userId, trainingId);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+  }
+
+  @PostMapping("/{userId}/experience")
+  public ExperienceRest addExperience(@PathVariable(name = "userId") String userId,
+      @RequestBody ExperienceCreationRequestModel experienceCreationRequestModel) {
+    ExperienceDto experienceDto = userService.addExperience(userId,
+        modelMapper.map(experienceCreationRequestModel, ExperienceDto.class));
+    return modelMapper.map(experienceDto, ExperienceRest.class);
   }
 
   private void checkUserSignupRequestBody(UserSignupRequestModel userSignupRequestModel, boolean isUserTypeOptional) {

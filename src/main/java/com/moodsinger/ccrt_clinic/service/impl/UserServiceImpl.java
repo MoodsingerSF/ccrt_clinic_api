@@ -28,6 +28,7 @@ import com.moodsinger.ccrt_clinic.exceptions.UserServiceException;
 import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorCodes;
 import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorMessages;
 import com.moodsinger.ccrt_clinic.io.entity.EducationEntity;
+import com.moodsinger.ccrt_clinic.io.entity.ExperienceEntity;
 import com.moodsinger.ccrt_clinic.io.entity.PatientReportEntity;
 import com.moodsinger.ccrt_clinic.io.entity.RoleEntity;
 import com.moodsinger.ccrt_clinic.io.entity.TrainingEntity;
@@ -35,6 +36,7 @@ import com.moodsinger.ccrt_clinic.io.entity.UserEntity;
 import com.moodsinger.ccrt_clinic.io.enums.Role;
 import com.moodsinger.ccrt_clinic.io.enums.VerificationStatus;
 import com.moodsinger.ccrt_clinic.io.repository.EducationRepository;
+import com.moodsinger.ccrt_clinic.io.repository.ExperienceRepository;
 import com.moodsinger.ccrt_clinic.io.repository.PatientReportRepository;
 import com.moodsinger.ccrt_clinic.io.repository.TrainingRepository;
 import com.moodsinger.ccrt_clinic.io.repository.UserRepository;
@@ -86,6 +88,9 @@ public class UserServiceImpl implements UserService {
 
   @Autowired
   private TrainingRepository trainingRepository;
+
+  @Autowired
+  private ExperienceRepository experienceRepository;
 
   @Transactional
   @Override
@@ -418,6 +423,7 @@ public class UserServiceImpl implements UserService {
     return modelMapper.map(createdTrainingEntity, TrainingDto.class);
   }
 
+  @Transactional
   @Override
   public TrainingDto updateTraining(String userId, long trainingId, TrainingDto trainingDto) {
     UserEntity userEntity = userRepository.findByUserId(userId);
@@ -453,6 +459,7 @@ public class UserServiceImpl implements UserService {
     return modelMapper.map(updatedTrainingEntity, TrainingDto.class);
   }
 
+  @Transactional
   @Override
   public void deleteTraining(String userId, long trainingId) {
     UserEntity userEntity = userRepository.findByUserId(userId);
@@ -482,10 +489,18 @@ public class UserServiceImpl implements UserService {
     return null;
   }
 
+  @Transactional
   @Override
   public ExperienceDto addExperience(String userId, ExperienceDto experienceDto) {
-    // TODO Auto-generated method stub
-    return null;
+    UserEntity userEntity = userRepository.findByUserId(userId);
+    if (userEntity == null) {
+      throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
+          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    ExperienceEntity experienceEntity = modelMapper.map(experienceDto, ExperienceEntity.class);
+    experienceEntity.setUser(userEntity);
+    ExperienceEntity createdExperienceEntity = experienceRepository.save(experienceEntity);
+    return modelMapper.map(createdExperienceEntity, ExperienceDto.class);
   }
 
 }

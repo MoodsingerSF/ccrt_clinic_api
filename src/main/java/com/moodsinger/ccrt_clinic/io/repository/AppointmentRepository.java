@@ -12,24 +12,24 @@ import com.moodsinger.ccrt_clinic.io.enums.AppointmentStatus;
 
 @Repository
 public interface AppointmentRepository extends PagingAndSortingRepository<AppointmentEntity, Long> {
-  Page<AppointmentEntity> findAllBySlotSlotId(String slotId, Pageable pageable);
+    Page<AppointmentEntity> findAllBySlotSlotId(String slotId, Pageable pageable);
 
-  AppointmentEntity findByAppointmentId(String appointmentId);
+    AppointmentEntity findByAppointmentId(String appointmentId);
 
-  Page<AppointmentEntity> findAllByDate(Date date, Pageable pageable);
+    Page<AppointmentEntity> findAllByDate(Date date, Pageable pageable);
 
-  Page<AppointmentEntity> findAllByDateAndStatus(Date date, AppointmentStatus status, Pageable pageable);
+    Page<AppointmentEntity> findAllByDateAndStatus(Date date, AppointmentStatus status, Pageable pageable);
 
-  Page<AppointmentEntity> findAllByDoctorUserIdAndDate(String userId, Date date,
-      Pageable pageable);
+    Page<AppointmentEntity> findAllByDoctorUserIdAndDate(String userId, Date date,
+            Pageable pageable);
 
-  Page<AppointmentEntity> findAllByDoctorUserIdAndDateAndStatus(String userId, Date date, AppointmentStatus status,
-      Pageable pageable);
+    Page<AppointmentEntity> findAllByDoctorUserIdAndDateAndStatus(String userId, Date date, AppointmentStatus status,
+            Pageable pageable);
 
-  Page<AppointmentEntity> findAllByPatientUserIdAndDate(String userId, Date date,
-      Pageable pageable);
+    Page<AppointmentEntity> findAllByPatientUserIdAndDate(String userId, Date date,
+            Pageable pageable);
 
-  Page<AppointmentEntity> findAllByPatientUserIdAndDateAndStatus(String userId, Date date, AppointmentStatus status,
-      Pageable pageable);
+    Page<AppointmentEntity> findAllByPatientUserIdAndDateAndStatus(String userId, Date date, AppointmentStatus status,
+            Pageable pageable);
 
 }
