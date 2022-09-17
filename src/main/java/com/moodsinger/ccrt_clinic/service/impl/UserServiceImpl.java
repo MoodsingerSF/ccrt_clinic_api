@@ -158,7 +158,8 @@ public class UserServiceImpl implements UserService {
       foundUserEntity.setFirstName(updateDetails.getFirstName());
     if (utils.isNonNullAndNonEmpty(updateDetails.getLastName()))
       foundUserEntity.setLastName(updateDetails.getLastName());
-
+    if (utils.isNonNullAndNonEmpty(updateDetails.getAbout()))
+      foundUserEntity.setAbout(updateDetails.getAbout());
     UserEntity updatedUserEntity = userRepository.save(foundUserEntity);
     UserDto userDto = new ModelMapper().map(updatedUserEntity, UserDto.class);
     return userDto;

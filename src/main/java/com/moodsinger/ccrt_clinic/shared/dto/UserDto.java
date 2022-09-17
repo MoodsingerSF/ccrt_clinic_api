@@ -1,6 +1,7 @@
 package com.moodsinger.ccrt_clinic.shared.dto;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 import com.moodsinger.ccrt_clinic.io.enums.Gender;
@@ -22,6 +23,11 @@ public class UserDto {
   private Gender gender;
   private String specialization;
   private Date birthDate;
+  private String about;
+  private List<EducationDto> education;
+  private List<TrainingDto> trainings;
+  private List<ExperienceDto> experiences;
+  private List<AwardDto> awards;
 
   public String getUserId() {
     return userId;
@@ -149,5 +155,45 @@ public class UserDto {
 
   public void setBirthDate(Date birthDate) {
     this.birthDate = birthDate;
+  }
+
+  public List<EducationDto> getEducation() {
+    return education;
+  }
+
+  public void setEducation(List<EducationDto> education) {
+    this.education = education;
+  }
+
+  public List<TrainingDto> getTrainings() {
+    return trainings;
+  }
+
+  public void setTrainings(List<TrainingDto> trainings) {
+    this.trainings = trainings;
+  }
+
+  public List<ExperienceDto> getExperiences() {
+    return experiences;
+  }
+
+  public void setExperiences(List<ExperienceDto> experiences) {
+    this.experiences = experiences;
+  }
+
+  public List<AwardDto> getAwards() {
+    return awards;
+  }
+
+  public void setAwards(List<AwardDto> awards) {
+    this.awards = awards;
+  }
+
+  public String getAbout() {
+    return about;
+  }
+
+  public void setAbout(String about) {
+    this.about = about;
   }
 }

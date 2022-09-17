@@ -77,16 +77,19 @@ public class UserEntity {
   @Column(nullable = true)
   private String specialization;
 
-  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+  @Column(nullable = true, length = 1000)
+  private String about;
+
+  @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
   private Set<ExperienceEntity> experiences;
 
-  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-  private Set<EducationEntity> educationEntities;
+  @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+  private Set<EducationEntity> education;
 
-  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-  private Set<TrainingEntity> trainingEntities;
+  @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+  private Set<TrainingEntity> trainings;
 
-  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
   private Set<AwardEntity> awards;
 
   public long getId() {
@@ -209,14 +212,6 @@ public class UserEntity {
     this.experiences = experiences;
   }
 
-  public Set<EducationEntity> getEducationEntities() {
-    return educationEntities;
-  }
-
-  public void setEducationEntities(Set<EducationEntity> educationEntities) {
-    this.educationEntities = educationEntities;
-  }
-
   public String getSpecialization() {
     return specialization;
   }
@@ -225,20 +220,36 @@ public class UserEntity {
     this.specialization = specialization;
   }
 
-  public Set<TrainingEntity> getTrainingEntities() {
-    return trainingEntities;
-  }
-
-  public void setTrainingEntities(Set<TrainingEntity> trainingEntities) {
-    this.trainingEntities = trainingEntities;
-  }
-
   public Set<AwardEntity> getAwards() {
     return awards;
   }
 
   public void setAwards(Set<AwardEntity> awards) {
     this.awards = awards;
+  }
+
+  public Set<EducationEntity> getEducation() {
+    return education;
+  }
+
+  public void setEducation(Set<EducationEntity> education) {
+    this.education = education;
+  }
+
+  public Set<TrainingEntity> getTrainings() {
+    return trainings;
+  }
+
+  public void setTrainings(Set<TrainingEntity> trainings) {
+    this.trainings = trainings;
+  }
+
+  public String getAbout() {
+    return about;
+  }
+
+  public void setAbout(String about) {
+    this.about = about;
   }
 
 }
