@@ -52,8 +52,9 @@ public class AppointmentEntity {
   @Column(nullable = false)
   private Date date;
 
-  @Column(nullable = false)
-  private long fee;
+  @OneToOne
+  @JoinColumn(nullable = false)
+  private FeeEntity fee;
 
   @Column(nullable = false, length = 200)
   private String meetingLink;
@@ -106,14 +107,6 @@ public class AppointmentEntity {
 
   public void setDate(Date date) {
     this.date = date;
-  }
-
-  public long getFee() {
-    return fee;
-  }
-
-  public void setFee(long fee) {
-    this.fee = fee;
   }
 
   public String getMeetingLink() {
@@ -202,6 +195,14 @@ public class AppointmentEntity {
 
   public void setDoctor(UserEntity doctor) {
     this.doctor = doctor;
+  }
+
+  public FeeEntity getFee() {
+    return fee;
+  }
+
+  public void setFee(FeeEntity fee) {
+    this.fee = fee;
   }
 
 }

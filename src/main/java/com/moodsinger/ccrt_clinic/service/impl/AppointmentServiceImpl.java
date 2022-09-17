@@ -41,6 +41,7 @@ import com.moodsinger.ccrt_clinic.io.repository.UserRepository;
 import com.moodsinger.ccrt_clinic.model.request.AppointmentCancelRequestModel;
 import com.moodsinger.ccrt_clinic.model.request.AppointmentEndRequestModel;
 import com.moodsinger.ccrt_clinic.service.AppointmentService;
+import com.moodsinger.ccrt_clinic.service.FeeService;
 import com.moodsinger.ccrt_clinic.shared.AmazonSES;
 import com.moodsinger.ccrt_clinic.shared.FileUploadUtil;
 import com.moodsinger.ccrt_clinic.shared.Utils;
@@ -86,6 +87,9 @@ public class AppointmentServiceImpl implements AppointmentService {
   @Autowired
   private MedicationRepository medicationRepository;
 
+  @Autowired
+  private FeeService feeService;
+
   @Transactional
   @Override
   public AppointmentDto createAppointment(AppointmentDto appointmentDto) {
@@ -99,13 +103,13 @@ public class AppointmentServiceImpl implements AppointmentService {
           ExceptionErrorMessages.SLOT_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
     AppointmentEntity appointmentEntity = modelMapper.map(appointmentDto, AppointmentEntity.class);
     appointmentEntity.setAppointmentId(utils.generateAppointmentId());
-    appointmentEntity.setFee(500);
     String meetingLink = "https://meet.google.com/new";
     appointmentEntity.setMeetingLink(meetingLink);
     appointmentEntity.setPatient(patient);
     DoctorScheduleEntity doctorScheduleEntity = slot.getDoctorScheduleEntity();
     UserEntity doctor = doctorScheduleEntity.getUser();
     appointmentEntity.setDoctor(doctor);
+    appointmentEntity.setFee(feeService.getFeeOfDoctor(doctor.getUserId()));
     appointmentEntity.setSlot(slot);
     String patientVerificationCode = utils.generatePatientVerificationCode();
     appointmentEntity.setPatientVerificationCode(patientVerificationCode);

@@ -15,6 +15,7 @@ public class AppointmentRest {
   private SlotRest slot;
   private UserRest patient;
   private UserRest doctor = null;
+  private FeeRest fee;
 
   public String getAppointmentId() {
     return appointmentId;
@@ -94,6 +95,14 @@ public class AppointmentRest {
 
   public void setDoctor(UserRest doctor) {
     this.doctor = doctor;
+  }
+
+  public FeeRest getFee() {
+    return fee;
+  }
+
+  public void setFee(FeeRest fee) {
+    this.fee = fee;
   }
 
 }

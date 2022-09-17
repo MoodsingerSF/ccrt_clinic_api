@@ -92,6 +92,12 @@ public class UserEntity {
   @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
   private Set<AwardEntity> awards;
 
+  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+  private Set<FeeChangingRequestEntity> feeChangingRequests;
+
+  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+  private Set<FinanceEntity> financeRecords;
+
   public long getId() {
     return this.id;
   }
@@ -250,6 +256,22 @@ public class UserEntity {
 
   public void setAbout(String about) {
     this.about = about;
+  }
+
+  public Set<FeeChangingRequestEntity> getFeeChangingRequests() {
+    return feeChangingRequests;
+  }
+
+  public void setFeeChangingRequests(Set<FeeChangingRequestEntity> feeChangingRequests) {
+    this.feeChangingRequests = feeChangingRequests;
+  }
+
+  public Set<FinanceEntity> getFinanceRecords() {
+    return financeRecords;
+  }
+
+  public void setFinanceRecords(Set<FinanceEntity> financeRecords) {
+    this.financeRecords = financeRecords;
   }
 
 }

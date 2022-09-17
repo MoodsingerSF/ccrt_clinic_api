@@ -9,7 +9,7 @@ public class AppointmentDto {
   private String slotId;
   private String patientUserId;
   private String date;
-  private int fee;
+  private FeeDto fee;
   private String meetingLink;
   private String patientVerificationCode;
   private SlotDto slot;
@@ -42,14 +42,6 @@ public class AppointmentDto {
 
   public void setDate(String date) {
     this.date = date;
-  }
-
-  public int getFee() {
-    return fee;
-  }
-
-  public void setFee(int fee) {
-    this.fee = fee;
   }
 
   public String getMeetingLink() {
@@ -130,6 +122,14 @@ public class AppointmentDto {
 
   public void setDoctor(UserDto doctor) {
     this.doctor = doctor;
+  }
+
+  public FeeDto getFee() {
+    return fee;
+  }
+
+  public void setFee(FeeDto fee) {
+    this.fee = fee;
   }
 
 }

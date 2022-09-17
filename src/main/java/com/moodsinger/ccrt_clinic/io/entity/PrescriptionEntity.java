@@ -28,7 +28,7 @@ public class PrescriptionEntity {
   @Column(unique = true, length = 20, nullable = false)
   private String prescriptionId;
 
-  @OneToOne(fetch = FetchType.LAZY)
+  @OneToOne(mappedBy = "prescription", fetch = FetchType.LAZY)
   @JoinColumn(nullable = false)
   private AppointmentEntity appointment;
 
