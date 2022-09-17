@@ -28,6 +28,8 @@ public class UserDto {
   private List<TrainingDto> trainings;
   private List<ExperienceDto> experiences;
   private List<AwardDto> awards;
+  private double fee;
+  private String adminUserId;
 
   public String getUserId() {
     return userId;
@@ -195,5 +197,21 @@ public class UserDto {
 
   public void setAbout(String about) {
     this.about = about;
+  }
+
+  public double getFee() {
+    return fee;
+  }
+
+  public void setFee(double fee) {
+    this.fee = fee;
+  }
+
+  public String getAdminUserId() {
+    return adminUserId;
+  }
+
+  public void setAdminUserId(String adminUserId) {
+    this.adminUserId = adminUserId;
   }
 }

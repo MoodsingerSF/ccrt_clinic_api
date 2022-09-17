@@ -30,6 +30,7 @@ import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorMessages;
 import com.moodsinger.ccrt_clinic.io.entity.AwardEntity;
 import com.moodsinger.ccrt_clinic.io.entity.EducationEntity;
 import com.moodsinger.ccrt_clinic.io.entity.ExperienceEntity;
+import com.moodsinger.ccrt_clinic.io.entity.FeeChangingRequestEntity;
 import com.moodsinger.ccrt_clinic.io.entity.PatientReportEntity;
 import com.moodsinger.ccrt_clinic.io.entity.RoleEntity;
 import com.moodsinger.ccrt_clinic.io.entity.TrainingEntity;
@@ -39,10 +40,13 @@ import com.moodsinger.ccrt_clinic.io.enums.VerificationStatus;
 import com.moodsinger.ccrt_clinic.io.repository.AwardRepository;
 import com.moodsinger.ccrt_clinic.io.repository.EducationRepository;
 import com.moodsinger.ccrt_clinic.io.repository.ExperienceRepository;
+import com.moodsinger.ccrt_clinic.io.repository.FeeChangingRequestRepository;
 import com.moodsinger.ccrt_clinic.io.repository.PatientReportRepository;
 import com.moodsinger.ccrt_clinic.io.repository.TrainingRepository;
 import com.moodsinger.ccrt_clinic.io.repository.UserRepository;
 import com.moodsinger.ccrt_clinic.service.DoctorScheduleService;
+import com.moodsinger.ccrt_clinic.service.FeeChangingRequestService;
+import com.moodsinger.ccrt_clinic.service.FeeService;
 import com.moodsinger.ccrt_clinic.service.RoleService;
 import com.moodsinger.ccrt_clinic.service.UserService;
 import com.moodsinger.ccrt_clinic.shared.FileUploadUtil;
@@ -50,6 +54,8 @@ import com.moodsinger.ccrt_clinic.shared.Utils;
 import com.moodsinger.ccrt_clinic.shared.dto.AwardDto;
 import com.moodsinger.ccrt_clinic.shared.dto.EducationDto;
 import com.moodsinger.ccrt_clinic.shared.dto.ExperienceDto;
+import com.moodsinger.ccrt_clinic.shared.dto.FeeChangingRequestDto;
+import com.moodsinger.ccrt_clinic.shared.dto.FeeDto;
 import com.moodsinger.ccrt_clinic.shared.dto.ResourceDto;
 import com.moodsinger.ccrt_clinic.shared.dto.RoleDto;
 import com.moodsinger.ccrt_clinic.shared.dto.TrainingDto;
@@ -97,13 +103,23 @@ public class UserServiceImpl implements UserService {
   @Autowired
   private AwardRepository awardRepository;
 
+  @Autowired
+  private FeeChangingRequestService feeChangingRequestService;
+
+  @Autowired
+  private FeeChangingRequestRepository feeChangingRequestRepository;
+
+  @Autowired
+  private FeeService feeService;
+
   @Transactional
   @Override
   public UserDto createUser(UserDto userDetails) {
     // create user entity
     UserEntity userEntity = modelMapper.map(userDetails, UserEntity.class);
     // adding public user id
-    userEntity.setUserId(utils.generateUserId(30));
+    String userId = utils.generateUserId(30);
+    userEntity.setUserId(userId);
     userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(userDetails.getPassword()));
     if (userDetails.getUserType().equals(Role.USER.name()) || userDetails.getUserType().equals(Role.ADMIN.name())) {
       userEntity.setVerificationStatus(VerificationStatus.ACCEPTED);
@@ -123,6 +139,14 @@ public class UserServiceImpl implements UserService {
     // save user entity
     UserEntity createdUserEntity = userRepository.save(userEntity);
 
+    if (userDetails.getUserType().equals(Role.DOCTOR.name())) {
+      FeeChangingRequestDto feeChangingRequestDto = new FeeChangingRequestDto();
+      feeChangingRequestDto.setAmount(userDetails.getFee());
+      feeChangingRequestDto.setPreviousAmount(-1);
+      feeChangingRequestDto.setUserId(userId);
+      feeChangingRequestService.createFeeChangingRequest(feeChangingRequestDto);
+    }
+
     if (createdUserEntity == null)
       throw new UserServiceException(ExceptionErrorCodes.USER_NOT_CREATED.name(),
           ExceptionErrorMessages.USER_NOT_CREATED.getMessage());
@@ -136,6 +160,7 @@ public class UserServiceImpl implements UserService {
     return userDto;
   }
 
+  @Transactional
   @Override
   public UserDto getUserByUserId(String userId) {
     UserEntity foundUserEntity = userRepository.findByUserId(userId);
@@ -143,6 +168,7 @@ public class UserServiceImpl implements UserService {
       throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
           ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
     UserDto userDto = new ModelMapper().map(foundUserEntity, UserDto.class);
+    userDto.setFee(feeService.getFeeOfDoctor(foundUserEntity.getUserId()).getAmount());
     return userDto;
   }
 
@@ -226,10 +252,29 @@ public class UserServiceImpl implements UserService {
       throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
           ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
     }
-    foundUserEntity.setVerificationStatus(VerificationStatus.valueOf(updateDetails.getVerificationStatus()));
-    UserEntity updatedUserEntity = userRepository.save(foundUserEntity);
-    UserDto userDto = new ModelMapper().map(updatedUserEntity, UserDto.class);
-    return userDto;
+    // find pending fee changing requests and resolve them
+    VerificationStatus verificationStatus = VerificationStatus.valueOf(updateDetails.getVerificationStatus());
+    if (verificationStatus == VerificationStatus.ACCEPTED) {
+      List<FeeChangingRequestEntity> feeChangingRequestEntities = feeChangingRequestService
+          .retrievePendingRequestEntitiesOfUser(userId);
+      FeeChangingRequestEntity latestFeeChangingRequestEntity = feeChangingRequestEntities.get(0);
+      FeeDto feeDto = new FeeDto(latestFeeChangingRequestEntity.getAmount(), userId);
+      feeService.addFee(feeDto);
+
+      for (FeeChangingRequestEntity feeChangingRequestEntity : feeChangingRequestEntities) {
+        feeChangingRequestEntity.setResolver(userRepository.findByUserId(updateDetails.getAdminUserId()));
+        feeChangingRequestEntity.setStatus(VerificationStatus.ACCEPTED);
+      }
+      feeChangingRequestRepository.saveAll(feeChangingRequestEntities);
+      foundUserEntity.setVerificationStatus(verificationStatus);
+      UserEntity updatedUserEntity = userRepository.save(foundUserEntity);
+      UserDto userDto = new ModelMapper().map(updatedUserEntity, UserDto.class);
+      return userDto;
+    } else if (verificationStatus == VerificationStatus.REJECTED) {
+      userRepository.delete(foundUserEntity);
+    }
+
+    return new UserDto();
   }
 
   @Override
@@ -271,7 +316,9 @@ public class UserServiceImpl implements UserService {
     List<UserEntity> foundDoctors = foundDoctorsPage.getContent();
     List<UserDto> foundDoctorsDto = new ArrayList<>();
     for (UserEntity userEntity : foundDoctors) {
-      foundDoctorsDto.add(modelMapper.map(userEntity, UserDto.class));
+      UserDto user = modelMapper.map(userEntity, UserDto.class);
+      user.setFee(feeService.getFeeOfDoctor(userEntity.getUserId()).getAmount());
+      foundDoctorsDto.add(user);
     }
     return foundDoctorsDto;
   }

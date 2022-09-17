@@ -20,6 +20,7 @@ public class UserRest {
   private List<TrainingRest> trainings;
   private List<ExperienceRest> experiences;
   private List<AwardRest> awards;
+  private double fee;
 
   public String getUserId() {
     return userId;
@@ -131,6 +132,14 @@ public class UserRest {
 
   public void setAbout(String about) {
     this.about = about;
+  }
+
+  public double getFee() {
+    return fee;
+  }
+
+  public void setFee(double fee) {
+    this.fee = fee;
   }
 
 }

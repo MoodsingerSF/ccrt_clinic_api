@@ -6,6 +6,7 @@ public class UserUpdateRequestModel {
   private String role;
   private String verificationStatus;
   private String about;
+  private String adminUserId;
 
   public String getFirstName() {
     return this.firstName;
@@ -45,6 +46,14 @@ public class UserUpdateRequestModel {
 
   public void setAbout(String about) {
     this.about = about;
+  }
+
+  public String getAdminUserId() {
+    return adminUserId;
+  }
+
+  public void setAdminUserId(String adminUserId) {
+    this.adminUserId = adminUserId;
   }
 
 }

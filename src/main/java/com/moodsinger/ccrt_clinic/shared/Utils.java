@@ -32,6 +32,10 @@ public class Utils {
     return generateRandomString(length, DIGITS);
   }
 
+  public String generateRequestId() {
+    return generateRandomString(15, ALPHABET);
+  }
+
   public String generateOtpId(int length) {
     return generateRandomString(length, ALPHABET);
   }
@@ -109,6 +113,11 @@ public class Utils {
 
   public boolean validateSpecialization(String specialization) {
     return isNonNullAndNonEmpty(specialization);
+
+  }
+
+  public boolean validateFee(double fee) {
+    return fee > 0;
 
   }
 

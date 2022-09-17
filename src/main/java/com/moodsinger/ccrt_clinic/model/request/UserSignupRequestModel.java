@@ -17,6 +17,7 @@ public class UserSignupRequestModel {
   private String specialization;
   @DateTimeFormat(pattern = "yyyy-MM-dd")
   private Date birthDate;
+  private double fee;
 
   public String getFirstName() {
     return this.firstName;
@@ -86,5 +87,13 @@ public class UserSignupRequestModel {
 
   public void setBirthDate(Date birthDate) {
     this.birthDate = birthDate;
+  }
+
+  public double getFee() {
+    return fee;
+  }
+
+  public void setFee(double fee) {
+    this.fee = fee;
   }
 }

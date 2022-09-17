@@ -4,7 +4,8 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -15,6 +16,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import com.moodsinger.ccrt_clinic.io.enums.VerificationStatus;
 
@@ -35,7 +37,7 @@ public class FeeChangingRequestEntity {
   @Column(nullable = false)
   private double amount;
 
-  @Column(nullable = false)
+  @Column(nullable = true)
   private double previousAmount;
 
   @Temporal(TemporalType.TIMESTAMP)
@@ -43,10 +45,12 @@ public class FeeChangingRequestEntity {
   @CreationTimestamp
   private Date creationTime;
 
+  @Enumerated(EnumType.STRING)
   @Column(nullable = false)
   private VerificationStatus status = VerificationStatus.PENDING;
 
   @Temporal(TemporalType.TIMESTAMP)
+  @UpdateTimestamp
   private Date resolvedAt;
 
   @ManyToOne
