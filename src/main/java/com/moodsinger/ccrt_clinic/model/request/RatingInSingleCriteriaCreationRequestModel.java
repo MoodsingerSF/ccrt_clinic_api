@@ -1,7 +1,7 @@
 package com.moodsinger.ccrt_clinic.model.request;
 
 public class RatingInSingleCriteriaCreationRequestModel {
-  private long id;
+  private long criteriaId;
   private double rating;
 
   public double getRating() {
@@ -12,11 +12,12 @@ public class RatingInSingleCriteriaCreationRequestModel {
     this.rating = rating;
   }
 
-  public long getId() {
-    return id;
+  public long getCriteriaId() {
+    return criteriaId;
   }
 
-  public void setId(long id) {
-    this.id = id;
+  public void setCriteriaId(long criteriaId) {
+    this.criteriaId = criteriaId;
   }
+
 }

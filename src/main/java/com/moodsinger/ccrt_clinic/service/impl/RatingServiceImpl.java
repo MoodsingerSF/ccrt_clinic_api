@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.moodsinger.ccrt_clinic.exceptions.RatingServiceException;
 import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorCodes;
 import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorMessages;
+import com.moodsinger.ccrt_clinic.io.entity.AverageRating;
 import com.moodsinger.ccrt_clinic.io.entity.RatingCriteriaEntity;
 import com.moodsinger.ccrt_clinic.io.entity.RatingEntity;
 import com.moodsinger.ccrt_clinic.io.entity.RoleEntity;
@@ -67,7 +68,7 @@ public class RatingServiceImpl implements RatingService {
       ratingEntity.setDoctor(doctorEntity);
       ratingEntity.setPatient(userEntity);
       RatingCriteriaEntity ratingCriteriaEntity = ratingCriteriaRepository
-          .findById(ratingInSingleCriteriaCreationRequestModel.getId());
+          .findById(ratingInSingleCriteriaCreationRequestModel.getCriteriaId());
       double rating = ratingInSingleCriteriaCreationRequestModel.getRating();
       if (rating < 0 || rating > ratingCriteriaEntity.getMaxValue()) {
         throw new RatingServiceException(ExceptionErrorCodes.VALUE_OUT_OF_RANGE.name(),
@@ -85,6 +86,72 @@ public class RatingServiceImpl implements RatingService {
 
     List<RatingDto> ratingDtos = new ArrayList<>();
     for (RatingEntity ratingEntity : createdRatingEntities) {
+      ratingDtos.add(modelMapper.map(ratingEntity, RatingDto.class));
+    }
+    return ratingDtos;
+  }
+
+  @Override
+  public List<RatingDto> retrieveRatings(String doctorUserId, String raterUserId) {
+    List<RatingEntity> ratingEntities = ratingRepository.findAllByPatientUserIdAndDoctorUserId(raterUserId,
+        doctorUserId);
+    List<RatingDto> ratingDtos = new ArrayList<>();
+    for (RatingEntity ratingEntity : ratingEntities) {
+      ratingDtos.add(modelMapper.map(ratingEntity, RatingDto.class));
+    }
+    return ratingDtos;
+  }
+
+  @Override
+  public List<RatingDto> retrieveAverageRatings(String doctorUserId) {
+    List<AverageRating> ratingEntities = ratingRepository.getAverageRatingOfDoctor(doctorUserId);
+    List<RatingDto> ratingDtos = new ArrayList<>();
+    for (AverageRating averageRating : ratingEntities) {
+      ratingDtos.add(modelMapper.map(averageRating, RatingDto.class));
+    }
+    return ratingDtos;
+  }
+
+  @Transactional
+  @Override
+  public List<RatingDto> updateRatings(String doctorUserId, RatingCreationRequestModel ratingCreationRequestModel) {
+    UserEntity doctorEntity = userRepository.findByUserId(doctorUserId);
+
+    if (doctorEntity == null) {
+      throw new RatingServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
+          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    List<RoleEntity> roles = new ArrayList<>(doctorEntity.getRoles());
+    Role role = roles.get(0).getName();
+    if (role != Role.DOCTOR) {
+      throw new RatingServiceException(ExceptionErrorCodes.FORBIDDEN.name(),
+          ExceptionErrorMessages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
+    }
+    UserEntity userEntity = userRepository.findByUserId(ratingCreationRequestModel.getRatingGiverUserId());
+    if (userEntity == null) {
+      throw new RatingServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
+          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    List<RatingEntity> ratingEntities = new ArrayList<>();
+    for (RatingInSingleCriteriaCreationRequestModel ratingInSingleCriteriaCreationRequestModel : ratingCreationRequestModel
+        .getRatings()) {
+      RatingEntity ratingEntity = ratingRepository.findByRatingCriteriaIdAndDoctorUserIdAndPatientUserId(
+          ratingInSingleCriteriaCreationRequestModel.getCriteriaId(), doctorUserId, userEntity.getUserId());
+      double rating = ratingInSingleCriteriaCreationRequestModel.getRating();
+      if (rating < 0 || rating > ratingEntity.getRatingCriteria().getMaxValue()) {
+        throw new RatingServiceException(ExceptionErrorCodes.VALUE_OUT_OF_RANGE.name(),
+            "Rating value must be in the range between 0 to " + ratingEntity.getRatingCriteria().getMaxValue(),
+            HttpStatus.BAD_REQUEST);
+      }
+      ratingEntity.setRating(rating);
+
+      ratingEntities.add(ratingEntity);
+
+    }
+    List<RatingEntity> updatedRatingEntities = (List<RatingEntity>) ratingRepository.saveAll(ratingEntities);
+
+    List<RatingDto> ratingDtos = new ArrayList<>();
+    for (RatingEntity ratingEntity : updatedRatingEntities) {
       ratingDtos.add(modelMapper.map(ratingEntity, RatingDto.class));
     }
     return ratingDtos;

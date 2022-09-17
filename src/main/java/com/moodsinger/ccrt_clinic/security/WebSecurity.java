@@ -69,6 +69,7 @@ public class WebSecurity {
         .antMatchers(HttpMethod.GET, "/slots/{slotId}/appointments")
         .permitAll()
         .antMatchers(HttpMethod.GET, "/users/{userId}").permitAll()
+        .antMatchers(HttpMethod.GET, "/users/{userId}/rating").permitAll()
         .antMatchers(HttpMethod.GET, "/rating_criteria").permitAll()
         .antMatchers(HttpMethod.POST, SecurityConstants.LOG_IN_URL).permitAll().anyRequest()
         .authenticated().and().addFilter(new AuthenticationFilter(authenticationManager(authenticationConfiguration)))
