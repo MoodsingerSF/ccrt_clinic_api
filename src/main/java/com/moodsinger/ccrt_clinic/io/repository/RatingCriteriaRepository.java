@@ -10,4 +10,10 @@ import com.moodsinger.ccrt_clinic.io.entity.RatingCriteriaEntity;
 @Repository
 public interface RatingCriteriaRepository extends CrudRepository<RatingCriteriaEntity, Long> {
   List<RatingCriteriaEntity> findAll();
+
+  // List<RatingCriteriaEntity> saveAll(List<RatingCriteriaEntity>
+  // ratingCriteriaEntities);
+
+  RatingCriteriaEntity findById(long id);
+
 }
