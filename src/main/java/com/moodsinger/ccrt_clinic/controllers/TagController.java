@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.moodsinger.ccrt_clinic.model.response.BlogCountByTagRest;
 import com.moodsinger.ccrt_clinic.service.TagService;
 import com.moodsinger.ccrt_clinic.shared.dto.TagDto;
 
@@ -29,5 +30,13 @@ public class TagController {
       tags.add(tagDto.getName());
     }
     return tags;
+  }
+
+  @GetMapping(path = "/popular")
+  public List<BlogCountByTagRest> retrievePopularTags(
+      @RequestParam(name = "page", defaultValue = "0", required = false) int page,
+      @RequestParam(name = "limit", defaultValue = "15", required = false) int limit) {
+    List<BlogCountByTagRest> foundTags = tagService.retrievePopularTags(page, limit);
+    return foundTags;
   }
 }

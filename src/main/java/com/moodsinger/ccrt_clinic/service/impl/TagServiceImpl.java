@@ -10,15 +10,18 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import com.moodsinger.ccrt_clinic.io.entity.BlogCountByTag;
 import com.moodsinger.ccrt_clinic.io.entity.BlogEntity;
 import com.moodsinger.ccrt_clinic.io.entity.TagEntity;
 import com.moodsinger.ccrt_clinic.io.repository.TagRepository;
+import com.moodsinger.ccrt_clinic.model.response.BlogCountByTagRest;
 import com.moodsinger.ccrt_clinic.service.TagService;
 import com.moodsinger.ccrt_clinic.shared.dto.TagDto;
 
 @Service
 public class TagServiceImpl implements TagService {
 
+  final long NUMBER_OF_BLOGS_TO_CONSIDER_TO_FIND_POPULAR_TAGS = 100;
   @Autowired
   private TagRepository tagRepository;
   @Autowired
@@ -37,16 +40,11 @@ public class TagServiceImpl implements TagService {
   public TagEntity getOrCreateTag(TagDto tagDto) {
     ModelMapper modelMapper = new ModelMapper();
     TagEntity returnEntity;
-    System.out.println(tagDto);
-    System.out.println("--------------" + tagDto.getName() + "---------------");
     TagEntity foundTagEntity = tagRepository.findByName(tagDto.getName());
     returnEntity = foundTagEntity;
-    System.out.println("found tag entity= " + foundTagEntity);
     if (foundTagEntity == null) {
-      System.out.println("*****************tag entity not found*****************8");
       foundTagEntity = modelMapper.map(tagDto, TagEntity.class);
       foundTagEntity.setBlogs(new ArrayList<BlogEntity>());
-      System.out.println("*************" + foundTagEntity.getName() + "*************");
       returnEntity = tagRepository.save(foundTagEntity);
     }
     return returnEntity;
@@ -62,6 +60,20 @@ public class TagServiceImpl implements TagService {
       foundTagDtos.add(modelMapper.map(tagEntity, TagDto.class));
     }
     return foundTagDtos;
+  }
+
+  @Override
+  public List<BlogCountByTagRest> retrievePopularTags(int page, int limit) {
+    long maxId = tagRepository.getMaxId();
+    Page<BlogCountByTag> foundTagEntities = tagRepository.findPopularTags(
+        maxId - NUMBER_OF_BLOGS_TO_CONSIDER_TO_FIND_POPULAR_TAGS,
+        PageRequest.of(page, limit));
+    List<BlogCountByTag> foundTagEntitiesList = foundTagEntities.getContent();
+    List<BlogCountByTagRest> returnEntities = new ArrayList<>();
+    for (BlogCountByTag blogCountByTag : foundTagEntitiesList) {
+      returnEntities.add(modelMapper.map(blogCountByTag, BlogCountByTagRest.class));
+    }
+    return returnEntities;
   }
 
 }
