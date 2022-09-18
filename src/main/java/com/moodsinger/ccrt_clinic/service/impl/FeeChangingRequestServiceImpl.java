@@ -22,6 +22,7 @@ import com.moodsinger.ccrt_clinic.io.entity.FeeChangingRequestEntity;
 import com.moodsinger.ccrt_clinic.io.entity.RoleEntity;
 import com.moodsinger.ccrt_clinic.io.entity.UserEntity;
 import com.moodsinger.ccrt_clinic.io.enums.Role;
+import com.moodsinger.ccrt_clinic.io.enums.SortType;
 import com.moodsinger.ccrt_clinic.io.enums.VerificationStatus;
 import com.moodsinger.ccrt_clinic.io.repository.FeeChangingRequestRepository;
 import com.moodsinger.ccrt_clinic.io.repository.UserRepository;
@@ -65,6 +66,14 @@ public class FeeChangingRequestServiceImpl implements FeeChangingRequestService 
       throw new UserServiceException(ExceptionErrorCodes.FORBIDDEN.name(),
           ExceptionErrorMessages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
     }
+    Page<FeeChangingRequestEntity> feeChangingRequestEntitiesPage = feeChangingRequestRepository
+        .findAllByUserUserIdAndStatus(feeChangingRequestDto.getUserId(), VerificationStatus.PENDING,
+            PageRequest.of(0, 10));
+    List<FeeChangingRequestEntity> feeChangingRequestEntitiesList = feeChangingRequestEntitiesPage.getContent();
+    if (feeChangingRequestEntitiesList != null && feeChangingRequestEntitiesList.size() > 0) {
+      throw new FeeChangingRequestServiceException(ExceptionErrorCodes.FEE_CHANGING_REQUEST_CREATION_ERROR.name(),
+          ExceptionErrorMessages.FEE_CHANGING_REQUEST_CREATION_ERROR.getMessage(), HttpStatus.FORBIDDEN);
+    }
 
     FeeChangingRequestEntity feeChangingRequestEntity = modelMapper.map(feeChangingRequestDto,
         FeeChangingRequestEntity.class);
@@ -97,8 +106,13 @@ public class FeeChangingRequestServiceImpl implements FeeChangingRequestService 
   }
 
   @Override
-  public List<FeeChangingRequestDto> retrieveFeeChangingRequests(int page, int limit, VerificationStatus status) {
-    Pageable pageable = PageRequest.of(page, limit, Sort.by("id").descending());
+  public List<FeeChangingRequestDto> retrieveFeeChangingRequests(int page, int limit, VerificationStatus status,
+      SortType sortType) {
+    Sort sort = Sort.by("id").descending();
+    if (sortType == SortType.ASC) {
+      sort = Sort.by("id").ascending();
+    }
+    Pageable pageable = PageRequest.of(page, limit, sort);
     Page<FeeChangingRequestEntity> feeChangingRequestEntitiesPage = feeChangingRequestRepository.findByStatus(status,
         pageable);
     List<FeeChangingRequestEntity> feeChangingRequestEntities = feeChangingRequestEntitiesPage.getContent();
@@ -110,8 +124,12 @@ public class FeeChangingRequestServiceImpl implements FeeChangingRequestService 
   }
 
   @Override
-  public List<FeeChangingRequestDto> retrieveAllFeeChangingRequests(int page, int limit) {
-    Pageable pageable = PageRequest.of(page, limit, Sort.by("id").descending());
+  public List<FeeChangingRequestDto> retrieveAllFeeChangingRequests(int page, int limit, SortType sortType) {
+    Sort sort = Sort.by("id").descending();
+    if (sortType == SortType.ASC) {
+      sort = Sort.by("id").ascending();
+    }
+    Pageable pageable = PageRequest.of(page, limit, sort);
     Page<FeeChangingRequestEntity> feeChangingRequestEntitiesPage = feeChangingRequestRepository.findAll(pageable);
     List<FeeChangingRequestEntity> feeChangingRequestEntities = feeChangingRequestEntitiesPage.getContent();
     List<FeeChangingRequestDto> feeChangingRequestDtos = new ArrayList<>();

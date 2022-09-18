@@ -45,6 +45,13 @@ public class AppExceptionHandler {
     return new ResponseEntity<ErrorMessage>(errorMessage, new HttpHeaders(), exception.getHttpStatus());
   }
 
+  @ExceptionHandler(value = { FeeChangingRequestServiceException.class })
+  public ResponseEntity<ErrorMessage> handleFeeChangingRequestServiceException(
+      FeeChangingRequestServiceException exception) {
+    ErrorMessage errorMessage = new ErrorMessage(exception.getCode(), exception.getMessage());
+    return new ResponseEntity<ErrorMessage>(errorMessage, new HttpHeaders(), exception.getHttpStatus());
+  }
+
   @ExceptionHandler(value = { DoctorScheduleServiceException.class })
   public ResponseEntity<ErrorMessage> handleDoctorScheduleServiceException(
       DoctorScheduleServiceException exception) {

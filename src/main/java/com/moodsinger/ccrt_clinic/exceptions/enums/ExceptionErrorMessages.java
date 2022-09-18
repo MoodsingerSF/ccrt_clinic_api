@@ -34,6 +34,8 @@ public enum ExceptionErrorMessages {
   AWARD_NOT_FOUND("Award entity couldn't be found."),
   FEE_FIELD_ERROR("Fee must be greater than 0."),
   REQUEST_NOT_FOUND("Request couldn't be found."),
+  FEE_CHANGING_REQUEST_CREATION_ERROR(
+      "You already have a pending request. You can request another one once the pending request is resolved."),
 
   PRESCRIPTION_ALREADY_EXISTS(
       "Doctor has already added a prescription. You can not add another one. Try modifying the previous one."),

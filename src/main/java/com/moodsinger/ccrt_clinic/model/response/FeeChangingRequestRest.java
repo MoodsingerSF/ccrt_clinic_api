@@ -2,7 +2,7 @@ package com.moodsinger.ccrt_clinic.model.response;
 
 import java.util.Date;
 
-import com.amazonaws.services.simpleemail.model.VerificationStatus;
+import com.moodsinger.ccrt_clinic.io.enums.VerificationStatus;
 
 public class FeeChangingRequestRest {
   private String requestId;

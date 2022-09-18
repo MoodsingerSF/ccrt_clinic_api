@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.moodsinger.ccrt_clinic.io.enums.SortType;
 import com.moodsinger.ccrt_clinic.io.enums.VerificationStatus;
 import com.moodsinger.ccrt_clinic.model.request.FeeChangingRequestModel;
 import com.moodsinger.ccrt_clinic.model.request.FeeChangingRequestUpdateRequestModel;
@@ -44,13 +45,14 @@ public class FeeChangingRequestController {
   public List<FeeChangingRequestRest> getFeeChangingRequests(
       @RequestParam(name = "page", defaultValue = "0", required = false) int page,
       @RequestParam(name = "limit", defaultValue = "15", required = false) int limit,
-      @RequestParam(name = "status", required = false) VerificationStatus status) {
+      @RequestParam(name = "status", required = false) VerificationStatus status,
+      @RequestParam(name = "sort", defaultValue = "DESC", required = false) SortType sortType) {
     List<FeeChangingRequestDto> feeChangingRequestDtos;
     if (status == VerificationStatus.ACCEPTED || status == VerificationStatus.PENDING
         || status == VerificationStatus.REJECTED) {
-      feeChangingRequestDtos = feeChangingRequestService.retrieveFeeChangingRequests(page, limit, status);
+      feeChangingRequestDtos = feeChangingRequestService.retrieveFeeChangingRequests(page, limit, status, sortType);
     } else {
-      feeChangingRequestDtos = feeChangingRequestService.retrieveAllFeeChangingRequests(page, limit);
+      feeChangingRequestDtos = feeChangingRequestService.retrieveAllFeeChangingRequests(page, limit, sortType);
     }
     List<FeeChangingRequestRest> feeChangingRequestRests = new ArrayList<>();
     for (FeeChangingRequestDto feeChangingRequestDto : feeChangingRequestDtos) {
