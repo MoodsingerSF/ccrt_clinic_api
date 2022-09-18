@@ -19,6 +19,7 @@ public class BlogDto {
   private MultipartFile image;
   private Set<TagDto> tags = new HashSet<>();
   private int totalBlogs;
+  private long numTimesRead;
 
   public BlogDto() {
   }
@@ -116,6 +117,14 @@ public class BlogDto {
 
   public void setTotalBlogs(int totalBlogs) {
     this.totalBlogs = totalBlogs;
+  }
+
+  public long getNumTimesRead() {
+    return numTimesRead;
+  }
+
+  public void setNumTimesRead(long numTimesRead) {
+    this.numTimesRead = numTimesRead;
   }
 
 }

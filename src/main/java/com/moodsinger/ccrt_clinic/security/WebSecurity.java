@@ -64,6 +64,8 @@ public class WebSecurity {
         .hasAnyAuthority(Role.ADMIN.name())
         .antMatchers(HttpMethod.GET, "/blogs/{blogId}/related-blogs")
         .permitAll()
+        .antMatchers(HttpMethod.PUT, "/blogs/{blogId}/num-times-read")
+        .permitAll()
         .antMatchers(HttpMethod.POST, "/otp")
         .permitAll()
         .antMatchers(HttpMethod.GET, "/tags/**")

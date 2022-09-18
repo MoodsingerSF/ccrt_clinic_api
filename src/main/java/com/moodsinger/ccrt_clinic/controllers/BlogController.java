@@ -104,6 +104,13 @@ public class BlogController {
     return updatedBlogRest;
   }
 
+  @PutMapping(path = "/{blogId}/num-times-read")
+  public BlogRest updateNumTimesRead(@PathVariable String blogId) {
+    BlogDto updatedBlogDto = blogService.updateNumberOfTimesRead(blogId);
+    BlogRest updatedBlogRest = modelMapper.map(updatedBlogDto, BlogRest.class);
+    return updatedBlogRest;
+  }
+
   @GetMapping(path = "/{blogId}/related-blogs")
   public List<BlogRest> getRelatedBlogs(@PathVariable String blogId,
       @RequestParam(name = "page", defaultValue = "0", required = false) int page,

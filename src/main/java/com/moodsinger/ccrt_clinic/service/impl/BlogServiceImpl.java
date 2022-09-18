@@ -259,4 +259,18 @@ public class BlogServiceImpl implements BlogService {
     return cnt;
   }
 
+  @Transactional
+  @Override
+  public BlogDto updateNumberOfTimesRead(String blogId) {
+    BlogEntity foundBlogEntity = blogRepository.findByBlogId(blogId);
+    if (foundBlogEntity == null) {
+      throw new BlogServiceException(ExceptionErrorCodes.BLOG_NOT_FOUND.name(),
+          ExceptionErrorMessages.BLOG_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
+    }
+    foundBlogEntity.setNumTimesRead(foundBlogEntity.getNumTimesRead() + 1);
+    BlogEntity updatedBlogEntity = blogRepository.save(foundBlogEntity);
+    BlogDto updatedBlogDto = modelMapper.map(updatedBlogEntity, BlogDto.class);
+    return updatedBlogDto;
+  }
+
 }

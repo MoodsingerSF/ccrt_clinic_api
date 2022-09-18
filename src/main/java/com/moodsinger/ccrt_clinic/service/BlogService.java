@@ -25,4 +25,6 @@ public interface BlogService {
       BlogVerificationStatusUpdateRequestModel blogVerificationStatusUpdateRequestModel);
 
   long getBlogCount(VerificationStatus verificationStatus);
+
+  BlogDto updateNumberOfTimesRead(String blogId);
 }

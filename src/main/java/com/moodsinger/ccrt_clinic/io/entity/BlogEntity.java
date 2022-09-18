@@ -74,6 +74,8 @@ public class BlogEntity {
   @JoinTable(name = "blog_tags", joinColumns = @JoinColumn(name = "blog_id"), inverseJoinColumns = @JoinColumn(name = "tag_id"))
   private Set<TagEntity> tags = new HashSet<>();
 
+  private long numTimesRead = 0;
+
   public long getId() {
     return id;
   }
@@ -168,5 +170,13 @@ public class BlogEntity {
         + description + ", id=" + id + ", imageUrl=" + imageUrl + ", lastModificationTime=" + lastModificationTime
         + ", tags=" + ", title=" + title + ", validity=" + validity + ", verificationStatus="
         + verificationStatus + "]";
+  }
+
+  public long getNumTimesRead() {
+    return numTimesRead;
+  }
+
+  public void setNumTimesRead(long numTimesRead) {
+    this.numTimesRead = numTimesRead;
   }
 }

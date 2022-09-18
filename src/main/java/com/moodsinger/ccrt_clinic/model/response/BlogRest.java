@@ -12,6 +12,7 @@ public class BlogRest {
   private UserRest creator;
   private Date creationTime;
   private int totalBlogs;
+  private long numTimesRead;
 
   public String getBlogId() {
     return blogId;
@@ -75,5 +76,13 @@ public class BlogRest {
 
   public void setTotalBlogs(int totalBlogs) {
     this.totalBlogs = totalBlogs;
+  }
+
+  public long getNumTimesRead() {
+    return numTimesRead;
+  }
+
+  public void setNumTimesRead(long numTimesRead) {
+    this.numTimesRead = numTimesRead;
   }
 }
