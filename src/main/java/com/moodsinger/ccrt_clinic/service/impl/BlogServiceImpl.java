@@ -27,6 +27,8 @@ import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorMessages;
 import com.moodsinger.ccrt_clinic.io.entity.BlogEntity;
 import com.moodsinger.ccrt_clinic.io.entity.TagEntity;
 import com.moodsinger.ccrt_clinic.io.entity.UserEntity;
+import com.moodsinger.ccrt_clinic.io.enums.SortType;
+import com.moodsinger.ccrt_clinic.io.enums.SortingCriteria;
 import com.moodsinger.ccrt_clinic.io.enums.VerificationStatus;
 import com.moodsinger.ccrt_clinic.io.repository.BlogRepository;
 import com.moodsinger.ccrt_clinic.io.repository.UserRepository;
@@ -106,9 +108,24 @@ public class BlogServiceImpl implements BlogService {
   }
 
   @Override
-  public List<BlogDto> getBlogs(int page, int limit, VerificationStatus verificationStatus) {
+  public List<BlogDto> getBlogs(int page, int limit, VerificationStatus verificationStatus,
+      SortingCriteria sortingCriteria, SortType sortType) {
     List<BlogDto> blogs = new ArrayList<>();
-    Pageable pageable = PageRequest.of(page, limit, Sort.by("id").descending());
+    Sort sort = Sort.by("numTimesRead").descending();
+    if (sortingCriteria == SortingCriteria.CREATION_TIME) {
+      if (sortType == SortType.ASC) {
+        sort = Sort.by("id").ascending();
+      } else {
+        sort = Sort.by("id").descending();
+      }
+    } else {
+      if (sortType == SortType.ASC) {
+        sort = Sort.by("numTimesRead").ascending();
+      } else {
+        sort = Sort.by("numTimesRead").descending();
+      }
+    }
+    Pageable pageable = PageRequest.of(page, limit, sort);
     Slice<BlogEntity> pageElements = blogRepository.findAllByVerificationStatus(verificationStatus, pageable);
     List<BlogEntity> blogEntities = pageElements.getContent();
     for (BlogEntity blogEntity : blogEntities) {
@@ -189,10 +206,24 @@ public class BlogServiceImpl implements BlogService {
   }
 
   @Override
-  public List<BlogDto> getBlogs(int page, int limit, String tag) {
-
-    Pageable pageable = PageRequest.of(page, limit);
-    Page<BlogEntity> pageEntities = blogRepository.findByTagsNameAndVerificationStatus(tag, VerificationStatus.ACCEPTED,
+  public List<BlogDto> getBlogs(int page, int limit, String tag, VerificationStatus verificationStatus,
+      SortingCriteria sortingCriteria, SortType sortType) {
+    Sort sort = Sort.by("numTimesRead").descending();
+    if (sortingCriteria == SortingCriteria.CREATION_TIME) {
+      if (sortType == SortType.ASC) {
+        sort = Sort.by("id").ascending();
+      } else {
+        sort = Sort.by("id").descending();
+      }
+    } else {
+      if (sortType == SortType.ASC) {
+        sort = Sort.by("numTimesRead").ascending();
+      } else {
+        sort = Sort.by("numTimesRead").descending();
+      }
+    }
+    Pageable pageable = PageRequest.of(page, limit, sort);
+    Page<BlogEntity> pageEntities = blogRepository.findByTagsNameAndVerificationStatus(tag, verificationStatus,
         pageable);
     List<BlogEntity> blogEntities = pageEntities.getContent();
     List<BlogDto> blogs = new ArrayList<>();

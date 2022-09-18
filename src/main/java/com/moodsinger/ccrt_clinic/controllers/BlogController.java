@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.moodsinger.ccrt_clinic.io.enums.SortType;
+import com.moodsinger.ccrt_clinic.io.enums.SortingCriteria;
 import com.moodsinger.ccrt_clinic.io.enums.VerificationStatus;
 import com.moodsinger.ccrt_clinic.model.request.BlogCreationRequestModel;
 import com.moodsinger.ccrt_clinic.model.request.BlogVerificationStatusUpdateRequestModel;
@@ -55,13 +57,15 @@ public class BlogController {
   public BlogListRest getBlogs(@RequestParam(name = "page", defaultValue = "0", required = false) int page,
       @RequestParam(name = "limit", defaultValue = "15", required = false) int limit,
       @RequestParam(name = "tag", required = false) String tag,
-      @RequestParam(name = "status", required = false, defaultValue = "ACCEPTED") VerificationStatus verificationStatus) {
+      @RequestParam(name = "status", required = false, defaultValue = "ACCEPTED") VerificationStatus verificationStatus,
+      @RequestParam(name = "sortBy", required = false, defaultValue = "POPULARITY") SortingCriteria sortingCriteria,
+      @RequestParam(name = "sortType", required = false, defaultValue = "DESC") SortType sortType) {
     List<BlogRest> returnedBlogs = new ArrayList<>();
     List<BlogDto> currentPageBlogs;
     if (tag == null) {
-      currentPageBlogs = blogService.getBlogs(page, limit, verificationStatus);
+      currentPageBlogs = blogService.getBlogs(page, limit, verificationStatus, sortingCriteria, sortType);
     } else {
-      currentPageBlogs = blogService.getBlogs(page, limit, tag);
+      currentPageBlogs = blogService.getBlogs(page, limit, tag, verificationStatus, sortingCriteria, sortType);
     }
 
     for (BlogDto blog : currentPageBlogs) {
