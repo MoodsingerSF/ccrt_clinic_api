@@ -54,6 +54,8 @@ public class WebSecurity {
         .permitAll()
         .antMatchers(HttpMethod.GET, "/blogs/{blogId}")
         .permitAll()
+        .antMatchers(HttpMethod.GET, "/misc/**}")
+        .permitAll()
         .antMatchers(HttpMethod.PUT, "/blogs/{blogId}/verification-status")
         .hasAnyAuthority(Role.ADMIN.name())
         .antMatchers(HttpMethod.POST, "/fee-changing-requests")
