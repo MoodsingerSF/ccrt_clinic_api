@@ -63,7 +63,7 @@ public class UserEntity {
   private Set<BlogEntity> blogs = new HashSet<>();
 
   @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-  private Set<PatientReportEntity> patientReports;
+  private Set<PatientReportEntity> patientReports = new HashSet<>();
 
   @Enumerated(EnumType.STRING)
   private Gender gender;
@@ -92,11 +92,11 @@ public class UserEntity {
   @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
   private Set<AwardEntity> awards;
 
-  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-  private Set<FeeChangingRequestEntity> feeChangingRequests;
+  // @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+  // private Set<FeeChangingRequestEntity> feeChangingRequests = new HashSet<>();
 
   @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-  private Set<FinanceEntity> financeRecords;
+  private Set<FinanceEntity> financeRecords = new HashSet<>();
 
   public long getId() {
     return this.id;
@@ -152,14 +152,6 @@ public class UserEntity {
 
   public void setRoles(Set<RoleEntity> roles) {
     this.roles = roles;
-  }
-
-  public Set<BlogEntity> getBlogs() {
-    return blogs;
-  }
-
-  public void setBlogs(Set<BlogEntity> blogs) {
-    this.blogs = blogs;
   }
 
   public VerificationStatus getVerificationStatus() {
@@ -258,13 +250,14 @@ public class UserEntity {
     this.about = about;
   }
 
-  public Set<FeeChangingRequestEntity> getFeeChangingRequests() {
-    return feeChangingRequests;
-  }
+  // public Set<FeeChangingRequestEntity> getFeeChangingRequests() {
+  // return feeChangingRequests;
+  // }
 
-  public void setFeeChangingRequests(Set<FeeChangingRequestEntity> feeChangingRequests) {
-    this.feeChangingRequests = feeChangingRequests;
-  }
+  // public void setFeeChangingRequests(Set<FeeChangingRequestEntity>
+  // feeChangingRequests) {
+  // this.feeChangingRequests = feeChangingRequests;
+  // }
 
   public Set<FinanceEntity> getFinanceRecords() {
     return financeRecords;
@@ -272,6 +265,25 @@ public class UserEntity {
 
   public void setFinanceRecords(Set<FinanceEntity> financeRecords) {
     this.financeRecords = financeRecords;
+  }
+
+  @Override
+  public String toString() {
+    return "UserEntity [about=" + about + ", age=" + age + ", awards=" + awards + ", birthDate=" + birthDate
+        + ", blogs=" + ", education=" + education + ", email=" + email + ", encryptedPassword="
+        + encryptedPassword + ", experiences=" + experiences + ", feeChangingRequests="
+        + ", financeRecords=" + ", firstName=" + firstName + ", gender=" + gender + ", id=" + id
+        + ", lastName=" + lastName + ", patientReports=" + patientReports + ", profileImageUrl=" + profileImageUrl
+        + ", roles=" + roles + ", specialization=" + specialization + ", trainings=" + trainings + ", userId=" + userId
+        + ", verificationStatus=" + verificationStatus + "]";
+  }
+
+  public Set<BlogEntity> getBlogs() {
+    return blogs;
+  }
+
+  public void setBlogs(Set<BlogEntity> blogs) {
+    this.blogs = blogs;
   }
 
 }

@@ -153,4 +153,11 @@ public class FeeChangingRequestServiceImpl implements FeeChangingRequestService 
     return modelMapper.map(updatedFeeChangingRequestEntity, FeeChangingRequestDto.class);
   }
 
+  @Override
+  public List<FeeChangingRequestEntity> retrieveAllRequestEntitiesOfUser(String userId) {
+    List<FeeChangingRequestEntity> feeChangingRequestEntities = feeChangingRequestRepository
+        .findAllByUserUserId(userId);
+    return feeChangingRequestEntities;
+  }
+
 }

@@ -7,6 +7,7 @@ import java.util.Set;
 import com.moodsinger.ccrt_clinic.io.enums.Gender;
 
 public class UserDto {
+
   private long id;
   private String userId;
   private String firstName;
@@ -213,5 +214,16 @@ public class UserDto {
 
   public void setAdminUserId(String adminUserId) {
     this.adminUserId = adminUserId;
+  }
+
+  @Override
+  public String toString() {
+    return "UserDto [about=" + about + ", adminUserId=" + adminUserId + ", awards=" + awards + ", birthDate="
+        + birthDate + ", code=" + code + ", education=" + education + ", email=" + email + ", encryptedPassword="
+        + encryptedPassword + ", experiences=" + experiences + ", fee=" + fee + ", firstName=" + firstName + ", gender="
+        + gender + ", id=" + id + ", lastName=" + lastName + ", password=" + password + ", profileImageUrl="
+        + profileImageUrl + ", role=" + role + ", roles=" + roles + ", specialization=" + specialization
+        + ", trainings=" + trainings + ", userId=" + userId + ", userType=" + userType + ", verificationStatus="
+        + verificationStatus + "]";
   }
 }

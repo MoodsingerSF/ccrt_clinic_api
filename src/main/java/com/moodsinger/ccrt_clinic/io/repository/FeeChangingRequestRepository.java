@@ -1,5 +1,7 @@
 package com.moodsinger.ccrt_clinic.io.repository;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -19,5 +21,7 @@ public interface FeeChangingRequestRepository extends PagingAndSortingRepository
   Page<FeeChangingRequestEntity> findAll(Pageable pageable);
 
   FeeChangingRequestEntity findByRequestId(String requestId);
+
+  List<FeeChangingRequestEntity> findAllByUserUserId(String userId);
 
 }

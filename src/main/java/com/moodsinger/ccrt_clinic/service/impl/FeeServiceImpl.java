@@ -42,7 +42,12 @@ public class FeeServiceImpl implements FeeService {
     Pageable pageable = PageRequest.of(0, 1, Sort.by("id").descending());
 
     Page<FeeEntity> feePage = feeRepository.findByUserUserId(doctorUserId, pageable);
+    System.out.println("--------------------feePage=" + feePage + "--------------");
+    if (feePage == null)
+      return null;
     List<FeeEntity> feeList = feePage.getContent();
+    if (feeList == null || feeList.size() == 0)
+      return null;
     return feeList.get(0);
   }
 

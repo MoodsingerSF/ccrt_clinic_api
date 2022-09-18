@@ -17,6 +17,8 @@ public interface FeeChangingRequestService {
 
   List<FeeChangingRequestEntity> retrievePendingRequestEntitiesOfUser(String userId);
 
+  List<FeeChangingRequestEntity> retrieveAllRequestEntitiesOfUser(String userId);
+
   FeeChangingRequestDto updateFeeChangingRequest(String requestId, FeeChangingRequestDto feeChangingRequestDto);
 
 }

@@ -45,8 +45,8 @@ public class FeeChangingRequestEntity {
   @CreationTimestamp
   private Date creationTime;
 
-  @Enumerated(EnumType.STRING)
   @Column(nullable = false)
+  @Enumerated(EnumType.STRING)
   private VerificationStatus status = VerificationStatus.PENDING;
 
   @Temporal(TemporalType.TIMESTAMP)

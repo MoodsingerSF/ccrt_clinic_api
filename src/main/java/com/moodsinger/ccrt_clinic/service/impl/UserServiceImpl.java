@@ -31,6 +31,7 @@ import com.moodsinger.ccrt_clinic.io.entity.AwardEntity;
 import com.moodsinger.ccrt_clinic.io.entity.EducationEntity;
 import com.moodsinger.ccrt_clinic.io.entity.ExperienceEntity;
 import com.moodsinger.ccrt_clinic.io.entity.FeeChangingRequestEntity;
+import com.moodsinger.ccrt_clinic.io.entity.FeeEntity;
 import com.moodsinger.ccrt_clinic.io.entity.PatientReportEntity;
 import com.moodsinger.ccrt_clinic.io.entity.RoleEntity;
 import com.moodsinger.ccrt_clinic.io.entity.TrainingEntity;
@@ -38,6 +39,7 @@ import com.moodsinger.ccrt_clinic.io.entity.UserEntity;
 import com.moodsinger.ccrt_clinic.io.enums.Role;
 import com.moodsinger.ccrt_clinic.io.enums.VerificationStatus;
 import com.moodsinger.ccrt_clinic.io.repository.AwardRepository;
+import com.moodsinger.ccrt_clinic.io.repository.DoctorScheduleRepository;
 import com.moodsinger.ccrt_clinic.io.repository.EducationRepository;
 import com.moodsinger.ccrt_clinic.io.repository.ExperienceRepository;
 import com.moodsinger.ccrt_clinic.io.repository.FeeChangingRequestRepository;
@@ -87,6 +89,9 @@ public class UserServiceImpl implements UserService {
 
   @Autowired
   private DoctorScheduleService doctorScheduleService;
+
+  @Autowired
+  private DoctorScheduleRepository doctorScheduleRepository;
 
   @Autowired
   private PatientReportRepository patientReportRepository;
@@ -144,6 +149,7 @@ public class UserServiceImpl implements UserService {
       feeChangingRequestDto.setAmount(userDetails.getFee());
       feeChangingRequestDto.setPreviousAmount(-1);
       feeChangingRequestDto.setUserId(userId);
+      feeChangingRequestDto.setStatus(VerificationStatus.PENDING);
       feeChangingRequestService.createFeeChangingRequest(feeChangingRequestDto);
     }
 
@@ -168,7 +174,9 @@ public class UserServiceImpl implements UserService {
       throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
           ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
     UserDto userDto = new ModelMapper().map(foundUserEntity, UserDto.class);
-    userDto.setFee(feeService.getFeeOfDoctor(foundUserEntity.getUserId()).getAmount());
+    FeeEntity feeEntity = feeService.getFeeOfDoctor(foundUserEntity.getUserId());
+    if (feeEntity != null)
+      userDto.setFee(feeEntity.getAmount());
     return userDto;
   }
 
@@ -207,13 +215,16 @@ public class UserServiceImpl implements UserService {
         authorities);
   }
 
+  @Transactional
   @Override
   public UserDto getUserByEmail(String email) {
     UserEntity foundUserEntity = userRepository.findByEmail(email);
     if (foundUserEntity == null)
       throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
           ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
+    System.out.println(foundUserEntity);
     UserDto userDto = new ModelMapper().map(foundUserEntity, UserDto.class);
+    // System.out.println(userDto);
     return userDto;
   }
 
@@ -252,25 +263,35 @@ public class UserServiceImpl implements UserService {
       throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
           ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
     }
-    // find pending fee changing requests and resolve them
+    if (foundUserEntity.getVerificationStatus() == VerificationStatus.ACCEPTED
+        || foundUserEntity.getVerificationStatus() == VerificationStatus.REJECTED) {
+      throw new UserServiceException(ExceptionErrorCodes.FORBIDDEN.name(),
+          ExceptionErrorMessages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
+    }
     VerificationStatus verificationStatus = VerificationStatus.valueOf(updateDetails.getVerificationStatus());
     if (verificationStatus == VerificationStatus.ACCEPTED) {
       List<FeeChangingRequestEntity> feeChangingRequestEntities = feeChangingRequestService
           .retrievePendingRequestEntitiesOfUser(userId);
-      FeeChangingRequestEntity latestFeeChangingRequestEntity = feeChangingRequestEntities.get(0);
-      FeeDto feeDto = new FeeDto(latestFeeChangingRequestEntity.getAmount(), userId);
-      feeService.addFee(feeDto);
+      if (feeChangingRequestEntities != null) {
+        FeeChangingRequestEntity latestFeeChangingRequestEntity = feeChangingRequestEntities.get(0);
+        FeeDto feeDto = new FeeDto(latestFeeChangingRequestEntity.getAmount(), userId);
+        feeService.addFee(feeDto);
 
-      for (FeeChangingRequestEntity feeChangingRequestEntity : feeChangingRequestEntities) {
-        feeChangingRequestEntity.setResolver(userRepository.findByUserId(updateDetails.getAdminUserId()));
-        feeChangingRequestEntity.setStatus(VerificationStatus.ACCEPTED);
+        for (FeeChangingRequestEntity feeChangingRequestEntity : feeChangingRequestEntities) {
+          feeChangingRequestEntity.setResolver(userRepository.findByUserId(updateDetails.getAdminUserId()));
+          feeChangingRequestEntity.setStatus(VerificationStatus.ACCEPTED);
+        }
+        feeChangingRequestRepository.saveAll(feeChangingRequestEntities);
       }
-      feeChangingRequestRepository.saveAll(feeChangingRequestEntities);
       foundUserEntity.setVerificationStatus(verificationStatus);
       UserEntity updatedUserEntity = userRepository.save(foundUserEntity);
       UserDto userDto = new ModelMapper().map(updatedUserEntity, UserDto.class);
       return userDto;
     } else if (verificationStatus == VerificationStatus.REJECTED) {
+      List<FeeChangingRequestEntity> feeChangingRequestEntities = feeChangingRequestService
+          .retrieveAllRequestEntitiesOfUser(userId);
+      feeChangingRequestRepository.deleteAll(feeChangingRequestEntities);
+      doctorScheduleRepository.deleteAll(doctorScheduleRepository.findByUserUserId(userId));
       userRepository.delete(foundUserEntity);
     }
 
