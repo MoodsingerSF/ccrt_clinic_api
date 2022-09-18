@@ -31,8 +31,10 @@ import com.moodsinger.ccrt_clinic.io.entity.SlotEntity;
 import com.moodsinger.ccrt_clinic.io.entity.UserEntity;
 import com.moodsinger.ccrt_clinic.io.enums.AppointmentStatus;
 import com.moodsinger.ccrt_clinic.io.enums.Role;
+import com.moodsinger.ccrt_clinic.io.repository.AppointmentFinanceRepository;
 import com.moodsinger.ccrt_clinic.io.repository.AppointmentRepository;
 import com.moodsinger.ccrt_clinic.io.repository.AppointmentResourceRepository;
+import com.moodsinger.ccrt_clinic.io.repository.FinanceRepository;
 import com.moodsinger.ccrt_clinic.io.repository.MedicationRepository;
 import com.moodsinger.ccrt_clinic.io.repository.PatientReportRepository;
 import com.moodsinger.ccrt_clinic.io.repository.PrescriptionRepository;
@@ -89,6 +91,12 @@ public class AppointmentServiceImpl implements AppointmentService {
 
   @Autowired
   private FeeService feeService;
+
+  @Autowired
+  private FinanceRepository financeRepository;
+
+  @Autowired
+  private AppointmentFinanceRepository appointmentFinanceRepository;
 
   @Transactional
   @Override

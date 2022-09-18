@@ -66,6 +66,8 @@ public class WebSecurity {
         .permitAll()
         .antMatchers(HttpMethod.POST, "/otp")
         .permitAll()
+        .antMatchers(HttpMethod.GET, "/tags/**")
+        .permitAll()
         .antMatchers(HttpMethod.GET, "/doctors/{userId}/schedule")
         .permitAll()
         .antMatchers(HttpMethod.GET, "/users/doctors")
