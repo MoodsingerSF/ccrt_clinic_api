@@ -337,7 +337,7 @@ public class UserController {
     String userType = userSignupRequestModel.getUserType();
     Gender gender = userSignupRequestModel.getGender();
     Date birthDate = userSignupRequestModel.getBirthDate();
-    String specialization = userSignupRequestModel.getSpecialization();
+    List<String> specializationList = userSignupRequestModel.getSpecializationList();
     double fee = userSignupRequestModel.getFee();
 
     if (!utils.isNonNullAndNonEmpty(firstName))
@@ -361,7 +361,7 @@ public class UserController {
     if (!utils.validateBirthDate(birthDate))
       throw new UserServiceException(ExceptionErrorCodes.BIRTH_DATE_NOT_VALID.name(),
           ExceptionErrorMessages.BIRTH_DATE_NOT_VALID.getMessage(), HttpStatus.BAD_REQUEST);
-    if (userType.equals(Role.DOCTOR.name()) && !utils.validateSpecialization(specialization)) {
+    if (userType.equals(Role.DOCTOR.name()) && !utils.validateSpecialization(specializationList)) {
       throw new UserServiceException(ExceptionErrorCodes.SPECIALIZATION_NOT_VALID.name(),
           ExceptionErrorMessages.SPECIALIZATION_NOT_VALID.getMessage(), HttpStatus.BAD_REQUEST);
     }

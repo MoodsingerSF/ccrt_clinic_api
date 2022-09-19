@@ -13,7 +13,7 @@ public class UserRest {
   private String profileImageUrl;
   private Set<RoleDto> roles;
   private String gender;
-  private String specialization;
+  private List<SpecializationRest> specializations;
   private String birthDate;
   private String about;
   private List<EducationRest> education;
@@ -78,14 +78,6 @@ public class UserRest {
     this.gender = gender;
   }
 
-  public String getSpecialization() {
-    return specialization;
-  }
-
-  public void setSpecialization(String specialization) {
-    this.specialization = specialization;
-  }
-
   public String getBirthDate() {
     return birthDate;
   }
@@ -140,6 +132,14 @@ public class UserRest {
 
   public void setFee(double fee) {
     this.fee = fee;
+  }
+
+  public List<SpecializationRest> getSpecializations() {
+    return specializations;
+  }
+
+  public void setSpecializations(List<SpecializationRest> specializations) {
+    this.specializations = specializations;
   }
 
 }

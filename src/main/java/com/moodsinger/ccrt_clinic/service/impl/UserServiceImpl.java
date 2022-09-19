@@ -34,6 +34,7 @@ import com.moodsinger.ccrt_clinic.io.entity.FeeChangingRequestEntity;
 import com.moodsinger.ccrt_clinic.io.entity.FeeEntity;
 import com.moodsinger.ccrt_clinic.io.entity.PatientReportEntity;
 import com.moodsinger.ccrt_clinic.io.entity.RoleEntity;
+import com.moodsinger.ccrt_clinic.io.entity.SpecializationEntity;
 import com.moodsinger.ccrt_clinic.io.entity.TrainingEntity;
 import com.moodsinger.ccrt_clinic.io.entity.UserEntity;
 import com.moodsinger.ccrt_clinic.io.enums.Role;
@@ -50,6 +51,7 @@ import com.moodsinger.ccrt_clinic.service.DoctorScheduleService;
 import com.moodsinger.ccrt_clinic.service.FeeChangingRequestService;
 import com.moodsinger.ccrt_clinic.service.FeeService;
 import com.moodsinger.ccrt_clinic.service.RoleService;
+import com.moodsinger.ccrt_clinic.service.SpecializationService;
 import com.moodsinger.ccrt_clinic.service.UserService;
 import com.moodsinger.ccrt_clinic.shared.FileUploadUtil;
 import com.moodsinger.ccrt_clinic.shared.Utils;
@@ -117,6 +119,9 @@ public class UserServiceImpl implements UserService {
   @Autowired
   private FeeService feeService;
 
+  @Autowired
+  private SpecializationService specializationService;
+
   @Transactional
   @Override
   public UserDto createUser(UserDto userDetails) {
@@ -140,6 +145,15 @@ public class UserServiceImpl implements UserService {
     roles.add(role);
     // https://youtube.com/clip/UgkxSEHC1SCU_h5ppeoKllC4GFT9GNfvezxr
     userEntity.setRoles(roles);
+
+    List<String> specializationList = userDetails.getSpecializationList();
+    Set<String> uniqueSpecializations = new HashSet<>(specializationList);
+    Set<SpecializationEntity> specializations = new HashSet<>();
+    for (String specialization : uniqueSpecializations) {
+      SpecializationEntity specializationEntity = specializationService.getOrCreateSpecialization(specialization);
+      specializations.add(specializationEntity);
+    }
+    userEntity.setSpecializations(specializations);
 
     // save user entity
     UserEntity createdUserEntity = userRepository.save(userEntity);

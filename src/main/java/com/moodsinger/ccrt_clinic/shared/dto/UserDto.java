@@ -22,7 +22,8 @@ public class UserDto {
   private String profileImageUrl;
   private String code;
   private Gender gender;
-  private String specialization;
+  private List<String> specializationList;
+  private List<SpecializationDto> specializations;
   private Date birthDate;
   private String about;
   private List<EducationDto> education;
@@ -144,14 +145,6 @@ public class UserDto {
     this.gender = gender;
   }
 
-  public String getSpecialization() {
-    return specialization;
-  }
-
-  public void setSpecialization(String specialization) {
-    this.specialization = specialization;
-  }
-
   public Date getBirthDate() {
     return birthDate;
   }
@@ -216,14 +209,30 @@ public class UserDto {
     this.adminUserId = adminUserId;
   }
 
+  public List<SpecializationDto> getSpecializations() {
+    return specializations;
+  }
+
+  public void setSpecializations(List<SpecializationDto> specializations) {
+    this.specializations = specializations;
+  }
+
   @Override
   public String toString() {
     return "UserDto [about=" + about + ", adminUserId=" + adminUserId + ", awards=" + awards + ", birthDate="
         + birthDate + ", code=" + code + ", education=" + education + ", email=" + email + ", encryptedPassword="
         + encryptedPassword + ", experiences=" + experiences + ", fee=" + fee + ", firstName=" + firstName + ", gender="
         + gender + ", id=" + id + ", lastName=" + lastName + ", password=" + password + ", profileImageUrl="
-        + profileImageUrl + ", role=" + role + ", roles=" + roles + ", specialization=" + specialization
+        + profileImageUrl + ", role=" + role + ", roles=" + roles + ", specializations=" + specializations
         + ", trainings=" + trainings + ", userId=" + userId + ", userType=" + userType + ", verificationStatus="
         + verificationStatus + "]";
+  }
+
+  public List<String> getSpecializationList() {
+    return specializationList;
+  }
+
+  public void setSpecializationList(List<String> specializationList) {
+    this.specializationList = specializationList;
   }
 }

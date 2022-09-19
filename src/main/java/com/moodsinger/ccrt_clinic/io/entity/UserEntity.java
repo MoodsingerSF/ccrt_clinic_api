@@ -74,9 +74,6 @@ public class UserEntity {
   @Transient
   private int age;
 
-  @Column(nullable = true)
-  private String specialization;
-
   @Column(nullable = true, length = 1000)
   private String about;
 
@@ -97,6 +94,10 @@ public class UserEntity {
 
   @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
   private Set<FinanceEntity> financeRecords = new HashSet<>();
+
+  @ManyToMany(fetch = FetchType.EAGER)
+  @JoinTable(name = "doctor_specialization", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "specialization_id"))
+  private Set<SpecializationEntity> specializations = new HashSet<>();
 
   public long getId() {
     return this.id;
@@ -210,14 +211,6 @@ public class UserEntity {
     this.experiences = experiences;
   }
 
-  public String getSpecialization() {
-    return specialization;
-  }
-
-  public void setSpecialization(String specialization) {
-    this.specialization = specialization;
-  }
-
   public Set<AwardEntity> getAwards() {
     return awards;
   }
@@ -274,7 +267,7 @@ public class UserEntity {
         + encryptedPassword + ", experiences=" + experiences + ", feeChangingRequests="
         + ", financeRecords=" + ", firstName=" + firstName + ", gender=" + gender + ", id=" + id
         + ", lastName=" + lastName + ", patientReports=" + patientReports + ", profileImageUrl=" + profileImageUrl
-        + ", roles=" + roles + ", specialization=" + specialization + ", trainings=" + trainings + ", userId=" + userId
+        + ", roles=" + roles + ", trainings=" + trainings + ", userId=" + userId
         + ", verificationStatus=" + verificationStatus + "]";
   }
 
@@ -284,6 +277,14 @@ public class UserEntity {
 
   public void setBlogs(Set<BlogEntity> blogs) {
     this.blogs = blogs;
+  }
+
+  public Set<SpecializationEntity> getSpecializations() {
+    return specializations;
+  }
+
+  public void setSpecializations(Set<SpecializationEntity> specializations) {
+    this.specializations = specializations;
   }
 
 }

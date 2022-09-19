@@ -5,6 +5,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
@@ -84,6 +85,10 @@ public class Utils {
     return val != null && !val.isEmpty();
   }
 
+  public boolean isNonNullAndNonEmpty(List<String> specializationList) {
+    return specializationList != null && !specializationList.isEmpty();
+  }
+
   public boolean isNonNull(Gender val) {
     return val != null;
   }
@@ -111,7 +116,7 @@ public class Utils {
     return isNonNull(birthDate);
   }
 
-  public boolean validateSpecialization(String specialization) {
+  public boolean validateSpecialization(List<String> specialization) {
     return isNonNullAndNonEmpty(specialization);
 
   }

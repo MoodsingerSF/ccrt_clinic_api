@@ -1,6 +1,7 @@
 package com.moodsinger.ccrt_clinic.model.request;
 
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -14,7 +15,7 @@ public class UserSignupRequestModel {
   private String password;
   private String userType;
   private Gender gender;
-  private String specialization;
+  private List<String> specializationList;
   @DateTimeFormat(pattern = "yyyy-MM-dd")
   private Date birthDate;
   private double fee;
@@ -73,14 +74,6 @@ public class UserSignupRequestModel {
     this.gender = gender;
   }
 
-  public String getSpecialization() {
-    return specialization;
-  }
-
-  public void setSpecialization(String specialization) {
-    this.specialization = specialization;
-  }
-
   public Date getBirthDate() {
     return birthDate;
   }
@@ -96,4 +89,13 @@ public class UserSignupRequestModel {
   public void setFee(double fee) {
     this.fee = fee;
   }
+
+  public List<String> getSpecializationList() {
+    return specializationList;
+  }
+
+  public void setSpecializationList(List<String> specializationList) {
+    this.specializationList = specializationList;
+  }
+
 }
