@@ -28,6 +28,7 @@ import com.moodsinger.ccrt_clinic.exceptions.UserServiceException;
 import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorCodes;
 import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorMessages;
 import com.moodsinger.ccrt_clinic.io.entity.AwardEntity;
+import com.moodsinger.ccrt_clinic.io.entity.DoctorScheduleEntity;
 import com.moodsinger.ccrt_clinic.io.entity.EducationEntity;
 import com.moodsinger.ccrt_clinic.io.entity.ExperienceEntity;
 import com.moodsinger.ccrt_clinic.io.entity.FeeChangingRequestEntity;
@@ -53,6 +54,7 @@ import com.moodsinger.ccrt_clinic.service.FeeService;
 import com.moodsinger.ccrt_clinic.service.RoleService;
 import com.moodsinger.ccrt_clinic.service.SpecializationService;
 import com.moodsinger.ccrt_clinic.service.UserService;
+import com.moodsinger.ccrt_clinic.shared.AmazonSES;
 import com.moodsinger.ccrt_clinic.shared.FileUploadUtil;
 import com.moodsinger.ccrt_clinic.shared.Utils;
 import com.moodsinger.ccrt_clinic.shared.dto.AwardDto;
@@ -122,6 +124,9 @@ public class UserServiceImpl implements UserService {
   @Autowired
   private SpecializationService specializationService;
 
+  @Autowired
+  private AmazonSES amazonSES;
+
   @Transactional
   @Override
   public UserDto createUser(UserDto userDetails) {
@@ -146,14 +151,17 @@ public class UserServiceImpl implements UserService {
     // https://youtube.com/clip/UgkxSEHC1SCU_h5ppeoKllC4GFT9GNfvezxr
     userEntity.setRoles(roles);
 
-    List<String> specializationList = userDetails.getSpecializationList();
-    Set<String> uniqueSpecializations = new HashSet<>(specializationList);
-    Set<SpecializationEntity> specializations = new HashSet<>();
-    for (String specialization : uniqueSpecializations) {
-      SpecializationEntity specializationEntity = specializationService.getOrCreateSpecialization(specialization);
-      specializations.add(specializationEntity);
+    if (userDetails.getUserType().equals(Role.DOCTOR.name())) {
+
+      List<String> specializationList = userDetails.getSpecializationList();
+      Set<String> uniqueSpecializations = new HashSet<>(specializationList);
+      Set<SpecializationEntity> specializations = new HashSet<>();
+      for (String specialization : uniqueSpecializations) {
+        SpecializationEntity specializationEntity = specializationService.getOrCreateSpecialization(specialization);
+        specializations.add(specializationEntity);
+      }
+      userEntity.setSpecializations(specializations);
     }
-    userEntity.setSpecializations(specializations);
 
     // save user entity
     UserEntity createdUserEntity = userRepository.save(userEntity);
@@ -236,9 +244,7 @@ public class UserServiceImpl implements UserService {
     if (foundUserEntity == null)
       throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
           ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
-    System.out.println(foundUserEntity);
     UserDto userDto = new ModelMapper().map(foundUserEntity, UserDto.class);
-    // System.out.println(userDto);
     return userDto;
   }
 
@@ -299,14 +305,23 @@ public class UserServiceImpl implements UserService {
       }
       foundUserEntity.setVerificationStatus(verificationStatus);
       UserEntity updatedUserEntity = userRepository.save(foundUserEntity);
+      amazonSES.sendRegistrationRequestAcceptanceEmail(foundUserEntity.getEmail(),
+          foundUserEntity.getFirstName() + " " + foundUserEntity.getLastName());
       UserDto userDto = new ModelMapper().map(updatedUserEntity, UserDto.class);
       return userDto;
     } else if (verificationStatus == VerificationStatus.REJECTED) {
       List<FeeChangingRequestEntity> feeChangingRequestEntities = feeChangingRequestService
           .retrieveAllRequestEntitiesOfUser(userId);
-      feeChangingRequestRepository.deleteAll(feeChangingRequestEntities);
-      doctorScheduleRepository.deleteAll(doctorScheduleRepository.findByUserUserId(userId));
+      if (feeChangingRequestEntities != null && !feeChangingRequestEntities.isEmpty()) {
+        feeChangingRequestRepository.deleteAll(feeChangingRequestEntities);
+      }
+      List<DoctorScheduleEntity> doctorScheduleEntities = doctorScheduleRepository.findByUserUserId(userId);
+      if (doctorScheduleEntities != null && !doctorScheduleEntities.isEmpty()) {
+        doctorScheduleRepository.deleteAll(doctorScheduleEntities);
+      }
       userRepository.delete(foundUserEntity);
+      amazonSES.sendRegistrationRequestRejectionEmail(foundUserEntity.getEmail(),
+          foundUserEntity.getFirstName() + " " + foundUserEntity.getLastName());
     }
 
     return new UserDto();
@@ -352,7 +367,17 @@ public class UserServiceImpl implements UserService {
     List<UserDto> foundDoctorsDto = new ArrayList<>();
     for (UserEntity userEntity : foundDoctors) {
       UserDto user = modelMapper.map(userEntity, UserDto.class);
-      user.setFee(feeService.getFeeOfDoctor(userEntity.getUserId()).getAmount());
+      FeeEntity feeEntity = feeService.getFeeOfDoctor(userEntity.getUserId());
+      if (feeEntity != null)
+        user.setFee(feeEntity.getAmount());
+      else {
+        Page<FeeChangingRequestEntity> feeChangingRequestEntitiesPage = feeChangingRequestRepository
+            .findAllByUserUserIdAndStatus(userEntity.getUserId(), VerificationStatus.PENDING, PageRequest.of(0, 1));
+        List<FeeChangingRequestEntity> feeChangingRequestEntities = feeChangingRequestEntitiesPage.getContent();
+        if (!feeChangingRequestEntities.isEmpty()) {
+          user.setFee(feeChangingRequestEntities.get(0).getAmount());
+        }
+      }
       foundDoctorsDto.add(user);
     }
     return foundDoctorsDto;

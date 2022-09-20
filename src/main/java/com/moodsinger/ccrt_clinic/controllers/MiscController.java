@@ -26,8 +26,9 @@ public class MiscController {
 
   @GetMapping("/popular-doctors")
   public List<UserRest> getPopularDoctors(@RequestParam(name = "page", defaultValue = "0", required = false) int page,
-      @RequestParam(name = "limit", defaultValue = "15", required = false) int limit) {
-    List<UserDto> popularDoctors = miscService.findPopularDoctors(page, limit);
+      @RequestParam(name = "limit", defaultValue = "15", required = false) int limit,
+      @RequestParam(name = "specialization", defaultValue = "-1", required = false) int specializationId) {
+    List<UserDto> popularDoctors = miscService.findPopularDoctors(page, limit, specializationId);
     List<UserRest> popularDoctorRests = new ArrayList<>();
     for (UserDto userDto : popularDoctors) {
       popularDoctorRests.add(modelMapper.map(userDto, UserRest.class));

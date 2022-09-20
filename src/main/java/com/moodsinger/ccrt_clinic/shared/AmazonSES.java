@@ -16,6 +16,8 @@ public class AmazonSES {
   private final String FROM = "rafi1017623150@gmail.com";
   private final String SUBJECT = "[CCRT Clinic] Email Verification Code";
   private final String APPOINTMENT_SUBJECT = "[CCRT Clinic] Appointment Details";
+  private final String REGISTRATION_REQUEST_ACCEPTANCE_EMAIL_SUBJECT = "[CCRT Clinic Registration] [SUCCESS] Your registration request has been accepted successfully.";
+  private final String REGISTRATION_REQUEST_REJECTION_EMAIL_SUBJECT = "[CCRT Clinic Registration] [REJECTION] Your registration request has been rejected.";
 
   private String getHTMLBody(String code) {
     StringBuilder stringBuilder = new StringBuilder("");
@@ -86,6 +88,108 @@ public class AmazonSES {
     stringBuilder.append(link);
 
     return stringBuilder.toString();
+  }
+
+  private String getRegistrationRequestAcceptanceEmailBody(String name) {
+    StringBuilder stringBuilder = new StringBuilder("");
+    stringBuilder.append("<div>");
+    stringBuilder.append("<p>Dear ");
+    stringBuilder.append(name);
+    stringBuilder.append(",</p>");
+
+    stringBuilder.append("</br>");
+    stringBuilder.append("<p>");
+    stringBuilder.append(
+        "Your registration request as a doctor on CCRT Clinic has been accepted. You can now log into your account and see patients.");
+    stringBuilder.append("</p>");
+    stringBuilder.append("</br>");
+    stringBuilder.append("<p>Thanks,</p>");
+    stringBuilder.append("</br>");
+    stringBuilder.append("<p>CCRT Clinic</p>");
+    stringBuilder.append("</div>");
+    return stringBuilder.toString();
+  }
+
+  private String getRegistrationRequestAcceptanceEmailText(String name) {
+    StringBuilder stringBuilder = new StringBuilder("");
+    stringBuilder.append("Dear ");
+    stringBuilder.append(name);
+    stringBuilder.append(",\n");
+    stringBuilder.append(
+        "Your registration request as a doctor on CCRT Clinic has been accepted. You can now log into your account and see patients.");
+    stringBuilder.append("Thanks\n");
+    stringBuilder.append("CCRT Clinic");
+    return stringBuilder.toString();
+  }
+
+  public void sendRegistrationRequestAcceptanceEmail(String email, String name) {
+    AmazonSimpleEmailService client = AmazonSimpleEmailServiceClientBuilder.standard().withRegion(Regions.AP_SOUTH_1)
+        .build();
+
+    SendEmailRequest sendEmailRequest = new SendEmailRequest()
+        .withDestination(new Destination().withToAddresses(email))
+        .withMessage(new Message()
+            .withBody(new Body()
+                .withHtml(new Content().withCharset("UTF-8").withData(getRegistrationRequestAcceptanceEmailBody(name)))
+                .withText(new Content().withCharset("UTF-8").withData(getRegistrationRequestAcceptanceEmailText(name))))
+            .withSubject(new Content().withCharset("UTF-8").withData(REGISTRATION_REQUEST_ACCEPTANCE_EMAIL_SUBJECT)))
+        .withSource(FROM);
+    try {
+      client.sendEmail(sendEmailRequest);
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+    }
+  }
+
+  private String getRegistrationRequestRejectionEmailBody(String name) {
+    StringBuilder stringBuilder = new StringBuilder("");
+    stringBuilder.append("<div>");
+    stringBuilder.append("<p>Dear ");
+    stringBuilder.append(name);
+    stringBuilder.append(",</p>");
+
+    stringBuilder.append("</br>");
+    stringBuilder.append("<p>");
+    stringBuilder.append(
+        "We are very sorry to inform you that your registration request as a doctor on CCRT Clinic has been <h3>rejected</h3>.");
+    stringBuilder.append("</p>");
+    stringBuilder.append("</br>");
+    stringBuilder.append("<p>Thanks,</p>");
+    stringBuilder.append("</br>");
+    stringBuilder.append("<p>CCRT Clinic</p>");
+    stringBuilder.append("</div>");
+    return stringBuilder.toString();
+  }
+
+  private String getRegistrationRequestRejectionEmailText(String name) {
+    StringBuilder stringBuilder = new StringBuilder("");
+    stringBuilder.append("Dear ");
+    stringBuilder.append(name);
+    stringBuilder.append(",\n");
+    stringBuilder.append(
+        "We are very sorry to inform you that your registration request as a doctor on CCRT Clinic has been rejected.");
+    stringBuilder.append("Thanks\n");
+    stringBuilder.append("CCRT Clinic");
+    return stringBuilder.toString();
+  }
+
+  public void sendRegistrationRequestRejectionEmail(String email, String name) {
+    AmazonSimpleEmailService client = AmazonSimpleEmailServiceClientBuilder.standard().withRegion(Regions.AP_SOUTH_1)
+        .build();
+
+    SendEmailRequest sendEmailRequest = new SendEmailRequest()
+        .withDestination(new Destination().withToAddresses(email))
+        .withMessage(new Message()
+            .withBody(new Body()
+                .withHtml(new Content().withCharset("UTF-8").withData(getRegistrationRequestRejectionEmailBody(name)))
+                .withText(new Content().withCharset("UTF-8").withData(getRegistrationRequestRejectionEmailText(name))))
+            .withSubject(new Content().withCharset("UTF-8").withData(REGISTRATION_REQUEST_REJECTION_EMAIL_SUBJECT)))
+        .withSource(FROM);
+    try {
+      client.sendEmail(sendEmailRequest);
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+    }
   }
 
   public void sendMeetingLink(String doctorEmail, String patientEmail, String code, String link) {

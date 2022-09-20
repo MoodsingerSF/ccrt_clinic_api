@@ -27,10 +27,18 @@ public class MiscServiceImpl implements MiscService {
 
   @Transactional
   @Override
-  public List<UserDto> findPopularDoctors(int page, int limit) {
-    Page<DoctorAppointmentCount> popularDoctorsPage = appointmentRepository.findPopularDoctors(
-        AppointmentStatus.FINISHED,
-        PageRequest.of(page, limit));
+  public List<UserDto> findPopularDoctors(int page, int limit, int specializationId) {
+    Page<DoctorAppointmentCount> popularDoctorsPage;
+    if (specializationId <= 0) {
+      popularDoctorsPage = appointmentRepository.findPopularDoctors(
+          AppointmentStatus.FINISHED,
+          PageRequest.of(page, limit));
+    } else {
+      popularDoctorsPage = appointmentRepository.findPopularDoctors(
+          specializationId,
+          AppointmentStatus.PENDING,
+          PageRequest.of(page, limit));
+    }
     List<DoctorAppointmentCount> popularDoctors = popularDoctorsPage.getContent();
     List<UserDto> popularDoctorsDtos = new ArrayList<>();
     for (DoctorAppointmentCount item : popularDoctors) {

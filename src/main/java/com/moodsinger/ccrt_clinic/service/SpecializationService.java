@@ -9,4 +9,7 @@ public interface SpecializationService {
   SpecializationEntity getOrCreateSpecialization(String specialization);
 
   List<SpecializationDto> searchByPrefix(String prefix, int page, int limit);
+
+  List<SpecializationDto> retrievePopularSpecializations(int page, int limit);
+
 }

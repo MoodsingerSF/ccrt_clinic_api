@@ -1,6 +1,14 @@
-package com.moodsinger.ccrt_clinic.shared.dto;
+package com.moodsinger.ccrt_clinic.io.entity;
 
-public class SpecializationDto {
+public class PopularSpecialization {
+  public PopularSpecialization(String name, long totalAppointments) {
+    this.name = name;
+    this.totalAppointments = totalAppointments;
+  }
+
+  public PopularSpecialization() {
+  }
+
   private String name;
   private long totalAppointments;
 

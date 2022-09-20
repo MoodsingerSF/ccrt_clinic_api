@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import com.moodsinger.ccrt_clinic.io.entity.PopularSpecialization;
 import com.moodsinger.ccrt_clinic.io.entity.SpecializationEntity;
 import com.moodsinger.ccrt_clinic.io.repository.SpecializationRepository;
 import com.moodsinger.ccrt_clinic.service.SpecializationService;
@@ -40,7 +41,24 @@ public class SpecializationServiceImpl implements SpecializationService {
 
     Page<SpecializationEntity> foundSpecializationEntitiesPage = specializationRepository
         .findAllByNameStartsWithIgnoreCase(prefix, PageRequest.of(page, limit, Sort.by("name").ascending()));
-    List<SpecializationEntity> foundSpecializationEntities = foundSpecializationEntitiesPage.getContent();
+    return processPage(foundSpecializationEntitiesPage);
+
+  }
+
+  @Override
+  public List<SpecializationDto> retrievePopularSpecializations(int page, int limit) {
+    Page<PopularSpecialization> foundSpecializationEntitiesPage = specializationRepository
+        .findPopularSpecializations(PageRequest.of(page, limit));
+    List<PopularSpecialization> foundSpecializationEntities = foundSpecializationEntitiesPage.getContent();
+    List<SpecializationDto> specializationDtos = new ArrayList<>();
+    for (PopularSpecialization popularSpecialization : foundSpecializationEntities) {
+      specializationDtos.add(modelMapper.map(popularSpecialization, SpecializationDto.class));
+    }
+    return specializationDtos;
+  }
+
+  private List<SpecializationDto> processPage(Page<SpecializationEntity> page) {
+    List<SpecializationEntity> foundSpecializationEntities = page.getContent();
     List<SpecializationDto> specializationDtos = new ArrayList<>();
     for (SpecializationEntity specializationEntity : foundSpecializationEntities) {
       specializationDtos.add(modelMapper.map(specializationEntity, SpecializationDto.class));
