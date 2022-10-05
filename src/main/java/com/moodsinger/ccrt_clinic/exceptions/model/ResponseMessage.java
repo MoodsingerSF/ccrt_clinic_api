@@ -1,10 +1,10 @@
 package com.moodsinger.ccrt_clinic.exceptions.model;
 
-public class ErrorMessage {
+public class ResponseMessage {
   private String code;
   private String message;
 
-  public ErrorMessage(String code, String message) {
+  public ResponseMessage(String code, String message) {
     this.code = code;
     this.message = message;
   }

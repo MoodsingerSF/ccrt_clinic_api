@@ -1,14 +1,16 @@
 package com.moodsinger.ccrt_clinic.io.entity;
 
 public class PopularSpecialization {
-  public PopularSpecialization(String name, long totalAppointments) {
+  public PopularSpecialization(String name, long totalAppointments, long id) {
     this.name = name;
     this.totalAppointments = totalAppointments;
+    this.id = id;
   }
 
   public PopularSpecialization() {
   }
 
+  private long id;
   private String name;
   private long totalAppointments;
 
@@ -26,5 +28,13 @@ public class PopularSpecialization {
 
   public void setTotalAppointments(long totalAppointments) {
     this.totalAppointments = totalAppointments;
+  }
+
+  public long getId() {
+    return id;
+  }
+
+  public void setId(long id) {
+    this.id = id;
   }
 }

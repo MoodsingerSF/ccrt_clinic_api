@@ -22,4 +22,6 @@ public interface UserRepository extends PagingAndSortingRepository<UserEntity, L
   Page<UserEntity> findByRoleAndVerificationStatus(@Param("role") Role role,
       @Param("verificationStatus") VerificationStatus verificationStatus, Pageable pageable);
 
+  UserEntity findByResetPasswordToken(String token);
+
 }

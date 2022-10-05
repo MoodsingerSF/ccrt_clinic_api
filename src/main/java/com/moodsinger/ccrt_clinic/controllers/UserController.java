@@ -7,8 +7,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.moodsinger.ccrt_clinic.exceptions.UserServiceException;
-import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorCodes;
-import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorMessages;
+import com.moodsinger.ccrt_clinic.exceptions.enums.MessageCodes;
+import com.moodsinger.ccrt_clinic.exceptions.enums.Messages;
+import com.moodsinger.ccrt_clinic.exceptions.model.ResponseMessage;
 import com.moodsinger.ccrt_clinic.io.enums.AppointmentStatus;
 import com.moodsinger.ccrt_clinic.io.enums.Gender;
 import com.moodsinger.ccrt_clinic.io.enums.Role;
@@ -16,7 +17,9 @@ import com.moodsinger.ccrt_clinic.io.enums.VerificationStatus;
 import com.moodsinger.ccrt_clinic.model.request.AwardCreationRequestModel;
 import com.moodsinger.ccrt_clinic.model.request.EducationCreationRequestModel;
 import com.moodsinger.ccrt_clinic.model.request.ExperienceCreationRequestModel;
+import com.moodsinger.ccrt_clinic.model.request.PasswordResetRequestModel;
 import com.moodsinger.ccrt_clinic.model.request.TrainingCreationRequestModel;
+import com.moodsinger.ccrt_clinic.model.request.UpdatePasswordRequestModel;
 import com.moodsinger.ccrt_clinic.model.request.UserSignupRequestModel;
 import com.moodsinger.ccrt_clinic.model.request.UserUpdateRequestModel;
 import com.moodsinger.ccrt_clinic.model.response.AppointmentRest;
@@ -196,14 +199,32 @@ public class UserController {
     return appointmentRests;
   }
 
-  // @PostMapping("/{userId}/appointments/{appointmentId}/cancel")
-  // public AppointmentRest cancelAppointment(@PathVariable(name = "userId")
-  // String userId,
-  // @PathVariable(name = "appointmentId") String appointmentId) {
-  // AppointmentDto appointmentDto =
-  // userAppointmentService.cancelAppointment(userId, appointmentId);
-  // return modelMapper.map(appointmentDto, AppointmentRest.class);
-  // }
+  @PostMapping("/{userId}/password-reset-verification-code")
+  private ResponseEntity<ResponseMessage> sendPasswordResetVerificationCode(
+      @PathVariable(name = "userId") String userId) {
+    userService.sendPasswordResetCode(userId);
+    return new ResponseEntity<>(new ResponseMessage("EMAIL_SENT",
+        "An email has been sent to your email address with the password reset token."), HttpStatus.OK);
+  }
+
+  @PutMapping("/{userId}/password")
+  private ResponseEntity<ResponseMessage> updatePassword(
+      @PathVariable String userId,
+      @RequestBody UpdatePasswordRequestModel updatePasswordRequestModel) {
+    userService.updatePassword(userId, modelMapper.map(updatePasswordRequestModel, UserDto.class));
+    return new ResponseEntity<>(new ResponseMessage(MessageCodes.PASSWORD_UPDATE_SUCCESSFUL.name(),
+        Messages.PASSWORD_UPDATE_SUCCESSFUL.getMessage()), HttpStatus.OK);
+  }
+
+  @PutMapping("/{userId}/password-reset")
+  private ResponseEntity<ResponseMessage> resetPassword(
+      @PathVariable String userId,
+      @RequestBody PasswordResetRequestModel passwordResetRequestModel) {
+    userService.resetPassword(userId, modelMapper.map(passwordResetRequestModel, UserDto.class));
+    return new ResponseEntity<>(new ResponseMessage(MessageCodes.PASSWORD_RESET_SUCCESSFUL.name(),
+        Messages.PASSWORD_RESET_SUCCESSFUL.getMessage()), HttpStatus.OK);
+  }
+
   @PostMapping("/{userId}/reports")
   public ResourceRest addReport(@PathVariable String userId,
       @RequestPart(name = "image", required = true) MultipartFile image,
@@ -341,34 +362,34 @@ public class UserController {
     double fee = userSignupRequestModel.getFee();
 
     if (!utils.isNonNullAndNonEmpty(firstName))
-      throw new UserServiceException(ExceptionErrorCodes.FIRST_NAME_NOT_VALID.name(),
-          ExceptionErrorMessages.FIRST_NAME_NOT_VALID.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new UserServiceException(MessageCodes.FIRST_NAME_NOT_VALID.name(),
+          Messages.FIRST_NAME_NOT_VALID.getMessage(), HttpStatus.BAD_REQUEST);
     if (!utils.isNonNullAndNonEmpty(lastName))
-      throw new UserServiceException(ExceptionErrorCodes.LAST_NAME_NOT_VALID.name(),
-          ExceptionErrorMessages.LAST_NAME_NOT_VALID.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new UserServiceException(MessageCodes.LAST_NAME_NOT_VALID.name(),
+          Messages.LAST_NAME_NOT_VALID.getMessage(), HttpStatus.BAD_REQUEST);
     if (!utils.validateEmail(email))
-      throw new UserServiceException(ExceptionErrorCodes.EMAIL_NOT_VALID.name(),
-          ExceptionErrorMessages.EMAIL_NOT_VALID.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new UserServiceException(MessageCodes.EMAIL_NOT_VALID.name(),
+          Messages.EMAIL_NOT_VALID.getMessage(), HttpStatus.BAD_REQUEST);
     if (!utils.validatePassword(password))
-      throw new UserServiceException(ExceptionErrorCodes.PASSWORD_NOT_VALID.name(),
-          ExceptionErrorMessages.PASSWORD_NOT_VALID.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new UserServiceException(MessageCodes.PASSWORD_NOT_VALID.name(),
+          Messages.PASSWORD_NOT_VALID.getMessage(), HttpStatus.BAD_REQUEST);
     if (!isUserTypeOptional && !utils.validateUserType(userType))
-      throw new UserServiceException(ExceptionErrorCodes.USER_TYPE_NOT_VALID.name(),
-          ExceptionErrorMessages.USER_TYPE_NOT_VALID.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new UserServiceException(MessageCodes.USER_TYPE_NOT_VALID.name(),
+          Messages.USER_TYPE_NOT_VALID.getMessage(), HttpStatus.BAD_REQUEST);
     if (!utils.validateGender(gender))
-      throw new UserServiceException(ExceptionErrorCodes.GENDER_NOT_VALID.name(),
-          ExceptionErrorMessages.GENDER_NOT_VALID.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new UserServiceException(MessageCodes.GENDER_NOT_VALID.name(),
+          Messages.GENDER_NOT_VALID.getMessage(), HttpStatus.BAD_REQUEST);
     if (!utils.validateBirthDate(birthDate))
-      throw new UserServiceException(ExceptionErrorCodes.BIRTH_DATE_NOT_VALID.name(),
-          ExceptionErrorMessages.BIRTH_DATE_NOT_VALID.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new UserServiceException(MessageCodes.BIRTH_DATE_NOT_VALID.name(),
+          Messages.BIRTH_DATE_NOT_VALID.getMessage(), HttpStatus.BAD_REQUEST);
     if (userType.equals(Role.DOCTOR.name()) && !utils.validateSpecialization(specializationList)) {
-      throw new UserServiceException(ExceptionErrorCodes.SPECIALIZATION_NOT_VALID.name(),
-          ExceptionErrorMessages.SPECIALIZATION_NOT_VALID.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new UserServiceException(MessageCodes.SPECIALIZATION_NOT_VALID.name(),
+          Messages.SPECIALIZATION_NOT_VALID.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     if (userType.equals(Role.DOCTOR.name()) && !utils.validateFee(fee)) {
-      throw new UserServiceException(ExceptionErrorCodes.FEE_FIELD_ERROR.name(),
-          ExceptionErrorMessages.FEE_FIELD_ERROR.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new UserServiceException(MessageCodes.FEE_FIELD_ERROR.name(),
+          Messages.FEE_FIELD_ERROR.getMessage(), HttpStatus.BAD_REQUEST);
     }
   }
 

@@ -33,6 +33,10 @@ public class Utils {
     return generateRandomString(length, DIGITS);
   }
 
+  public String generatePasswordResetCode() {
+    return generateRandomString(6, DIGITS);
+  }
+
   public String generateRequestId() {
     return generateRandomString(15, ALPHABET);
   }

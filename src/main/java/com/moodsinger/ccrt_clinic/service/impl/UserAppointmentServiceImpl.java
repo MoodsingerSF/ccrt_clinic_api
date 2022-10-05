@@ -15,8 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.moodsinger.ccrt_clinic.exceptions.UserServiceException;
-import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorCodes;
-import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorMessages;
+import com.moodsinger.ccrt_clinic.exceptions.enums.MessageCodes;
+import com.moodsinger.ccrt_clinic.exceptions.enums.Messages;
 import com.moodsinger.ccrt_clinic.io.entity.AppointmentEntity;
 import com.moodsinger.ccrt_clinic.io.entity.RoleEntity;
 import com.moodsinger.ccrt_clinic.io.entity.UserEntity;
@@ -43,8 +43,8 @@ public class UserAppointmentServiceImpl implements UserAppointmentService {
       Date date) {
     UserEntity user = userRepository.findByUserId(userId);
     if (user == null)
-      throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
-          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new UserServiceException(MessageCodes.USER_NOT_FOUND.name(),
+          Messages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
 
     List<RoleEntity> roleEntities = new ArrayList<>(user.getRoles());
     Role role = roleEntities.get(0).getName();

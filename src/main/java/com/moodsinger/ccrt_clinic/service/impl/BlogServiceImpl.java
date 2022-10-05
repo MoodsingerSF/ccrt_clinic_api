@@ -20,10 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.moodsinger.ccrt_clinic.AppProperties;
+// import com.moodsinger.ccrt_clinic.AppProperties;
 import com.moodsinger.ccrt_clinic.exceptions.BlogServiceException;
-import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorCodes;
-import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorMessages;
+import com.moodsinger.ccrt_clinic.exceptions.enums.MessageCodes;
+import com.moodsinger.ccrt_clinic.exceptions.enums.Messages;
 import com.moodsinger.ccrt_clinic.io.entity.BlogEntity;
 import com.moodsinger.ccrt_clinic.io.entity.TagEntity;
 import com.moodsinger.ccrt_clinic.io.entity.UserEntity;
@@ -43,8 +43,8 @@ import com.moodsinger.ccrt_clinic.shared.dto.TagDto;
 @Service
 public class BlogServiceImpl implements BlogService {
 
-  @Autowired
-  private AppProperties appProperties;
+  // @Autowired
+  // private AppProperties appProperties;
 
   @Autowired
   private TagService tagService;
@@ -80,8 +80,8 @@ public class BlogServiceImpl implements BlogService {
           getImageUrl(blogId, fileName));
       UserEntity creatorEntity = userRepository.findByUserId(blogDto.getCreatorUserId());
       if (creatorEntity == null)
-        throw new BlogServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
-            ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+        throw new BlogServiceException(MessageCodes.USER_NOT_FOUND.name(),
+            Messages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
       blogEntity.setCreator(creatorEntity);
       List<String> tags = blogDto.getTagStrings();
       Set<TagEntity> tagEntities = new HashSet<>();
@@ -99,8 +99,8 @@ public class BlogServiceImpl implements BlogService {
       BlogDto createdBlogDto = modelMapper.map(createdBlogEntity, BlogDto.class);
       return createdBlogDto;
     } catch (IOException e) {
-      throw new BlogServiceException(ExceptionErrorCodes.FILE_SAVE_ERROR.name(),
-          ExceptionErrorMessages.FILE_SAVE_ERROR.getMessage());
+      throw new BlogServiceException(MessageCodes.FILE_SAVE_ERROR.name(),
+          Messages.FILE_SAVE_ERROR.getMessage());
     } catch (Exception e) {
       e.printStackTrace();
       throw new BlogServiceException("", "");
@@ -138,8 +138,8 @@ public class BlogServiceImpl implements BlogService {
   public BlogDto getBlog(String blogId) {
     BlogEntity foundBlogEntity = blogRepository.findByBlogId(blogId);
     if (foundBlogEntity == null)
-      throw new BlogServiceException(ExceptionErrorCodes.BLOG_NOT_FOUND.name(),
-          ExceptionErrorMessages.BLOG_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
+      throw new BlogServiceException(MessageCodes.BLOG_NOT_FOUND.name(),
+          Messages.BLOG_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
     BlogDto blog = modelMapper.map(foundBlogEntity, BlogDto.class);
     return blog;
   }
@@ -149,12 +149,12 @@ public class BlogServiceImpl implements BlogService {
   public BlogDto updateBlog(String blogId, BlogDto blogDetails) {
     BlogEntity foundBlogEntity = blogRepository.findByBlogId(blogId);
     if (foundBlogEntity == null)
-      throw new BlogServiceException(ExceptionErrorCodes.BLOG_NOT_FOUND.name(),
-          ExceptionErrorMessages.BLOG_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
+      throw new BlogServiceException(MessageCodes.BLOG_NOT_FOUND.name(),
+          Messages.BLOG_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
     System.out.println(blogDetails);
     if (!foundBlogEntity.getCreator().getUserId().equals(blogDetails.getCreatorUserId())) {
-      throw new BlogServiceException(ExceptionErrorCodes.FORBIDDEN.name(),
-          ExceptionErrorMessages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
+      throw new BlogServiceException(MessageCodes.FORBIDDEN.name(),
+          Messages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
     }
     String title = blogDetails.getTitle();
     String description = blogDetails.getDescription();
@@ -176,8 +176,8 @@ public class BlogServiceImpl implements BlogService {
             .setImageUrl(getImageUrl(blogId, fileName));
 
       } catch (Exception e) {
-        throw new BlogServiceException(ExceptionErrorCodes.FILE_SAVE_ERROR.name(),
-            ExceptionErrorMessages.FILE_SAVE_ERROR.getMessage());
+        throw new BlogServiceException(MessageCodes.FILE_SAVE_ERROR.name(),
+            Messages.FILE_SAVE_ERROR.getMessage());
       }
     }
     if (tags != null && !tags.isEmpty()) {
@@ -198,7 +198,7 @@ public class BlogServiceImpl implements BlogService {
   }
 
   private String getImageUrl(String blogId, String fileName) {
-    return appProperties.getProperty("baseUrl") + "blogs/" + blogId + "/index." + utils.getFileExtension(fileName);
+    return "blogs/" + blogId + "/index." + utils.getFileExtension(fileName);
   }
 
   private String getFileName(String fileName) {
@@ -237,8 +237,8 @@ public class BlogServiceImpl implements BlogService {
   public void deleteBlog(String blogId) {
     BlogEntity foundBlogEntity = blogRepository.findByBlogId(blogId);
     if (foundBlogEntity == null) {
-      throw new BlogServiceException(ExceptionErrorCodes.BLOG_NOT_FOUND.name(),
-          ExceptionErrorMessages.BLOG_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
+      throw new BlogServiceException(MessageCodes.BLOG_NOT_FOUND.name(),
+          Messages.BLOG_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     blogRepository.delete(foundBlogEntity);
@@ -249,8 +249,8 @@ public class BlogServiceImpl implements BlogService {
   public List<BlogDto> getRelatedBlogs(String blogId, int page, int limit) {
     BlogEntity foundBlogEntity = blogRepository.findByBlogId(blogId);
     if (foundBlogEntity == null) {
-      throw new BlogServiceException(ExceptionErrorCodes.BLOG_NOT_FOUND.name(),
-          ExceptionErrorMessages.BLOG_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
+      throw new BlogServiceException(MessageCodes.BLOG_NOT_FOUND.name(),
+          Messages.BLOG_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
     }
     List<Long> tagIds = new ArrayList<>();
     for (TagEntity tagEntity : foundBlogEntity.getTags()) {
@@ -272,8 +272,8 @@ public class BlogServiceImpl implements BlogService {
       BlogVerificationStatusUpdateRequestModel blogVerificationStatusUpdateRequestModel) {
     BlogEntity foundBlogEntity = blogRepository.findByBlogId(blogId);
     if (foundBlogEntity == null) {
-      throw new BlogServiceException(ExceptionErrorCodes.BLOG_NOT_FOUND.name(),
-          ExceptionErrorMessages.BLOG_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
+      throw new BlogServiceException(MessageCodes.BLOG_NOT_FOUND.name(),
+          Messages.BLOG_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
     }
     if (blogVerificationStatusUpdateRequestModel.getVerificationStatus().equals(VerificationStatus.ACCEPTED.name()))
       foundBlogEntity.setVerificationStatus(VerificationStatus.ACCEPTED);
@@ -295,8 +295,8 @@ public class BlogServiceImpl implements BlogService {
   public BlogDto updateNumberOfTimesRead(String blogId) {
     BlogEntity foundBlogEntity = blogRepository.findByBlogId(blogId);
     if (foundBlogEntity == null) {
-      throw new BlogServiceException(ExceptionErrorCodes.BLOG_NOT_FOUND.name(),
-          ExceptionErrorMessages.BLOG_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
+      throw new BlogServiceException(MessageCodes.BLOG_NOT_FOUND.name(),
+          Messages.BLOG_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
     }
     foundBlogEntity.setNumTimesRead(foundBlogEntity.getNumTimesRead() + 1);
     BlogEntity updatedBlogEntity = blogRepository.save(foundBlogEntity);

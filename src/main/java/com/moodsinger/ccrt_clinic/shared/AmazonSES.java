@@ -10,6 +10,9 @@ import com.amazonaws.services.simpleemail.model.Content;
 import com.amazonaws.services.simpleemail.model.Destination;
 import com.amazonaws.services.simpleemail.model.Message;
 import com.amazonaws.services.simpleemail.model.SendEmailRequest;
+import com.moodsinger.ccrt_clinic.shared.dto.AppointmentDto;
+import com.moodsinger.ccrt_clinic.shared.dto.SlotDto;
+import com.moodsinger.ccrt_clinic.shared.dto.UserDto;
 
 @Component
 public class AmazonSES {
@@ -18,25 +21,7 @@ public class AmazonSES {
   private final String APPOINTMENT_SUBJECT = "[CCRT Clinic] Appointment Details";
   private final String REGISTRATION_REQUEST_ACCEPTANCE_EMAIL_SUBJECT = "[CCRT Clinic Registration] [SUCCESS] Your registration request has been accepted successfully.";
   private final String REGISTRATION_REQUEST_REJECTION_EMAIL_SUBJECT = "[CCRT Clinic Registration] [REJECTION] Your registration request has been rejected.";
-
-  private String getHTMLBody(String code) {
-    StringBuilder stringBuilder = new StringBuilder("");
-    stringBuilder.append("<div>");
-    stringBuilder.append("<p>Your email verification code is </p>");
-    stringBuilder.append("</br>");
-    stringBuilder.append("<h1>");
-    stringBuilder.append(code);
-    stringBuilder.append("</h1>");
-    stringBuilder.append("</div>");
-    return stringBuilder.toString();
-  }
-
-  private String getTextBody(String code) {
-    StringBuilder stringBuilder = new StringBuilder("");
-    stringBuilder.append("Your email verification code is ");
-    stringBuilder.append(code);
-    return stringBuilder.toString();
-  }
+  private final String PASSWORD_RESET_CODE_EMAIL_SUBJECT = "[CCRT Clinic] Password reset code.";
 
   public void sendVerificationEmail(String email, String code) {
     AmazonSimpleEmailService client = AmazonSimpleEmailServiceClientBuilder.standard().withRegion(Regions.AP_SOUTH_1)
@@ -51,6 +36,195 @@ public class AmazonSES {
         .withSource(FROM);
     client.sendEmail(sendEmailRequest);
 
+  }
+
+  public void sendRegistrationRequestAcceptanceEmail(String email, String name) {
+    AmazonSimpleEmailService client = AmazonSimpleEmailServiceClientBuilder.standard().withRegion(Regions.AP_SOUTH_1)
+        .build();
+
+    SendEmailRequest sendEmailRequest = new SendEmailRequest()
+        .withDestination(new Destination().withToAddresses(email))
+        .withMessage(new Message()
+            .withBody(new Body()
+                .withHtml(new Content().withCharset("UTF-8").withData(getRegistrationRequestAcceptanceEmailBody(name)))
+                .withText(new Content().withCharset("UTF-8").withData(getRegistrationRequestAcceptanceEmailText(name))))
+            .withSubject(new Content().withCharset("UTF-8").withData(REGISTRATION_REQUEST_ACCEPTANCE_EMAIL_SUBJECT)))
+        .withSource(FROM);
+    try {
+      client.sendEmail(sendEmailRequest);
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+    }
+  }
+
+  public void sendRegistrationRequestRejectionEmail(String email, String name) {
+    AmazonSimpleEmailService client = AmazonSimpleEmailServiceClientBuilder.standard().withRegion(Regions.AP_SOUTH_1)
+        .build();
+
+    SendEmailRequest sendEmailRequest = new SendEmailRequest()
+        .withDestination(new Destination().withToAddresses(email))
+        .withMessage(new Message()
+            .withBody(new Body()
+                .withHtml(new Content().withCharset("UTF-8").withData(getRegistrationRequestRejectionEmailBody(name)))
+                .withText(new Content().withCharset("UTF-8").withData(getRegistrationRequestRejectionEmailText(name))))
+            .withSubject(new Content().withCharset("UTF-8").withData(REGISTRATION_REQUEST_REJECTION_EMAIL_SUBJECT)))
+        .withSource(FROM);
+    try {
+      client.sendEmail(sendEmailRequest);
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+    }
+  }
+
+  public void sendPasswordResetCode(UserDto userDto, String code) {
+    AmazonSimpleEmailService client = AmazonSimpleEmailServiceClientBuilder.standard().withRegion(Regions.AP_SOUTH_1)
+        .build();
+    String email = userDto.getEmail();
+    String fullName = userDto.getFirstName() + " " + userDto.getLastName();
+    SendEmailRequest sendEmailRequest = new SendEmailRequest()
+        .withDestination(new Destination().withToAddresses(email))
+        .withMessage(new Message()
+            .withBody(new Body()
+                .withHtml(new Content().withCharset("UTF-8").withData(getPasswordResetCodeEmailBody(fullName, code)))
+                .withText(new Content().withCharset("UTF-8").withData(getPasswordResetCodeEmailText(fullName, code))))
+            .withSubject(new Content().withCharset("UTF-8").withData(PASSWORD_RESET_CODE_EMAIL_SUBJECT)))
+        .withSource(FROM);
+    try {
+      client.sendEmail(sendEmailRequest);
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+    }
+  }
+
+  public void sendMeetingLink(String doctorEmail, String patientEmail, String code, String link) {
+    AmazonSimpleEmailService client = AmazonSimpleEmailServiceClientBuilder.standard().withRegion(Regions.AP_SOUTH_1)
+        .build();
+
+    SendEmailRequest sendPatientEmailRequest = new SendEmailRequest()
+        .withDestination(new Destination().withToAddresses(patientEmail))
+        .withMessage(new Message()
+            .withBody(
+                new Body().withHtml(new Content().withCharset("UTF-8").withData(getMeetingHTMLBody(code, link, true)))
+                    .withText(new Content().withCharset("UTF-8").withData(getMeetingTextBody(code, link, true))))
+            .withSubject(new Content().withCharset("UTF-8").withData(APPOINTMENT_SUBJECT)))
+        .withSource(FROM);
+
+    SendEmailRequest sendDoctorEmailRequest = new SendEmailRequest()
+        .withDestination(new Destination().withToAddresses(doctorEmail))
+        .withMessage(new Message()
+            .withBody(
+                new Body().withHtml(new Content().withCharset("UTF-8").withData(getMeetingHTMLBody(code, link, false)))
+                    .withText(new Content().withCharset("UTF-8").withData(getMeetingTextBody(code, link, false))))
+            .withSubject(new Content().withCharset("UTF-8").withData(APPOINTMENT_SUBJECT)))
+        .withSource(FROM);
+    client.sendEmail(sendDoctorEmailRequest);
+    client.sendEmail(sendPatientEmailRequest);
+  }
+
+  public void sendAppointmentCancellationEmail(AppointmentDto appointmentDto) {
+    UserDto patient = appointmentDto.getPatient();
+    UserDto doctor = appointmentDto.getDoctor();
+    String patientEmail = patient.getEmail();
+    String doctorEmail = doctor.getEmail();
+    String patientName = patient.getFirstName() + " " + patient.getLastName();
+    String doctorName = doctor.getFirstName() + " " + doctor.getLastName();
+    AmazonSimpleEmailService client = AmazonSimpleEmailServiceClientBuilder.standard().withRegion(Regions.AP_SOUTH_1)
+        .build();
+
+    SendEmailRequest sendPatientEmailRequest = new SendEmailRequest()
+        .withDestination(new Destination().withToAddresses(patientEmail))
+        .withMessage(new Message()
+            .withBody(
+                new Body()
+                    .withHtml(new Content().withCharset("UTF-8")
+                        .withData(getAppointmentCancellationEmailBody(patientName, appointmentDto)))
+                    .withText(new Content().withCharset("UTF-8")
+                        .withData(getAppointmentCancellationEmailText(patientName, appointmentDto))))
+            .withSubject(new Content().withCharset("UTF-8").withData(APPOINTMENT_SUBJECT)))
+        .withSource(FROM);
+
+    SendEmailRequest sendDoctorEmailRequest = new SendEmailRequest()
+        .withDestination(new Destination().withToAddresses(doctorEmail))
+        .withMessage(new Message()
+            .withBody(
+                new Body()
+                    .withHtml(new Content().withCharset("UTF-8")
+                        .withData(getAppointmentCancellationEmailBody(doctorName, appointmentDto)))
+                    .withText(new Content().withCharset("UTF-8")
+                        .withData(getAppointmentCancellationEmailText(doctorName, appointmentDto))))
+            .withSubject(new Content().withCharset("UTF-8").withData(APPOINTMENT_SUBJECT)))
+        .withSource(FROM);
+    client.sendEmail(sendDoctorEmailRequest);
+    client.sendEmail(sendPatientEmailRequest);
+  }
+
+  private String getAppointmentCancellationEmailBody(String name, AppointmentDto appointmentDto) {
+    SlotDto slot = appointmentDto.getSlot();
+    StringBuilder stringBuilder = new StringBuilder("");
+    stringBuilder.append("<div>");
+    stringBuilder.append("<p>Dear ");
+    stringBuilder.append(name);
+    stringBuilder.append(",</p>");
+
+    stringBuilder.append("</br>");
+    stringBuilder.append("<p>");
+    stringBuilder.append(
+        "Your appointment on " + appointmentDto.getDate() + " at " + slot.getStartTime().toString() + " to "
+            + slot.getEndTime().toString() + " has been cancelled.");
+    stringBuilder.append("</p>");
+    stringBuilder.append("</br>");
+    stringBuilder.append("<p>Thanks,</p>");
+    stringBuilder.append("</br>");
+    stringBuilder.append("<p>CCRT Clinic</p>");
+    stringBuilder.append("</div>");
+    return stringBuilder.toString();
+  }
+
+  private String getAppointmentCancellationEmailText(String name, AppointmentDto appointmentDto) {
+    SlotDto slot = appointmentDto.getSlot();
+
+    StringBuilder stringBuilder = new StringBuilder("");
+    stringBuilder.append("Dear ");
+    stringBuilder.append(name);
+    stringBuilder.append(",\n");
+    stringBuilder.append(
+        "Your appointment on " + appointmentDto.getDate() + " at " + slot.getStartTime().toString() + " to "
+            + slot.getEndTime().toString() + " has been cancelled.");
+    stringBuilder.append("Thanks\n");
+    stringBuilder.append("CCRT Clinic");
+    return stringBuilder.toString();
+  }
+
+  private String getRegistrationRequestAcceptanceEmailBody(String name) {
+    StringBuilder stringBuilder = new StringBuilder("");
+    stringBuilder.append("<div>");
+    stringBuilder.append("<p>Dear ");
+    stringBuilder.append(name);
+    stringBuilder.append(",</p>");
+
+    stringBuilder.append("</br>");
+    stringBuilder.append("<p>");
+    stringBuilder.append(
+        "Your registration request as a doctor on CCRT Clinic has been accepted. You can now log into your account and see patients.");
+    stringBuilder.append("</p>");
+    stringBuilder.append("</br>");
+    stringBuilder.append("<p>Thanks,</p>");
+    stringBuilder.append("</br>");
+    stringBuilder.append("<p>CCRT Clinic</p>");
+    stringBuilder.append("</div>");
+    return stringBuilder.toString();
+  }
+
+  private String getRegistrationRequestAcceptanceEmailText(String name) {
+    StringBuilder stringBuilder = new StringBuilder("");
+    stringBuilder.append("Dear ");
+    stringBuilder.append(name);
+    stringBuilder.append(",\n");
+    stringBuilder.append(
+        "Your registration request as a doctor on CCRT Clinic has been accepted. You can now log into your account and see patients.");
+    stringBuilder.append("Thanks\n");
+    stringBuilder.append("CCRT Clinic");
+    return stringBuilder.toString();
   }
 
   private String getMeetingHTMLBody(String code, String link, boolean sendCode) {
@@ -90,55 +264,23 @@ public class AmazonSES {
     return stringBuilder.toString();
   }
 
-  private String getRegistrationRequestAcceptanceEmailBody(String name) {
+  private String getHTMLBody(String code) {
     StringBuilder stringBuilder = new StringBuilder("");
     stringBuilder.append("<div>");
-    stringBuilder.append("<p>Dear ");
-    stringBuilder.append(name);
-    stringBuilder.append(",</p>");
-
+    stringBuilder.append("<p>Your email verification code is </p>");
     stringBuilder.append("</br>");
-    stringBuilder.append("<p>");
-    stringBuilder.append(
-        "Your registration request as a doctor on CCRT Clinic has been accepted. You can now log into your account and see patients.");
-    stringBuilder.append("</p>");
-    stringBuilder.append("</br>");
-    stringBuilder.append("<p>Thanks,</p>");
-    stringBuilder.append("</br>");
-    stringBuilder.append("<p>CCRT Clinic</p>");
+    stringBuilder.append("<h1>");
+    stringBuilder.append(code);
+    stringBuilder.append("</h1>");
     stringBuilder.append("</div>");
     return stringBuilder.toString();
   }
 
-  private String getRegistrationRequestAcceptanceEmailText(String name) {
+  private String getTextBody(String code) {
     StringBuilder stringBuilder = new StringBuilder("");
-    stringBuilder.append("Dear ");
-    stringBuilder.append(name);
-    stringBuilder.append(",\n");
-    stringBuilder.append(
-        "Your registration request as a doctor on CCRT Clinic has been accepted. You can now log into your account and see patients.");
-    stringBuilder.append("Thanks\n");
-    stringBuilder.append("CCRT Clinic");
+    stringBuilder.append("Your email verification code is ");
+    stringBuilder.append(code);
     return stringBuilder.toString();
-  }
-
-  public void sendRegistrationRequestAcceptanceEmail(String email, String name) {
-    AmazonSimpleEmailService client = AmazonSimpleEmailServiceClientBuilder.standard().withRegion(Regions.AP_SOUTH_1)
-        .build();
-
-    SendEmailRequest sendEmailRequest = new SendEmailRequest()
-        .withDestination(new Destination().withToAddresses(email))
-        .withMessage(new Message()
-            .withBody(new Body()
-                .withHtml(new Content().withCharset("UTF-8").withData(getRegistrationRequestAcceptanceEmailBody(name)))
-                .withText(new Content().withCharset("UTF-8").withData(getRegistrationRequestAcceptanceEmailText(name))))
-            .withSubject(new Content().withCharset("UTF-8").withData(REGISTRATION_REQUEST_ACCEPTANCE_EMAIL_SUBJECT)))
-        .withSource(FROM);
-    try {
-      client.sendEmail(sendEmailRequest);
-    } catch (Exception e) {
-      System.out.println(e.getMessage());
-    }
   }
 
   private String getRegistrationRequestRejectionEmailBody(String name) {
@@ -173,48 +315,44 @@ public class AmazonSES {
     return stringBuilder.toString();
   }
 
-  public void sendRegistrationRequestRejectionEmail(String email, String name) {
-    AmazonSimpleEmailService client = AmazonSimpleEmailServiceClientBuilder.standard().withRegion(Regions.AP_SOUTH_1)
-        .build();
+  private String getPasswordResetCodeEmailBody(String name, String code) {
+    StringBuilder stringBuilder = new StringBuilder("");
+    stringBuilder.append("<div>");
+    stringBuilder.append("<p>Dear ");
+    stringBuilder.append(name);
+    stringBuilder.append(",</p>");
 
-    SendEmailRequest sendEmailRequest = new SendEmailRequest()
-        .withDestination(new Destination().withToAddresses(email))
-        .withMessage(new Message()
-            .withBody(new Body()
-                .withHtml(new Content().withCharset("UTF-8").withData(getRegistrationRequestRejectionEmailBody(name)))
-                .withText(new Content().withCharset("UTF-8").withData(getRegistrationRequestRejectionEmailText(name))))
-            .withSubject(new Content().withCharset("UTF-8").withData(REGISTRATION_REQUEST_REJECTION_EMAIL_SUBJECT)))
-        .withSource(FROM);
-    try {
-      client.sendEmail(sendEmailRequest);
-    } catch (Exception e) {
-      System.out.println(e.getMessage());
-    }
+    stringBuilder.append("</br>");
+    stringBuilder.append("<p>");
+    stringBuilder.append(
+        "Your password reset code is");
+    stringBuilder.append("</p>");
+    stringBuilder.append("</br>");
+    stringBuilder.append("<h1>");
+    stringBuilder.append(
+        code);
+    stringBuilder.append("</h1>");
+    stringBuilder.append("</br>");
+
+    stringBuilder.append("<p>Thanks,</p>");
+    stringBuilder.append("</br>");
+    stringBuilder.append("<p>CCRT Clinic</p>");
+    stringBuilder.append("</div>");
+    return stringBuilder.toString();
   }
 
-  public void sendMeetingLink(String doctorEmail, String patientEmail, String code, String link) {
-    AmazonSimpleEmailService client = AmazonSimpleEmailServiceClientBuilder.standard().withRegion(Regions.AP_SOUTH_1)
-        .build();
-
-    SendEmailRequest sendPatientEmailRequest = new SendEmailRequest()
-        .withDestination(new Destination().withToAddresses(patientEmail))
-        .withMessage(new Message()
-            .withBody(
-                new Body().withHtml(new Content().withCharset("UTF-8").withData(getMeetingHTMLBody(code, link, true)))
-                    .withText(new Content().withCharset("UTF-8").withData(getMeetingTextBody(code, link, true))))
-            .withSubject(new Content().withCharset("UTF-8").withData(APPOINTMENT_SUBJECT)))
-        .withSource(FROM);
-
-    SendEmailRequest sendDoctorEmailRequest = new SendEmailRequest()
-        .withDestination(new Destination().withToAddresses(doctorEmail))
-        .withMessage(new Message()
-            .withBody(
-                new Body().withHtml(new Content().withCharset("UTF-8").withData(getMeetingHTMLBody(code, link, false)))
-                    .withText(new Content().withCharset("UTF-8").withData(getMeetingTextBody(code, link, false))))
-            .withSubject(new Content().withCharset("UTF-8").withData(APPOINTMENT_SUBJECT)))
-        .withSource(FROM);
-    client.sendEmail(sendDoctorEmailRequest);
-    client.sendEmail(sendPatientEmailRequest);
+  private String getPasswordResetCodeEmailText(String name, String code) {
+    StringBuilder stringBuilder = new StringBuilder("");
+    stringBuilder.append("Dear ");
+    stringBuilder.append(name);
+    stringBuilder.append(",\n");
+    stringBuilder.append(
+        "Your password reset code is \n");
+    stringBuilder.append(
+        code);
+    stringBuilder.append("Thanks\n");
+    stringBuilder.append("CCRT Clinic");
+    return stringBuilder.toString();
   }
 
 }

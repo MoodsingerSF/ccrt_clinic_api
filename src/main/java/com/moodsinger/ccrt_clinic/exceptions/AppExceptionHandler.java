@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import com.moodsinger.ccrt_clinic.exceptions.model.ErrorMessage;
+import com.moodsinger.ccrt_clinic.exceptions.model.ResponseMessage;
 
 @ControllerAdvice
 public class AppExceptionHandler {
@@ -22,47 +22,47 @@ public class AppExceptionHandler {
   // }
 
   @ExceptionHandler(value = { UserServiceException.class })
-  public ResponseEntity<ErrorMessage> handleUserServiceException(UserServiceException exception) {
-    ErrorMessage errorMessage = new ErrorMessage(exception.getCode(), exception.getMessage());
-    return new ResponseEntity<ErrorMessage>(errorMessage, new HttpHeaders(), exception.getHttpStatus());
+  public ResponseEntity<ResponseMessage> handleUserServiceException(UserServiceException exception) {
+    ResponseMessage errorMessage = new ResponseMessage(exception.getCode(), exception.getMessage());
+    return new ResponseEntity<ResponseMessage>(errorMessage, new HttpHeaders(), exception.getHttpStatus());
   }
 
   @ExceptionHandler(value = { AppointmentServiceException.class })
-  public ResponseEntity<ErrorMessage> handleAppointmentServiceException(AppointmentServiceException exception) {
-    ErrorMessage errorMessage = new ErrorMessage(exception.getCode(), exception.getMessage());
-    return new ResponseEntity<ErrorMessage>(errorMessage, new HttpHeaders(), exception.getHttpStatus());
+  public ResponseEntity<ResponseMessage> handleAppointmentServiceException(AppointmentServiceException exception) {
+    ResponseMessage errorMessage = new ResponseMessage(exception.getCode(), exception.getMessage());
+    return new ResponseEntity<ResponseMessage>(errorMessage, new HttpHeaders(), exception.getHttpStatus());
   }
 
   @ExceptionHandler(value = { BlogServiceException.class })
-  public ResponseEntity<ErrorMessage> handleBlogServiceException(BlogServiceException exception) {
-    ErrorMessage errorMessage = new ErrorMessage(exception.getCode(), exception.getMessage());
-    return new ResponseEntity<ErrorMessage>(errorMessage, new HttpHeaders(), exception.getHttpStatus());
+  public ResponseEntity<ResponseMessage> handleBlogServiceException(BlogServiceException exception) {
+    ResponseMessage errorMessage = new ResponseMessage(exception.getCode(), exception.getMessage());
+    return new ResponseEntity<ResponseMessage>(errorMessage, new HttpHeaders(), exception.getHttpStatus());
   }
 
   @ExceptionHandler(value = { OtpServiceException.class })
-  public ResponseEntity<ErrorMessage> handleOtpServiceException(OtpServiceException exception) {
-    ErrorMessage errorMessage = new ErrorMessage(exception.getCode(), exception.getMessage());
-    return new ResponseEntity<ErrorMessage>(errorMessage, new HttpHeaders(), exception.getHttpStatus());
+  public ResponseEntity<ResponseMessage> handleOtpServiceException(OtpServiceException exception) {
+    ResponseMessage errorMessage = new ResponseMessage(exception.getCode(), exception.getMessage());
+    return new ResponseEntity<ResponseMessage>(errorMessage, new HttpHeaders(), exception.getHttpStatus());
   }
 
   @ExceptionHandler(value = { FeeChangingRequestServiceException.class })
-  public ResponseEntity<ErrorMessage> handleFeeChangingRequestServiceException(
+  public ResponseEntity<ResponseMessage> handleFeeChangingRequestServiceException(
       FeeChangingRequestServiceException exception) {
-    ErrorMessage errorMessage = new ErrorMessage(exception.getCode(), exception.getMessage());
-    return new ResponseEntity<ErrorMessage>(errorMessage, new HttpHeaders(), exception.getHttpStatus());
+    ResponseMessage errorMessage = new ResponseMessage(exception.getCode(), exception.getMessage());
+    return new ResponseEntity<ResponseMessage>(errorMessage, new HttpHeaders(), exception.getHttpStatus());
   }
 
   @ExceptionHandler(value = { DoctorScheduleServiceException.class })
-  public ResponseEntity<ErrorMessage> handleDoctorScheduleServiceException(
+  public ResponseEntity<ResponseMessage> handleDoctorScheduleServiceException(
       DoctorScheduleServiceException exception) {
-    ErrorMessage errorMessage = new ErrorMessage(exception.getCode(), exception.getMessage());
-    return new ResponseEntity<ErrorMessage>(errorMessage, new HttpHeaders(), exception.getHttpStatus());
+    ResponseMessage errorMessage = new ResponseMessage(exception.getCode(), exception.getMessage());
+    return new ResponseEntity<ResponseMessage>(errorMessage, new HttpHeaders(), exception.getHttpStatus());
   }
 
   @ExceptionHandler(value = { Exception.class })
-  public ResponseEntity<ErrorMessage> handleUnhandledException(Exception exception) {
+  public ResponseEntity<ResponseMessage> handleUnhandledException(Exception exception) {
     exception.printStackTrace();
-    ErrorMessage errorMessage = new ErrorMessage("INTERNAL_SERVER_ERROR", exception.getMessage());
-    return new ResponseEntity<ErrorMessage>(errorMessage, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
+    ResponseMessage errorMessage = new ResponseMessage("INTERNAL_SERVER_ERROR", exception.getMessage());
+    return new ResponseEntity<ResponseMessage>(errorMessage, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
   }
 }

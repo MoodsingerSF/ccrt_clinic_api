@@ -12,4 +12,6 @@ public interface SpecializationService {
 
   List<SpecializationDto> retrievePopularSpecializations(int page, int limit);
 
+  List<SpecializationDto> retrieveSpecializations(int page, int limit);
+
 }

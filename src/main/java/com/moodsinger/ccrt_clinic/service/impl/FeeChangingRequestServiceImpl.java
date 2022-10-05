@@ -16,8 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.moodsinger.ccrt_clinic.exceptions.FeeChangingRequestServiceException;
 import com.moodsinger.ccrt_clinic.exceptions.UserServiceException;
-import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorCodes;
-import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorMessages;
+import com.moodsinger.ccrt_clinic.exceptions.enums.MessageCodes;
+import com.moodsinger.ccrt_clinic.exceptions.enums.Messages;
 import com.moodsinger.ccrt_clinic.io.entity.FeeChangingRequestEntity;
 import com.moodsinger.ccrt_clinic.io.entity.RoleEntity;
 import com.moodsinger.ccrt_clinic.io.entity.UserEntity;
@@ -56,23 +56,23 @@ public class FeeChangingRequestServiceImpl implements FeeChangingRequestService 
 
     UserEntity doctorEntity = userRepository.findByUserId(feeChangingRequestDto.getUserId());
     if (doctorEntity == null) {
-      throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
-          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new UserServiceException(MessageCodes.USER_NOT_FOUND.name(),
+          Messages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
     }
     Set<RoleEntity> roles = doctorEntity.getRoles();
     List<RoleEntity> roleEntities = new ArrayList<>(roles);
     Role role = roleEntities.get(0).getName();
     if (role != Role.DOCTOR) {
-      throw new UserServiceException(ExceptionErrorCodes.FORBIDDEN.name(),
-          ExceptionErrorMessages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
+      throw new UserServiceException(MessageCodes.FORBIDDEN.name(),
+          Messages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
     }
     Page<FeeChangingRequestEntity> feeChangingRequestEntitiesPage = feeChangingRequestRepository
         .findAllByUserUserIdAndStatus(feeChangingRequestDto.getUserId(), VerificationStatus.PENDING,
             PageRequest.of(0, 10));
     List<FeeChangingRequestEntity> feeChangingRequestEntitiesList = feeChangingRequestEntitiesPage.getContent();
     if (feeChangingRequestEntitiesList != null && feeChangingRequestEntitiesList.size() > 0) {
-      throw new FeeChangingRequestServiceException(ExceptionErrorCodes.FEE_CHANGING_REQUEST_CREATION_ERROR.name(),
-          ExceptionErrorMessages.FEE_CHANGING_REQUEST_CREATION_ERROR.getMessage(), HttpStatus.FORBIDDEN);
+      throw new FeeChangingRequestServiceException(MessageCodes.FEE_CHANGING_REQUEST_CREATION_ERROR.name(),
+          Messages.FEE_CHANGING_REQUEST_CREATION_ERROR.getMessage(), HttpStatus.FORBIDDEN);
     }
 
     FeeChangingRequestEntity feeChangingRequestEntity = modelMapper.map(feeChangingRequestDto,
@@ -144,20 +144,20 @@ public class FeeChangingRequestServiceImpl implements FeeChangingRequestService 
   public FeeChangingRequestDto updateFeeChangingRequest(String requestId, FeeChangingRequestDto feeChangingRequestDto) {
     FeeChangingRequestEntity feeChangingRequestEntity = feeChangingRequestRepository.findByRequestId(requestId);
     if (feeChangingRequestEntity == null) {
-      throw new FeeChangingRequestServiceException(ExceptionErrorCodes.REQUEST_NOT_FOUND.name(),
-          ExceptionErrorMessages.REQUEST_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new FeeChangingRequestServiceException(MessageCodes.REQUEST_NOT_FOUND.name(),
+          Messages.REQUEST_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
     }
     UserEntity user = userRepository.findByUserId(feeChangingRequestDto.getAdminUserId());
     if (user == null) {
-      throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
-          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new UserServiceException(MessageCodes.USER_NOT_FOUND.name(),
+          Messages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
     }
     Set<RoleEntity> roles = user.getRoles();
     List<RoleEntity> roleEntities = new ArrayList<>(roles);
     Role role = roleEntities.get(0).getName();
     if (role != Role.ADMIN) {
-      throw new UserServiceException(ExceptionErrorCodes.FORBIDDEN.name(),
-          ExceptionErrorMessages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
+      throw new UserServiceException(MessageCodes.FORBIDDEN.name(),
+          Messages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
     }
     VerificationStatus status = feeChangingRequestDto.getStatus();
     feeChangingRequestEntity.setStatus(status);

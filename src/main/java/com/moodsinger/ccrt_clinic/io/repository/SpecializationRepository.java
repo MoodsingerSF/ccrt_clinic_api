@@ -15,7 +15,9 @@ public interface SpecializationRepository extends PagingAndSortingRepository<Spe
 
   Page<SpecializationEntity> findAllByNameStartsWithIgnoreCase(String name, Pageable pageable);
 
-  @Query("SELECT new com.moodsinger.ccrt_clinic.io.entity.PopularSpecialization(s.name,COUNT(*) as totalAppointments) FROM AppointmentEntity a INNER JOIN a.doctor d INNER JOIN d.specializations s GROUP BY s ORDER BY COUNT(*) DESC")
+  @Query("SELECT new com.moodsinger.ccrt_clinic.io.entity.PopularSpecialization(s.name,COUNT(*) as totalAppointments,s.id) FROM AppointmentEntity a INNER JOIN a.doctor d INNER JOIN d.specializations s GROUP BY s ORDER BY COUNT(*) DESC")
   Page<PopularSpecialization> findPopularSpecializations(Pageable pageable);
+
+  Page<SpecializationEntity> findAll(Pageable pageable);
 
 }

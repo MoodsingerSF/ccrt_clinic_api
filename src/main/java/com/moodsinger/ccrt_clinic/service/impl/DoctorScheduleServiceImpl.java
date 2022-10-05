@@ -12,8 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.moodsinger.ccrt_clinic.exceptions.DoctorScheduleServiceException;
-import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorCodes;
-import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorMessages;
+import com.moodsinger.ccrt_clinic.exceptions.enums.MessageCodes;
+import com.moodsinger.ccrt_clinic.exceptions.enums.Messages;
 import com.moodsinger.ccrt_clinic.io.entity.DayEntity;
 // import com.moodsinger.ccrt_clinic.exceptions.DoctorScheduleServiceException;
 // import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorCodes;
@@ -84,8 +84,8 @@ public class DoctorScheduleServiceImpl implements DoctorScheduleService {
     DoctorScheduleEntity doctorScheduleEntity = doctorScheduleRepository.findByUserUserIdAndDayCode(slotDto.getUserId(),
         slotDto.getDayCode());
     if (doctorScheduleEntity == null) {
-      throw new DoctorScheduleServiceException(ExceptionErrorCodes.SCHEDULE_NOT_FOUND.name(),
-          ExceptionErrorMessages.SCHEDULE_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new DoctorScheduleServiceException(MessageCodes.SCHEDULE_NOT_FOUND.name(),
+          Messages.SCHEDULE_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     List<SlotEntity> activeSlots = slotRepository
@@ -96,14 +96,14 @@ public class DoctorScheduleServiceImpl implements DoctorScheduleService {
     slotEntity.setDoctorScheduleEntity(doctorScheduleEntity);
     slotEntity.setEnabled(true);
     if (isOverlapping(activeSlots, slotEntity)) {
-      throw new DoctorScheduleServiceException(ExceptionErrorCodes.OVERLAPPING_SLOT.name(),
-          ExceptionErrorMessages.OVERLAPPING_SLOT.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new DoctorScheduleServiceException(MessageCodes.OVERLAPPING_SLOT.name(),
+          Messages.OVERLAPPING_SLOT.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     SlotEntity newlyCreatedSlot = slotRepository.save(slotEntity);
     if (newlyCreatedSlot == null) {
-      throw new DoctorScheduleServiceException(ExceptionErrorCodes.SLOT_NOT_CREATED.name(),
-          ExceptionErrorMessages.SLOT_NOT_CREATED.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new DoctorScheduleServiceException(MessageCodes.SLOT_NOT_CREATED.name(),
+          Messages.SLOT_NOT_CREATED.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
     List<SlotEntity> inActiveSlots = slotRepository
         .findAllByDoctorScheduleEntityDoctorScheduleIdAndIsEnabled(doctorScheduleEntity.getDoctorScheduleId(), false);
@@ -120,6 +120,7 @@ public class DoctorScheduleServiceImpl implements DoctorScheduleService {
     return newSlots;
   }
 
+  @Transactional
   @Override
   public SlotListRest retrieveSlots(String doctorUserId) {
     SlotListRest slotListRest = new SlotListRest();
@@ -135,8 +136,8 @@ public class DoctorScheduleServiceImpl implements DoctorScheduleService {
   public SlotDto updateSlotVisibility(String userId, String slotId, SlotDto slotDto) {
     SlotEntity slotEntity = slotRepository.findBySlotId(slotId);
     if (slotEntity == null) {
-      throw new DoctorScheduleServiceException(ExceptionErrorCodes.SLOT_NOT_FOUND.name(),
-          ExceptionErrorMessages.SLOT_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new DoctorScheduleServiceException(MessageCodes.SLOT_NOT_FOUND.name(),
+          Messages.SLOT_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
     }
     slotEntity.setEnabled(slotDto.isEnabled());
     if (slotDto.isEnabled()) {
@@ -144,14 +145,15 @@ public class DoctorScheduleServiceImpl implements DoctorScheduleService {
           .findAllByDoctorScheduleEntityDoctorScheduleIdAndIsEnabled(
               slotEntity.getDoctorScheduleEntity().getDoctorScheduleId(), true);
       if (isOverlapping(activeSlots, slotEntity)) {
-        throw new DoctorScheduleServiceException(ExceptionErrorCodes.OVERLAPPING_SLOT.name(),
-            ExceptionErrorMessages.OVERLAPPING_SLOT.getMessage(), HttpStatus.BAD_REQUEST);
+        throw new DoctorScheduleServiceException(MessageCodes.OVERLAPPING_SLOT.name(),
+            Messages.OVERLAPPING_SLOT.getMessage(), HttpStatus.BAD_REQUEST);
       }
     }
     SlotEntity updatedSlotEntity = slotRepository.save(slotEntity);
     return modelMapper.map(updatedSlotEntity, SlotDto.class);
   }
 
+  @Transactional
   @Override
   public SlotListRest retrieveActiveSlots(String doctorUserId) {
     SlotListRest slotListRest = new SlotListRest();

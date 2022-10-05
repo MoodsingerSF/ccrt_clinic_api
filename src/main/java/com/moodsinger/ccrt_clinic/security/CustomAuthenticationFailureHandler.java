@@ -14,9 +14,9 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorCodes;
-import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorMessages;
-import com.moodsinger.ccrt_clinic.exceptions.model.ErrorMessage;
+import com.moodsinger.ccrt_clinic.exceptions.enums.MessageCodes;
+import com.moodsinger.ccrt_clinic.exceptions.enums.Messages;
+import com.moodsinger.ccrt_clinic.exceptions.model.ResponseMessage;
 
 public class CustomAuthenticationFailureHandler implements AuthenticationFailureHandler {
 
@@ -28,15 +28,15 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
       throws IOException, ServletException {
     System.out.println("-------------------------------------unsuccess--------------------------");
 
-    ErrorMessage errorMessageObj = new ErrorMessage("SIGN_IN_ERROR", "YOU ARE NOT AUTHORIZED.");
+    ResponseMessage errorMessageObj = new ResponseMessage("SIGN_IN_ERROR", "YOU ARE NOT AUTHORIZED.");
     if (authEx.getClass().equals(BadCredentialsException.class)) {
-      errorMessageObj = new ErrorMessage(ExceptionErrorCodes.USERNAME_PASSWORD_MISMATCH.name(),
-          ExceptionErrorMessages.USERNAME_PASSWORD_MISMATCH.getMessage());
+      errorMessageObj = new ResponseMessage(MessageCodes.USERNAME_PASSWORD_MISMATCH.name(),
+          Messages.USERNAME_PASSWORD_MISMATCH.getMessage());
       response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
     } else if (authEx.getClass().equals(DisabledException.class)) {
-      errorMessageObj = new ErrorMessage(ExceptionErrorCodes.REQUEST_PENDING_APPROVAL.name(),
-          ExceptionErrorMessages.DOCTOR_REQUEST_PENDING_APPROVAL.getMessage());
+      errorMessageObj = new ResponseMessage(MessageCodes.REQUEST_PENDING_APPROVAL.name(),
+          Messages.DOCTOR_REQUEST_PENDING_APPROVAL.getMessage());
       response.setStatus(HttpServletResponse.SC_FORBIDDEN);
     }
 

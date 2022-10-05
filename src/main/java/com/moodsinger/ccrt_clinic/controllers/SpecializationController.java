@@ -27,7 +27,7 @@ public class SpecializationController {
   private List<SpecializationRest> retrieveSpecializations(
       @RequestParam(name = "page", defaultValue = "0", required = false) int page,
       @RequestParam(name = "limit", defaultValue = "15", required = false) int limit) {
-    List<SpecializationDto> specializationDtos = specializationService.retrievePopularSpecializations(page, limit);
+    List<SpecializationDto> specializationDtos = specializationService.retrieveSpecializations(page, limit);
     List<SpecializationRest> specializationRests = new ArrayList<>();
     for (SpecializationDto specializationDto : specializationDtos) {
       specializationRests.add(modelMapper.map(specializationDto, SpecializationRest.class));

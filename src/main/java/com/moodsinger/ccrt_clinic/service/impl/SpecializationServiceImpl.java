@@ -66,4 +66,16 @@ public class SpecializationServiceImpl implements SpecializationService {
     return specializationDtos;
   }
 
+  @Override
+  public List<SpecializationDto> retrieveSpecializations(int page, int limit) {
+    Page<SpecializationEntity> foundSpecializationEntitiesPage = specializationRepository
+        .findAll(PageRequest.of(page, limit, Sort.by("name").ascending()));
+    List<SpecializationEntity> foundSpecializationEntities = foundSpecializationEntitiesPage.getContent();
+    List<SpecializationDto> specializationDtos = new ArrayList<>();
+    for (SpecializationEntity specializationEntity : foundSpecializationEntities) {
+      specializationDtos.add(modelMapper.map(specializationEntity, SpecializationDto.class));
+    }
+    return specializationDtos;
+  }
+
 }

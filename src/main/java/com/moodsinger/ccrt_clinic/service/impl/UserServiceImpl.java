@@ -25,8 +25,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.moodsinger.ccrt_clinic.AppProperties;
 import com.moodsinger.ccrt_clinic.exceptions.UserServiceException;
-import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorCodes;
-import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorMessages;
+import com.moodsinger.ccrt_clinic.exceptions.enums.MessageCodes;
+import com.moodsinger.ccrt_clinic.exceptions.enums.Messages;
 import com.moodsinger.ccrt_clinic.io.entity.AwardEntity;
 import com.moodsinger.ccrt_clinic.io.entity.DoctorScheduleEntity;
 import com.moodsinger.ccrt_clinic.io.entity.EducationEntity;
@@ -176,8 +176,8 @@ public class UserServiceImpl implements UserService {
     }
 
     if (createdUserEntity == null)
-      throw new UserServiceException(ExceptionErrorCodes.USER_NOT_CREATED.name(),
-          ExceptionErrorMessages.USER_NOT_CREATED.getMessage());
+      throw new UserServiceException(MessageCodes.USER_NOT_CREATED.name(),
+          Messages.USER_NOT_CREATED.getMessage());
     else {
       if (userDetails.getUserType().equals(Role.DOCTOR.name())) {
         doctorScheduleService.initialize(createdUserEntity);
@@ -193,8 +193,8 @@ public class UserServiceImpl implements UserService {
   public UserDto getUserByUserId(String userId) {
     UserEntity foundUserEntity = userRepository.findByUserId(userId);
     if (foundUserEntity == null)
-      throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
-          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
+      throw new UserServiceException(MessageCodes.USER_NOT_FOUND.name(),
+          Messages.USER_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
     UserDto userDto = new ModelMapper().map(foundUserEntity, UserDto.class);
     FeeEntity feeEntity = feeService.getFeeOfDoctor(foundUserEntity.getUserId());
     if (feeEntity != null)
@@ -207,8 +207,8 @@ public class UserServiceImpl implements UserService {
   public UserDto updateUser(String userId, UserDto updateDetails) {
     UserEntity foundUserEntity = userRepository.findByUserId(userId);
     if (foundUserEntity == null) {
-      throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
-          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
+      throw new UserServiceException(MessageCodes.USER_NOT_FOUND.name(),
+          Messages.USER_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
     }
     if (utils.isNonNullAndNonEmpty(updateDetails.getFirstName()))
       foundUserEntity.setFirstName(updateDetails.getFirstName());
@@ -242,8 +242,8 @@ public class UserServiceImpl implements UserService {
   public UserDto getUserByEmail(String email) {
     UserEntity foundUserEntity = userRepository.findByEmail(email);
     if (foundUserEntity == null)
-      throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
-          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
+      throw new UserServiceException(MessageCodes.USER_NOT_FOUND.name(),
+          Messages.USER_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
     UserDto userDto = new ModelMapper().map(foundUserEntity, UserDto.class);
     return userDto;
   }
@@ -253,14 +253,10 @@ public class UserServiceImpl implements UserService {
   public UserDto updateUserRole(String userId, UserDto updateDetails) {
     UserEntity foundUserEntity = userRepository.findByUserId(userId);
     if (foundUserEntity == null) {
-      throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
-          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
+      throw new UserServiceException(MessageCodes.USER_NOT_FOUND.name(),
+          Messages.USER_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
     }
     Role role = Role.valueOf(updateDetails.getRole());
-    if (role == null) {
-      throw new UserServiceException(ExceptionErrorCodes.USER_TYPE_NOT_VALID.name(),
-          ExceptionErrorMessages.USER_TYPE_NOT_VALID.getMessage());
-    }
     Set<RoleEntity> roles = new HashSet<>();
     RoleDto newRoleDto = roleService.getOrCreateRole(role);
     RoleEntity newRoleEntity = new ModelMapper().map(newRoleDto, RoleEntity.class);
@@ -275,18 +271,18 @@ public class UserServiceImpl implements UserService {
   @Override
   public UserDto updateUserVerificationStatus(String userId, UserDto updateDetails) {
     if (!utils.validateVerificationStatus(updateDetails.getVerificationStatus()))
-      throw new UserServiceException(ExceptionErrorCodes.MALFORMED_JSON_BODY.name(),
-          ExceptionErrorMessages.MALFORMED_JSON_BODY.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new UserServiceException(MessageCodes.MALFORMED_JSON_BODY.name(),
+          Messages.MALFORMED_JSON_BODY.getMessage(), HttpStatus.BAD_REQUEST);
 
     UserEntity foundUserEntity = userRepository.findByUserId(userId);
     if (foundUserEntity == null) {
-      throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
-          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
+      throw new UserServiceException(MessageCodes.USER_NOT_FOUND.name(),
+          Messages.USER_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
     }
     if (foundUserEntity.getVerificationStatus() == VerificationStatus.ACCEPTED
         || foundUserEntity.getVerificationStatus() == VerificationStatus.REJECTED) {
-      throw new UserServiceException(ExceptionErrorCodes.FORBIDDEN.name(),
-          ExceptionErrorMessages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
+      throw new UserServiceException(MessageCodes.FORBIDDEN.name(),
+          Messages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
     }
     VerificationStatus verificationStatus = VerificationStatus.valueOf(updateDetails.getVerificationStatus());
     if (verificationStatus == VerificationStatus.ACCEPTED) {
@@ -331,8 +327,8 @@ public class UserServiceImpl implements UserService {
   public UserDto updateProfilePicture(String userId, MultipartFile image) {
     UserEntity foundUserEntity = userRepository.findByUserId(userId);
     if (foundUserEntity == null) {
-      throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
-          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
+      throw new UserServiceException(MessageCodes.USER_NOT_FOUND.name(),
+          Messages.USER_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
     }
     String fileName = StringUtils.cleanPath(image.getOriginalFilename());
     try {
@@ -344,14 +340,14 @@ public class UserServiceImpl implements UserService {
       UserDto userDto = modelMapper.map(savedUserEntity, UserDto.class);
       return userDto;
     } catch (IOException e) {
-      throw new UserServiceException(ExceptionErrorCodes.FILE_SAVE_ERROR.name(),
-          ExceptionErrorMessages.FILE_SAVE_ERROR.getMessage());
+      throw new UserServiceException(MessageCodes.FILE_SAVE_ERROR.name(),
+          Messages.FILE_SAVE_ERROR.getMessage());
     }
 
   }
 
   private String getImageUrl(String userId, String fileName) {
-    return appProperties.getProperty("baseUrl") + "users/" + userId + "/index." + utils.getFileExtension(fileName);
+    return "users/" + userId + "/index." + utils.getFileExtension(fileName);
   }
 
   private String getFileName(String fileName) {
@@ -388,24 +384,25 @@ public class UserServiceImpl implements UserService {
     try {
       UserEntity user = userRepository.findByUserId(userId);
       if (user == null) {
-        throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
-            ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+        throw new UserServiceException(MessageCodes.USER_NOT_FOUND.name(),
+            Messages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
       }
       String resourceId = utils.generateImageId();
-      String url = fileUploadUtil.saveFile(
+      fileUploadUtil.saveFile(
           FileUploadUtil.USER_REPORTS_UPLOAD_DIR + File.separator + userId,
           resourceId + "." + utils.getFileExtension(image.getOriginalFilename()), image);
       PatientReportEntity patientResourceEntity = new PatientReportEntity();
       patientResourceEntity.setResourceId(resourceId);
       patientResourceEntity.setUser(user);
       patientResourceEntity.setTitle(title);
-      patientResourceEntity.setImageUrl(url);
+      patientResourceEntity.setImageUrl("uploads/" + userId + "/" +
+          resourceId + "." + utils.getFileExtension(image.getOriginalFilename()));
       PatientReportEntity createdReportEntity = patientReportRepository.save(patientResourceEntity);
       return modelMapper.map(createdReportEntity, ResourceDto.class);
 
     } catch (IOException e) {
-      throw new UserServiceException(ExceptionErrorCodes.FILE_SAVE_ERROR.name(),
-          ExceptionErrorMessages.FILE_SAVE_ERROR.getMessage());
+      throw new UserServiceException(MessageCodes.FILE_SAVE_ERROR.name(),
+          Messages.FILE_SAVE_ERROR.getMessage());
     }
   }
 
@@ -425,24 +422,26 @@ public class UserServiceImpl implements UserService {
     try {
       PatientReportEntity patientReportEntity = patientReportRepository.findByResourceId(resourceId);
       if (patientReportEntity == null) {
-        throw new UserServiceException(ExceptionErrorCodes.RESOURCE_NOT_FOUND.name(),
-            ExceptionErrorMessages.RESOURCE_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+        throw new UserServiceException(MessageCodes.RESOURCE_NOT_FOUND.name(),
+            Messages.RESOURCE_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
       }
 
       if (!patientReportEntity.getUser().getUserId().equals(userId)) {
-        throw new UserServiceException(ExceptionErrorCodes.FORBIDDEN.name(),
-            ExceptionErrorMessages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
+        throw new UserServiceException(MessageCodes.FORBIDDEN.name(),
+            Messages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
       }
-      String url = fileUploadUtil.saveFile(
+      String newImageId = utils.generateImageId();
+      fileUploadUtil.saveFile(
           FileUploadUtil.USER_REPORTS_UPLOAD_DIR + File.separator + userId,
-          utils.generateImageId() + "." + utils.getFileExtension(image.getOriginalFilename()), image);
-      patientReportEntity.setImageUrl(url);
+          newImageId + "." + utils.getFileExtension(image.getOriginalFilename()), image);
+      patientReportEntity.setImageUrl("uploads/" + userId + "/" +
+          newImageId + "." + utils.getFileExtension(image.getOriginalFilename()));
       PatientReportEntity updatedResourceEntity = patientReportRepository.save(patientReportEntity);
       return modelMapper.map(updatedResourceEntity, ResourceDto.class);
 
     } catch (IOException e) {
-      throw new UserServiceException(ExceptionErrorCodes.FILE_SAVE_ERROR.name(),
-          ExceptionErrorMessages.FILE_SAVE_ERROR.getMessage());
+      throw new UserServiceException(MessageCodes.FILE_SAVE_ERROR.name(),
+          Messages.FILE_SAVE_ERROR.getMessage());
     }
   }
 
@@ -451,8 +450,8 @@ public class UserServiceImpl implements UserService {
   public EducationDto addEducation(String userId, EducationDto educationDto) {
     UserEntity userEntity = userRepository.findByUserId(userId);
     if (userEntity == null) {
-      throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
-          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new UserServiceException(MessageCodes.USER_NOT_FOUND.name(),
+          Messages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
     }
     EducationEntity educationEntity = modelMapper.map(educationDto, EducationEntity.class);
     educationEntity.setUser(userEntity);
@@ -465,18 +464,18 @@ public class UserServiceImpl implements UserService {
   public EducationDto updateEducation(String userId, long educationId, EducationDto educationDto) {
     UserEntity userEntity = userRepository.findByUserId(userId);
     if (userEntity == null) {
-      throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
-          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new UserServiceException(MessageCodes.USER_NOT_FOUND.name(),
+          Messages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
     }
     EducationEntity educationEntity = educationRepository.findById(educationId);
 
     if (educationEntity == null) {
-      throw new UserServiceException(ExceptionErrorCodes.EDUCATION_NOT_FOUND.name(),
-          ExceptionErrorMessages.EDUCATION_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new UserServiceException(MessageCodes.EDUCATION_NOT_FOUND.name(),
+          Messages.EDUCATION_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
     }
     if (!educationEntity.getUser().getUserId().equals(userEntity.getUserId())) {
-      throw new UserServiceException(ExceptionErrorCodes.FORBIDDEN.name(),
-          ExceptionErrorMessages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
+      throw new UserServiceException(MessageCodes.FORBIDDEN.name(),
+          Messages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
     }
     if (utils.isNonNullAndNonEmpty(educationDto.getDegree())) {
       educationEntity.setDegree(educationDto.getDegree());
@@ -503,19 +502,19 @@ public class UserServiceImpl implements UserService {
   public void deleteEducation(String userId, long educationId) {
     UserEntity userEntity = userRepository.findByUserId(userId);
     if (userEntity == null) {
-      throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
-          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new UserServiceException(MessageCodes.USER_NOT_FOUND.name(),
+          Messages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
     }
     EducationEntity educationEntity = educationRepository.findById(educationId);
 
     if (educationEntity == null) {
-      throw new UserServiceException(ExceptionErrorCodes.EDUCATION_NOT_FOUND.name(),
-          ExceptionErrorMessages.EDUCATION_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new UserServiceException(MessageCodes.EDUCATION_NOT_FOUND.name(),
+          Messages.EDUCATION_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     if (!educationEntity.getUser().getUserId().equals(userEntity.getUserId())) {
-      throw new UserServiceException(ExceptionErrorCodes.FORBIDDEN.name(),
-          ExceptionErrorMessages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
+      throw new UserServiceException(MessageCodes.FORBIDDEN.name(),
+          Messages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
     }
 
     educationRepository.delete(educationEntity);
@@ -527,8 +526,8 @@ public class UserServiceImpl implements UserService {
   public TrainingDto addTraining(String userId, TrainingDto trainingDto) {
     UserEntity userEntity = userRepository.findByUserId(userId);
     if (userEntity == null) {
-      throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
-          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new UserServiceException(MessageCodes.USER_NOT_FOUND.name(),
+          Messages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
     }
     TrainingEntity trainingEntity = modelMapper.map(trainingDto, TrainingEntity.class);
     trainingEntity.setUser(userEntity);
@@ -541,18 +540,18 @@ public class UserServiceImpl implements UserService {
   public TrainingDto updateTraining(String userId, long trainingId, TrainingDto trainingDto) {
     UserEntity userEntity = userRepository.findByUserId(userId);
     if (userEntity == null) {
-      throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
-          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new UserServiceException(MessageCodes.USER_NOT_FOUND.name(),
+          Messages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
     }
     TrainingEntity trainingEntity = trainingRepository.findById(trainingId);
 
     if (trainingEntity == null) {
-      throw new UserServiceException(ExceptionErrorCodes.TRAINING_NOT_FOUND.name(),
-          ExceptionErrorMessages.TRAINING_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new UserServiceException(MessageCodes.TRAINING_NOT_FOUND.name(),
+          Messages.TRAINING_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
     }
     if (!trainingEntity.getUser().getUserId().equals(userEntity.getUserId())) {
-      throw new UserServiceException(ExceptionErrorCodes.FORBIDDEN.name(),
-          ExceptionErrorMessages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
+      throw new UserServiceException(MessageCodes.FORBIDDEN.name(),
+          Messages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
     }
     if (utils.isNonNullAndNonEmpty(trainingDto.getProgram())) {
       trainingEntity.setProgram(trainingDto.getProgram());
@@ -577,19 +576,19 @@ public class UserServiceImpl implements UserService {
   public void deleteTraining(String userId, long trainingId) {
     UserEntity userEntity = userRepository.findByUserId(userId);
     if (userEntity == null) {
-      throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
-          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new UserServiceException(MessageCodes.USER_NOT_FOUND.name(),
+          Messages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
     }
     TrainingEntity trainingEntity = trainingRepository.findById(trainingId);
 
     if (trainingEntity == null) {
-      throw new UserServiceException(ExceptionErrorCodes.TRAINING_NOT_FOUND.name(),
-          ExceptionErrorMessages.TRAINING_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new UserServiceException(MessageCodes.TRAINING_NOT_FOUND.name(),
+          Messages.TRAINING_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     if (!trainingEntity.getUser().getUserId().equals(userEntity.getUserId())) {
-      throw new UserServiceException(ExceptionErrorCodes.FORBIDDEN.name(),
-          ExceptionErrorMessages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
+      throw new UserServiceException(MessageCodes.FORBIDDEN.name(),
+          Messages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
     }
 
     trainingRepository.delete(trainingEntity);
@@ -601,8 +600,8 @@ public class UserServiceImpl implements UserService {
   public AwardDto addAward(String userId, AwardDto awardDto) {
     UserEntity userEntity = userRepository.findByUserId(userId);
     if (userEntity == null) {
-      throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
-          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new UserServiceException(MessageCodes.USER_NOT_FOUND.name(),
+          Messages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
     }
     AwardEntity awardEntity = modelMapper.map(awardDto, AwardEntity.class);
     awardEntity.setUser(userEntity);
@@ -615,18 +614,18 @@ public class UserServiceImpl implements UserService {
   public AwardDto updateAward(String userId, long awardId, AwardDto awardDto) {
     UserEntity userEntity = userRepository.findByUserId(userId);
     if (userEntity == null) {
-      throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
-          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new UserServiceException(MessageCodes.USER_NOT_FOUND.name(),
+          Messages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
     }
     AwardEntity awardEntity = awardRepository.findById(awardId);
 
     if (awardEntity == null) {
-      throw new UserServiceException(ExceptionErrorCodes.AWARD_NOT_FOUND.name(),
-          ExceptionErrorMessages.AWARD_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new UserServiceException(MessageCodes.AWARD_NOT_FOUND.name(),
+          Messages.AWARD_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
     }
     if (!awardEntity.getUser().getUserId().equals(userEntity.getUserId())) {
-      throw new UserServiceException(ExceptionErrorCodes.FORBIDDEN.name(),
-          ExceptionErrorMessages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
+      throw new UserServiceException(MessageCodes.FORBIDDEN.name(),
+          Messages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
     }
     if (utils.isNonNullAndNonEmpty(awardDto.getName())) {
       awardEntity.setName(awardDto.getName());
@@ -644,19 +643,19 @@ public class UserServiceImpl implements UserService {
   public void deleteAward(String userId, long awardId) {
     UserEntity userEntity = userRepository.findByUserId(userId);
     if (userEntity == null) {
-      throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
-          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new UserServiceException(MessageCodes.USER_NOT_FOUND.name(),
+          Messages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
     }
     AwardEntity awardEntity = awardRepository.findById(awardId);
 
     if (awardEntity == null) {
-      throw new UserServiceException(ExceptionErrorCodes.AWARD_NOT_FOUND.name(),
-          ExceptionErrorMessages.AWARD_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new UserServiceException(MessageCodes.AWARD_NOT_FOUND.name(),
+          Messages.AWARD_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     if (!awardEntity.getUser().getUserId().equals(userEntity.getUserId())) {
-      throw new UserServiceException(ExceptionErrorCodes.FORBIDDEN.name(),
-          ExceptionErrorMessages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
+      throw new UserServiceException(MessageCodes.FORBIDDEN.name(),
+          Messages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
     }
 
     awardRepository.delete(awardEntity);
@@ -668,8 +667,8 @@ public class UserServiceImpl implements UserService {
   public ExperienceDto addExperience(String userId, ExperienceDto experienceDto) {
     UserEntity userEntity = userRepository.findByUserId(userId);
     if (userEntity == null) {
-      throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
-          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new UserServiceException(MessageCodes.USER_NOT_FOUND.name(),
+          Messages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
     }
     ExperienceEntity experienceEntity = modelMapper.map(experienceDto, ExperienceEntity.class);
     experienceEntity.setUser(userEntity);
@@ -682,18 +681,18 @@ public class UserServiceImpl implements UserService {
   public ExperienceDto updateExperience(String userId, long experienceId, ExperienceDto experienceDto) {
     UserEntity userEntity = userRepository.findByUserId(userId);
     if (userEntity == null) {
-      throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
-          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new UserServiceException(MessageCodes.USER_NOT_FOUND.name(),
+          Messages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
     }
     ExperienceEntity experienceEntity = experienceRepository.findById(experienceId);
 
     if (experienceEntity == null) {
-      throw new UserServiceException(ExceptionErrorCodes.EXPERIENCE_NOT_FOUND.name(),
-          ExceptionErrorMessages.EXPERIENCE_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new UserServiceException(MessageCodes.EXPERIENCE_NOT_FOUND.name(),
+          Messages.EXPERIENCE_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
     }
     if (!experienceEntity.getUser().getUserId().equals(userEntity.getUserId())) {
-      throw new UserServiceException(ExceptionErrorCodes.FORBIDDEN.name(),
-          ExceptionErrorMessages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
+      throw new UserServiceException(MessageCodes.FORBIDDEN.name(),
+          Messages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
     }
     if (utils.isNonNullAndNonEmpty(experienceDto.getTitle())) {
       experienceEntity.setTitle(experienceDto.getTitle());
@@ -724,23 +723,72 @@ public class UserServiceImpl implements UserService {
   public void deleteExperience(String userId, long experienceId) {
     UserEntity userEntity = userRepository.findByUserId(userId);
     if (userEntity == null) {
-      throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
-          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new UserServiceException(MessageCodes.USER_NOT_FOUND.name(),
+          Messages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
     }
     ExperienceEntity experienceEntity = experienceRepository.findById(experienceId);
 
     if (experienceEntity == null) {
-      throw new UserServiceException(ExceptionErrorCodes.EDUCATION_NOT_FOUND.name(),
-          ExceptionErrorMessages.EXPERIENCE_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new UserServiceException(MessageCodes.EDUCATION_NOT_FOUND.name(),
+          Messages.EXPERIENCE_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     if (!experienceEntity.getUser().getUserId().equals(userEntity.getUserId())) {
-      throw new UserServiceException(ExceptionErrorCodes.FORBIDDEN.name(),
-          ExceptionErrorMessages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
+      throw new UserServiceException(MessageCodes.FORBIDDEN.name(),
+          Messages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
     }
 
     experienceRepository.delete(experienceEntity);
 
+  }
+
+  @Transactional
+  @Override
+  public void sendPasswordResetCode(String userId) {
+    UserEntity foundUserEntity = userRepository.findByUserId(userId);
+    if (foundUserEntity == null) {
+      throw new UserServiceException(MessageCodes.USER_NOT_FOUND.name(),
+          Messages.USER_NOT_FOUND.getMessage(),
+          HttpStatus.NOT_FOUND);
+    }
+
+    String passwordResetCode = utils.generatePasswordResetCode();
+    foundUserEntity.setResetPasswordToken(passwordResetCode);
+    userRepository.save(foundUserEntity);
+    amazonSES.sendPasswordResetCode(modelMapper.map(foundUserEntity, UserDto.class), passwordResetCode);
+
+  }
+
+  @Override
+  public void updatePassword(String userId, UserDto userDto) {
+    UserEntity foundUserEntity = findUserEntity(userId);
+    if (!bCryptPasswordEncoder.matches(userDto.getPreviousPassword(), foundUserEntity.getEncryptedPassword())) {
+      throw new UserServiceException(MessageCodes.PASSWORD_MISMATCH.name(),
+          Messages.PASSWORD_MISMATCH.getMessage(), HttpStatus.FORBIDDEN);
+    }
+    foundUserEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(userDto.getPassword()));
+    userRepository.save(foundUserEntity);
+  }
+
+  @Override
+  public void resetPassword(String userId, UserDto userDto) {
+    UserEntity foundUserEntity = findUserEntity(userId);
+    if (!foundUserEntity.getResetPasswordToken().equals(userDto.getResetPasswordToken())) {
+      throw new UserServiceException(MessageCodes.PASSWORD_RESET_TOKEN_MISMATCH.name(),
+          Messages.PASSWORD_RESET_TOKEN_MISMATCH.getMessage(), HttpStatus.FORBIDDEN);
+    }
+    foundUserEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(userDto.getPassword()));
+    userRepository.save(foundUserEntity);
+  }
+
+  private UserEntity findUserEntity(String userId) {
+    UserEntity foundUserEntity = userRepository.findByUserId(userId);
+    if (foundUserEntity == null) {
+      throw new UserServiceException(MessageCodes.USER_NOT_FOUND.name(),
+          Messages.USER_NOT_FOUND.getMessage(),
+          HttpStatus.NOT_FOUND);
+    }
+    return foundUserEntity;
   }
 
 }

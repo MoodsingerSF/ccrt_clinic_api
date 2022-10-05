@@ -13,6 +13,7 @@ public class UserDto {
   private String firstName;
   private String lastName;
   private String email;
+  private String previousPassword;
   private String password;
   private String encryptedPassword;
   private Set<RoleDto> roles;
@@ -32,6 +33,7 @@ public class UserDto {
   private List<AwardDto> awards;
   private double fee;
   private String adminUserId;
+  private String resetPasswordToken;
 
   public String getUserId() {
     return userId;
@@ -234,5 +236,21 @@ public class UserDto {
 
   public void setSpecializationList(List<String> specializationList) {
     this.specializationList = specializationList;
+  }
+
+  public String getPreviousPassword() {
+    return previousPassword;
+  }
+
+  public void setPreviousPassword(String previousPassword) {
+    this.previousPassword = previousPassword;
+  }
+
+  public String getResetPasswordToken() {
+    return resetPasswordToken;
+  }
+
+  public void setResetPasswordToken(String resetPasswordToken) {
+    this.resetPasswordToken = resetPasswordToken;
   }
 }

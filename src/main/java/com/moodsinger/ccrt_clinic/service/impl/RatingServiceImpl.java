@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.moodsinger.ccrt_clinic.exceptions.RatingServiceException;
-import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorCodes;
-import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorMessages;
+import com.moodsinger.ccrt_clinic.exceptions.enums.MessageCodes;
+import com.moodsinger.ccrt_clinic.exceptions.enums.Messages;
 import com.moodsinger.ccrt_clinic.io.entity.AverageRating;
 import com.moodsinger.ccrt_clinic.io.entity.RatingCriteriaEntity;
 import com.moodsinger.ccrt_clinic.io.entity.RatingEntity;
@@ -47,23 +47,24 @@ public class RatingServiceImpl implements RatingService {
     UserEntity doctorEntity = userRepository.findByUserId(doctorUserId);
 
     if (doctorEntity == null) {
-      throw new RatingServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
-          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new RatingServiceException(MessageCodes.USER_NOT_FOUND.name(),
+          Messages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
     }
     List<RoleEntity> roles = new ArrayList<>(doctorEntity.getRoles());
     Role role = roles.get(0).getName();
     if (role != Role.DOCTOR) {
-      throw new RatingServiceException(ExceptionErrorCodes.FORBIDDEN.name(),
-          ExceptionErrorMessages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
+      throw new RatingServiceException(MessageCodes.FORBIDDEN.name(),
+          Messages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
     }
     UserEntity userEntity = userRepository.findByUserId(ratingCreationRequestModel.getRatingGiverUserId());
     if (userEntity == null) {
-      throw new RatingServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
-          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new RatingServiceException(MessageCodes.USER_NOT_FOUND.name(),
+          Messages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
     }
     List<RatingEntity> ratingEntities = new ArrayList<>();
     for (RatingInSingleCriteriaCreationRequestModel ratingInSingleCriteriaCreationRequestModel : ratingCreationRequestModel
         .getRatings()) {
+      System.out.println(ratingInSingleCriteriaCreationRequestModel);
       RatingEntity ratingEntity = new RatingEntity();
       ratingEntity.setDoctor(doctorEntity);
       ratingEntity.setPatient(userEntity);
@@ -71,7 +72,7 @@ public class RatingServiceImpl implements RatingService {
           .findById(ratingInSingleCriteriaCreationRequestModel.getCriteriaId());
       double rating = ratingInSingleCriteriaCreationRequestModel.getRating();
       if (rating < 0 || rating > ratingCriteriaEntity.getMaxValue()) {
-        throw new RatingServiceException(ExceptionErrorCodes.VALUE_OUT_OF_RANGE.name(),
+        throw new RatingServiceException(MessageCodes.VALUE_OUT_OF_RANGE.name(),
             "Rating value must be in the range between 0 to " + ratingCriteriaEntity.getMaxValue(),
             HttpStatus.BAD_REQUEST);
       }
@@ -118,19 +119,19 @@ public class RatingServiceImpl implements RatingService {
     UserEntity doctorEntity = userRepository.findByUserId(doctorUserId);
 
     if (doctorEntity == null) {
-      throw new RatingServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
-          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new RatingServiceException(MessageCodes.USER_NOT_FOUND.name(),
+          Messages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
     }
     List<RoleEntity> roles = new ArrayList<>(doctorEntity.getRoles());
     Role role = roles.get(0).getName();
     if (role != Role.DOCTOR) {
-      throw new RatingServiceException(ExceptionErrorCodes.FORBIDDEN.name(),
-          ExceptionErrorMessages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
+      throw new RatingServiceException(MessageCodes.FORBIDDEN.name(),
+          Messages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
     }
     UserEntity userEntity = userRepository.findByUserId(ratingCreationRequestModel.getRatingGiverUserId());
     if (userEntity == null) {
-      throw new RatingServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
-          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new RatingServiceException(MessageCodes.USER_NOT_FOUND.name(),
+          Messages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
     }
     List<RatingEntity> ratingEntities = new ArrayList<>();
     for (RatingInSingleCriteriaCreationRequestModel ratingInSingleCriteriaCreationRequestModel : ratingCreationRequestModel
@@ -139,7 +140,7 @@ public class RatingServiceImpl implements RatingService {
           ratingInSingleCriteriaCreationRequestModel.getCriteriaId(), doctorUserId, userEntity.getUserId());
       double rating = ratingInSingleCriteriaCreationRequestModel.getRating();
       if (rating < 0 || rating > ratingEntity.getRatingCriteria().getMaxValue()) {
-        throw new RatingServiceException(ExceptionErrorCodes.VALUE_OUT_OF_RANGE.name(),
+        throw new RatingServiceException(MessageCodes.VALUE_OUT_OF_RANGE.name(),
             "Rating value must be in the range between 0 to " + ratingEntity.getRatingCriteria().getMaxValue(),
             HttpStatus.BAD_REQUEST);
       }

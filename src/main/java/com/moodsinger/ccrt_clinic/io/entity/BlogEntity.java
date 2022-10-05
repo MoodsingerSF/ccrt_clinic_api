@@ -45,8 +45,7 @@ public class BlogEntity {
   @Column(nullable = false)
   private String title;
 
-  @Column(nullable = false, length = 10000)
-
+  @Column(nullable = false, length = 50000)
   private String description;
 
   @Column(nullable = false)

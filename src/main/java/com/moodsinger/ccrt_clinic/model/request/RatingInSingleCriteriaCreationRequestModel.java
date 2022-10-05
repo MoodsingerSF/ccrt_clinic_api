@@ -20,4 +20,9 @@ public class RatingInSingleCriteriaCreationRequestModel {
     this.criteriaId = criteriaId;
   }
 
+  @Override
+  public String toString() {
+    return "RatingInSingleCriteriaCreationRequestModel [criteriaId=" + criteriaId + ", rating=" + rating + "]";
+  }
+
 }

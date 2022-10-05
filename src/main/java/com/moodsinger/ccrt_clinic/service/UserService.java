@@ -60,4 +60,11 @@ public interface UserService extends UserDetailsService {
   ExperienceDto updateExperience(String userId, long experienceId, ExperienceDto experienceDto);
 
   void deleteExperience(String userId, long experienceId);
+
+  void sendPasswordResetCode(String userId);
+
+  void updatePassword(String userId, UserDto userDto);
+
+  void resetPassword(String userId, UserDto userDto);
+
 }

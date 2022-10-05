@@ -1,11 +1,11 @@
 package com.moodsinger.ccrt_clinic.exceptions.enums;
 
-public enum ExceptionErrorMessages {
+public enum Messages {
   USER_NOT_FOUND("User is not found."),
   USERNAME_PASSWORD_MISMATCH("Username and password didn't match."),
   FIRST_NAME_NOT_VALID("First name is not valid."), LAST_NAME_NOT_VALID("Last name is not valid."),
   EMAIL_NOT_VALID("Email is not valid."), PASSWORD_NOT_VALID("password is not valid."),
-  USER_NOT_CREATED("User isn't created."),
+  USER_NOT_CREATED("User isn't created."), PASSWORD_MISMATCH("Your current password haven't matched."),
   GENDER_NOT_VALID("Gender is not valid. Please provide a valid gender(MALE | FEMALE | OTHER)"),
   BIRTH_DATE_NOT_VALID("Birth date is not valid. Please provide a valid birth date."),
   SPECIALIZATION_NOT_VALID("Specialization can not be null for doctors."),
@@ -15,6 +15,9 @@ public enum ExceptionErrorMessages {
   FILE_SAVE_ERROR("The file couldn't be saved."),
   OTP_CODE_EXPIRED("Otp code has expired."),
   OTP_CODE_MISMATCH("Otp code hasn't matched."),
+  PASSWORD_RESET_TOKEN_MISMATCH("Password reset token hasn't matched."),
+  PASSWORD_UPDATE_SUCCESSFUL("Password has been updated successfully."),
+  PASSWORD_RESET_SUCCESSFUL("Password has been reset successfully."),
   BLOG_NOT_FOUND(
       "The blog you are looking for is not available. It may have been removed or you are looking for an invalid blog."),
   USER_OTP_SERVICE_BLOCKED(
@@ -34,9 +37,10 @@ public enum ExceptionErrorMessages {
   AWARD_NOT_FOUND("Award entity couldn't be found."),
   FEE_FIELD_ERROR("Fee must be greater than 0."),
   REQUEST_NOT_FOUND("Request couldn't be found."),
+  SLOT_BOOKED("Slot has already been booked."),
   FEE_CHANGING_REQUEST_CREATION_ERROR(
       "You already have a pending request. You can request another one once the pending request is resolved."),
-
+  PRESCRIPTION_NOT_FOUND("Appointment has no prescription."),
   PRESCRIPTION_ALREADY_EXISTS(
       "Doctor has already added a prescription. You can not add another one. Try modifying the previous one."),
   APPOINTMENT_VERIFICATION_CODE_MISMATCH(
@@ -45,7 +49,7 @@ public enum ExceptionErrorMessages {
 
   private String message;
 
-  ExceptionErrorMessages(String message) {
+  Messages(String message) {
     this.message = message;
   }
 

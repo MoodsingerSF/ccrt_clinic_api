@@ -14,8 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.moodsinger.ccrt_clinic.exceptions.UserServiceException;
-import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorCodes;
-import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorMessages;
+import com.moodsinger.ccrt_clinic.exceptions.enums.MessageCodes;
+import com.moodsinger.ccrt_clinic.exceptions.enums.Messages;
 import com.moodsinger.ccrt_clinic.io.entity.FeeEntity;
 import com.moodsinger.ccrt_clinic.io.entity.RoleEntity;
 import com.moodsinger.ccrt_clinic.io.entity.UserEntity;
@@ -55,15 +55,15 @@ public class FeeServiceImpl implements FeeService {
   public FeeDto addFee(FeeDto feeDto) {
     UserEntity doctorEntity = userRepository.findByUserId(feeDto.getUserId());
     if (doctorEntity == null) {
-      throw new UserServiceException(ExceptionErrorCodes.USER_NOT_FOUND.name(),
-          ExceptionErrorMessages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new UserServiceException(MessageCodes.USER_NOT_FOUND.name(),
+          Messages.USER_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
     }
     Set<RoleEntity> roles = doctorEntity.getRoles();
     List<RoleEntity> roleEntities = new ArrayList<>(roles);
     Role role = roleEntities.get(0).getName();
     if (role != Role.DOCTOR) {
-      throw new UserServiceException(ExceptionErrorCodes.FORBIDDEN.name(),
-          ExceptionErrorMessages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
+      throw new UserServiceException(MessageCodes.FORBIDDEN.name(),
+          Messages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
     }
     FeeEntity feeEntity = modelMapper.map(feeDto, FeeEntity.class);
     feeEntity.setUser(doctorEntity);

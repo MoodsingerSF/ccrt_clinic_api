@@ -33,11 +33,11 @@ public class MedicationEntity {
   @Column(nullable = true, length = 250)
   private String schedule;
 
-  private boolean willTakeInMorning;
+  private boolean takeInMorning;
 
-  private boolean willTakeInNoon;
+  private boolean takeInNoon;
 
-  private boolean willTakeInNight;
+  private boolean takeInNight;
 
   private String timeGapWithMeal;
 
@@ -65,30 +65,6 @@ public class MedicationEntity {
 
   public void setPrescription(PrescriptionEntity prescription) {
     this.prescription = prescription;
-  }
-
-  public boolean isWillTakeInMorning() {
-    return willTakeInMorning;
-  }
-
-  public void setWillTakeInMorning(boolean willTakeInMorning) {
-    this.willTakeInMorning = willTakeInMorning;
-  }
-
-  public boolean isWillTakeInNoon() {
-    return willTakeInNoon;
-  }
-
-  public void setWillTakeInNoon(boolean willTakeInNoon) {
-    this.willTakeInNoon = willTakeInNoon;
-  }
-
-  public boolean isWillTakeInNight() {
-    return willTakeInNight;
-  }
-
-  public void setWillTakeInNight(boolean willTakeInNight) {
-    this.willTakeInNight = willTakeInNight;
   }
 
   public String getMedicineName() {
@@ -145,6 +121,30 @@ public class MedicationEntity {
 
   public void setDuration(String duration) {
     this.duration = duration;
+  }
+
+  public boolean isTakeInMorning() {
+    return takeInMorning;
+  }
+
+  public void setTakeInMorning(boolean takeInMorning) {
+    this.takeInMorning = takeInMorning;
+  }
+
+  public boolean isTakeInNoon() {
+    return takeInNoon;
+  }
+
+  public void setTakeInNoon(boolean takeInNoon) {
+    this.takeInNoon = takeInNoon;
+  }
+
+  public boolean isTakeInNight() {
+    return takeInNight;
+  }
+
+  public void setTakeInNight(boolean takeInNight) {
+    this.takeInNight = takeInNight;
   }
 
 }

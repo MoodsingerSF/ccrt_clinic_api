@@ -11,8 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.moodsinger.ccrt_clinic.AppProperties;
 import com.moodsinger.ccrt_clinic.exceptions.OtpServiceException;
-import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorCodes;
-import com.moodsinger.ccrt_clinic.exceptions.enums.ExceptionErrorMessages;
+import com.moodsinger.ccrt_clinic.exceptions.enums.MessageCodes;
+import com.moodsinger.ccrt_clinic.exceptions.enums.Messages;
 import com.moodsinger.ccrt_clinic.io.entity.OtpBlacklistEntity;
 import com.moodsinger.ccrt_clinic.io.entity.OtpEntity;
 import com.moodsinger.ccrt_clinic.io.repository.OtpBlacklistRepository;
@@ -78,8 +78,8 @@ public class OtpServiceImpl implements OtpService {
       OtpDto returnOtpDto = modelMapper.map(createdOtpEntity, OtpDto.class);
       return returnOtpDto;
     } else {
-      throw new OtpServiceException(ExceptionErrorCodes.USER_OTP_SERVICE_BLOCKED.name(),
-          ExceptionErrorMessages.USER_OTP_SERVICE_BLOCKED.getMessage(), HttpStatus.FORBIDDEN);
+      throw new OtpServiceException(MessageCodes.USER_OTP_SERVICE_BLOCKED.name(),
+          Messages.USER_OTP_SERVICE_BLOCKED.getMessage(), HttpStatus.FORBIDDEN);
     }
   }
 
@@ -90,12 +90,12 @@ public class OtpServiceImpl implements OtpService {
 
     if (utils.findDifferenceBetweenDatesInMinute(otpEntity.getCreationTime(), new Date()) > Long
         .parseLong(appProperties.getProperty("blockDuration"))) {
-      throw new OtpServiceException(ExceptionErrorCodes.OTP_CODE_EXPIRED.name(),
-          ExceptionErrorMessages.OTP_CODE_EXPIRED.getMessage(), HttpStatus.EXPECTATION_FAILED);
+      throw new OtpServiceException(MessageCodes.OTP_CODE_EXPIRED.name(),
+          Messages.OTP_CODE_EXPIRED.getMessage(), HttpStatus.EXPECTATION_FAILED);
     }
     if (!otpDto.getCode().equals(otpEntity.getCode())) {
-      throw new OtpServiceException(ExceptionErrorCodes.OTP_CODE_MISMATCH.name(),
-          ExceptionErrorMessages.OTP_CODE_MISMATCH.getMessage(), HttpStatus.EXPECTATION_FAILED);
+      throw new OtpServiceException(MessageCodes.OTP_CODE_MISMATCH.name(),
+          Messages.OTP_CODE_MISMATCH.getMessage(), HttpStatus.EXPECTATION_FAILED);
     }
 
   }

@@ -89,6 +89,9 @@ public class UserEntity {
   @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
   private Set<AwardEntity> awards;
 
+  @Column(nullable = true)
+  private String resetPasswordToken;
+
   // @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
   // private Set<FeeChangingRequestEntity> feeChangingRequests = new HashSet<>();
 
@@ -285,6 +288,14 @@ public class UserEntity {
 
   public void setSpecializations(Set<SpecializationEntity> specializations) {
     this.specializations = specializations;
+  }
+
+  public String getResetPasswordToken() {
+    return resetPasswordToken;
+  }
+
+  public void setResetPasswordToken(String resetPasswordToken) {
+    this.resetPasswordToken = resetPasswordToken;
   }
 
 }
