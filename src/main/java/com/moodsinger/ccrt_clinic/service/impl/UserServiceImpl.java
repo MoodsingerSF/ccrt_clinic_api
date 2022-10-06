@@ -781,7 +781,8 @@ public class UserServiceImpl implements UserService {
     userRepository.save(foundUserEntity);
   }
 
-  private UserEntity findUserEntity(String userId) {
+  @Override
+  public UserEntity findUserEntity(String userId) {
     UserEntity foundUserEntity = userRepository.findByUserId(userId);
     if (foundUserEntity == null) {
       throw new UserServiceException(MessageCodes.USER_NOT_FOUND.name(),

@@ -25,11 +25,15 @@ import com.moodsinger.ccrt_clinic.model.request.UserUpdateRequestModel;
 import com.moodsinger.ccrt_clinic.model.response.AppointmentRest;
 import com.moodsinger.ccrt_clinic.model.response.AwardRest;
 import com.moodsinger.ccrt_clinic.model.response.BlogRest;
+import com.moodsinger.ccrt_clinic.model.response.DonationRequestRest;
+import com.moodsinger.ccrt_clinic.model.response.DonationRest;
 import com.moodsinger.ccrt_clinic.model.response.EducationRest;
 import com.moodsinger.ccrt_clinic.model.response.ExperienceRest;
 import com.moodsinger.ccrt_clinic.model.response.ResourceRest;
 import com.moodsinger.ccrt_clinic.model.response.TrainingRest;
 import com.moodsinger.ccrt_clinic.model.response.UserRest;
+import com.moodsinger.ccrt_clinic.service.DonationRequestService;
+import com.moodsinger.ccrt_clinic.service.DonationService;
 import com.moodsinger.ccrt_clinic.service.UserAppointmentService;
 import com.moodsinger.ccrt_clinic.service.UserBlogService;
 import com.moodsinger.ccrt_clinic.service.UserService;
@@ -37,6 +41,8 @@ import com.moodsinger.ccrt_clinic.shared.Utils;
 import com.moodsinger.ccrt_clinic.shared.dto.AppointmentDto;
 import com.moodsinger.ccrt_clinic.shared.dto.AwardDto;
 import com.moodsinger.ccrt_clinic.shared.dto.BlogDto;
+import com.moodsinger.ccrt_clinic.shared.dto.DonationDto;
+import com.moodsinger.ccrt_clinic.shared.dto.DonationRequestDto;
 import com.moodsinger.ccrt_clinic.shared.dto.EducationDto;
 import com.moodsinger.ccrt_clinic.shared.dto.ExperienceDto;
 import com.moodsinger.ccrt_clinic.shared.dto.ResourceDto;
@@ -77,6 +83,12 @@ public class UserController {
 
   @Autowired
   private UserAppointmentService userAppointmentService;
+
+  @Autowired
+  private DonationService donationService;
+
+  @Autowired
+  private DonationRequestService donationRequestService;
 
   @PostMapping
   public UserRest createUser(@RequestBody UserSignupRequestModel userSignupRequestModel) {
@@ -182,6 +194,34 @@ public class UserController {
       blogRests.add(modelMapper.map(blogDto, BlogRest.class));
     }
     return blogRests;
+  }
+
+  @GetMapping("/{userId}/donations")
+  public List<DonationRest> getUserDonations(@PathVariable String userId,
+      @RequestParam(name = "page", defaultValue = "0", required = false) int page,
+      @RequestParam(name = "limit", defaultValue = "15", required = false) int limit) {
+    List<DonationDto> donationDtos = donationService
+        .getUserDonations(userId, page, limit);
+    List<DonationRest> donationRests = new ArrayList<>();
+    for (DonationDto donationDto : donationDtos) {
+      donationRests.add(modelMapper.map(donationDto, DonationRest.class));
+    }
+    return donationRests;
+
+  }
+
+  @GetMapping("/{userId}/donation-requests")
+  public List<DonationRequestRest> getUserDonationRequests(@PathVariable String userId,
+      @RequestParam(name = "page", defaultValue = "0", required = false) int page,
+      @RequestParam(name = "limit", defaultValue = "15", required = false) int limit) {
+    List<DonationRequestDto> donationRequestDtos = donationRequestService
+        .getUserDonationRequests(userId, page, limit);
+    List<DonationRequestRest> donationRequestRests = new ArrayList<>();
+    for (DonationRequestDto donationRequestDto : donationRequestDtos) {
+      donationRequestRests.add(modelMapper.map(donationRequestDto, DonationRequestRest.class));
+    }
+    return donationRequestRests;
+
   }
 
   @GetMapping("/{userId}/appointments")

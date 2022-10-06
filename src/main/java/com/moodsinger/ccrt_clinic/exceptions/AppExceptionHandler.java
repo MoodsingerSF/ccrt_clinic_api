@@ -27,6 +27,13 @@ public class AppExceptionHandler {
     return new ResponseEntity<ResponseMessage>(errorMessage, new HttpHeaders(), exception.getHttpStatus());
   }
 
+  @ExceptionHandler(value = { DonationRequestServiceException.class })
+  public ResponseEntity<ResponseMessage> handleDonationRequestServiceException(
+      DonationRequestServiceException exception) {
+    ResponseMessage errorMessage = new ResponseMessage(exception.getCode(), exception.getMessage());
+    return new ResponseEntity<ResponseMessage>(errorMessage, new HttpHeaders(), exception.getHttpStatus());
+  }
+
   @ExceptionHandler(value = { AppointmentServiceException.class })
   public ResponseEntity<ResponseMessage> handleAppointmentServiceException(AppointmentServiceException exception) {
     ResponseMessage errorMessage = new ResponseMessage(exception.getCode(), exception.getMessage());

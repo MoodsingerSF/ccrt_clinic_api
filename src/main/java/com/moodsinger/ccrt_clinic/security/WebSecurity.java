@@ -14,14 +14,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-// import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
 import com.moodsinger.ccrt_clinic.io.enums.Role;
-
-// import com.moodsinger.ccrt_clinic.io.enums.Role;
 
 @EnableWebSecurity
 @Configuration
@@ -53,6 +49,14 @@ public class WebSecurity {
         .antMatchers(HttpMethod.GET, "/users/doctors")
         .hasAnyAuthority(Role.ADMIN.name())
         .antMatchers(HttpMethod.PUT, "/blogs/{blogId}/verification-status")
+        .hasAnyAuthority(Role.ADMIN.name())
+        .antMatchers(HttpMethod.GET, "/donation-requests")
+        .hasAnyAuthority(Role.ADMIN.name())
+        .antMatchers(HttpMethod.GET, "/donations")
+        .hasAnyAuthority(Role.ADMIN.name())
+        .antMatchers(HttpMethod.PUT, "/donation-requests/{requestId}/request-status")
+        .hasAnyAuthority(Role.ADMIN.name())
+        .antMatchers(HttpMethod.PUT, "/donation-requests/{requestId}/completion-status")
         .hasAnyAuthority(Role.ADMIN.name())
         .antMatchers(HttpMethod.POST, "/fee-changing-requests")
         .hasAnyAuthority(Role.DOCTOR.name())

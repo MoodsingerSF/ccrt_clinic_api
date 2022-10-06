@@ -18,6 +18,7 @@ public enum Messages {
   PASSWORD_RESET_TOKEN_MISMATCH("Password reset token hasn't matched."),
   PASSWORD_UPDATE_SUCCESSFUL("Password has been updated successfully."),
   PASSWORD_RESET_SUCCESSFUL("Password has been reset successfully."),
+  DONATION_REQUEST_NOT_FOUND("Donation request couldn't be found"),
   BLOG_NOT_FOUND(
       "The blog you are looking for is not available. It may have been removed or you are looking for an invalid blog."),
   USER_OTP_SERVICE_BLOCKED(

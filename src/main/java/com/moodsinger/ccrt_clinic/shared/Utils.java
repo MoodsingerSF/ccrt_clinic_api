@@ -41,11 +41,19 @@ public class Utils {
     return generateRandomString(15, ALPHABET);
   }
 
+  public String generateDonationRequestId() {
+    return generateRandomString(20, ALPHABET);
+  }
+
   public String generateOtpId(int length) {
     return generateRandomString(length, ALPHABET);
   }
 
   public String generateAppointmentId() {
+    return generateRandomString(15, ALPHABET);
+  }
+
+  public String generateDonationId() {
     return generateRandomString(15, ALPHABET);
   }
 

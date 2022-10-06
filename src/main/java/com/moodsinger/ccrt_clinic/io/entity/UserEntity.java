@@ -102,6 +102,12 @@ public class UserEntity {
   @JoinTable(name = "doctor_specialization", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "specialization_id"))
   private Set<SpecializationEntity> specializations = new HashSet<>();
 
+  @OneToMany(mappedBy = "donor", fetch = FetchType.LAZY)
+  private Set<DonationEntity> donations = new HashSet<>();
+
+  @OneToMany(mappedBy = "requestor", fetch = FetchType.LAZY)
+  private Set<DonationRequestEntity> donationRequests = new HashSet<>();
+
   public long getId() {
     return this.id;
   }
@@ -296,6 +302,22 @@ public class UserEntity {
 
   public void setResetPasswordToken(String resetPasswordToken) {
     this.resetPasswordToken = resetPasswordToken;
+  }
+
+  public Set<DonationEntity> getDonations() {
+    return donations;
+  }
+
+  public void setDonations(Set<DonationEntity> donations) {
+    this.donations = donations;
+  }
+
+  public Set<DonationRequestEntity> getDonationRequests() {
+    return donationRequests;
+  }
+
+  public void setDonationRequests(Set<DonationRequestEntity> donationRequests) {
+    this.donationRequests = donationRequests;
   }
 
 }

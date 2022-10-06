@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.moodsinger.ccrt_clinic.io.entity.UserEntity;
 import com.moodsinger.ccrt_clinic.io.enums.VerificationStatus;
 import com.moodsinger.ccrt_clinic.shared.dto.AwardDto;
 import com.moodsinger.ccrt_clinic.shared.dto.EducationDto;
@@ -67,4 +68,5 @@ public interface UserService extends UserDetailsService {
 
   void resetPassword(String userId, UserDto userDto);
 
+  UserEntity findUserEntity(String userId);
 }
