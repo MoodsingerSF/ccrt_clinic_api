@@ -50,8 +50,7 @@ public class WebSecurity {
         .hasAnyAuthority(Role.ADMIN.name())
         .antMatchers(HttpMethod.PUT, "/blogs/{blogId}/verification-status")
         .hasAnyAuthority(Role.ADMIN.name())
-        .antMatchers(HttpMethod.GET, "/donation-requests")
-        .hasAnyAuthority(Role.ADMIN.name())
+
         .antMatchers(HttpMethod.GET, "/donations")
         .hasAnyAuthority(Role.ADMIN.name())
         .antMatchers(HttpMethod.PUT, "/donation-requests/{requestId}/request-status")
@@ -65,6 +64,8 @@ public class WebSecurity {
         .antMatchers(HttpMethod.GET, "/fee-changing-requests")
         .hasAnyAuthority(Role.ADMIN.name())
         .antMatchers(HttpMethod.GET, "/blogs/{blogId}/related-blogs")
+        .permitAll()
+        .antMatchers(HttpMethod.GET, "/donation-requests")
         .permitAll()
         .antMatchers(HttpMethod.GET, "/users")
         .permitAll()

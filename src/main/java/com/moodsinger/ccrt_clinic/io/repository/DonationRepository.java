@@ -2,6 +2,7 @@ package com.moodsinger.ccrt_clinic.io.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
@@ -15,4 +16,6 @@ public interface DonationRepository extends PagingAndSortingRepository<DonationE
 
   Page<DonationEntity> findAllByDonationRequestRequestId(String requestId, Pageable pageable);
 
+  @Query("SELECT SUM(d.amount) FROM DonationEntity d WHERE d.donationRequest.requestId=:requestId")
+  Double getAmountDonatedSoFar(String requestId);
 }

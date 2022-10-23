@@ -40,6 +40,7 @@ public class DonationRequestController {
   @PostMapping
   public DonationRequestRest createDonationRequest(
       @RequestBody DonationRequestCreationRequestModel donationRequestCreationRequestModel) {
+
     DonationRequestDto createdDonationRequestDto = donationRequestService
         .createDonationRequest(modelMapper.map(donationRequestCreationRequestModel, DonationRequestDto.class));
     return modelMapper.map(createdDonationRequestDto, DonationRequestRest.class);
@@ -54,6 +55,14 @@ public class DonationRequestController {
     List<DonationRequestDto> donationRequests = donationRequestService.retrieveDonationRequests(page, limit,
         completionStatus, requestStatus);
     return processData(donationRequests);
+  }
+
+  @PutMapping("/{requestId}/description")
+  public DonationRequestRest updateDescription(@PathVariable String requestId,
+      @RequestBody DonationUpdateRequestModel donationUpdateRequestModel) {
+    DonationRequestDto createdDonationRequestDto = donationRequestService
+        .updateDescription(requestId, donationUpdateRequestModel.getDescription());
+    return modelMapper.map(createdDonationRequestDto, DonationRequestRest.class);
   }
 
   @PutMapping("/{requestId}/request-status")

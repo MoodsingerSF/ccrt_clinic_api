@@ -9,13 +9,19 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.moodsinger.ccrt_clinic.exceptions.DonationRequestServiceException;
+import com.moodsinger.ccrt_clinic.exceptions.enums.MessageCodes;
+import com.moodsinger.ccrt_clinic.exceptions.enums.Messages;
 import com.moodsinger.ccrt_clinic.io.entity.DonationEntity;
 import com.moodsinger.ccrt_clinic.io.entity.DonationRequestEntity;
 import com.moodsinger.ccrt_clinic.io.entity.UserEntity;
+import com.moodsinger.ccrt_clinic.io.enums.CompletionStatus;
 import com.moodsinger.ccrt_clinic.io.repository.DonationRepository;
+import com.moodsinger.ccrt_clinic.io.repository.DonationRequestRepository;
 import com.moodsinger.ccrt_clinic.service.DonationRequestService;
 import com.moodsinger.ccrt_clinic.service.DonationService;
 import com.moodsinger.ccrt_clinic.service.UserService;
@@ -34,11 +40,17 @@ public class DonationServiceImpl implements DonationService {
   @Autowired
   private DonationRepository donationRepository;
   @Autowired
+  private DonationRequestRepository donationRequestRepository;
+  @Autowired
   private Utils utils;
 
   @Transactional
   @Override
   public DonationDto createDonation(DonationDto donationDto) {
+    if (donationDto.getAmount() <= 0) {
+      throw new DonationRequestServiceException(MessageCodes.INVALID_REQUEST.name(), Messages.AMOUNT_ERROR.getMessage(),
+          HttpStatus.BAD_REQUEST);
+    }
     UserEntity donor = userService.findUserEntity(donationDto.getDonorUserId());
     DonationRequestEntity donationRequestEntity = donationRequestService
         .findDonationRequest(donationDto.getDonationRequestId());
@@ -47,6 +59,13 @@ public class DonationServiceImpl implements DonationService {
     donationEntity.setDonationRequest(donationRequestEntity);
     donationEntity.setDonationId(utils.generateDonationId());
     DonationEntity createdDonationEntity = donationRepository.save(donationEntity);
+    double requestedAmount = donationRequestEntity.getAmount();
+    double amountCollectedSoFar = donationRepository.getAmountDonatedSoFar(donationRequestEntity.getRequestId());
+
+    if (amountCollectedSoFar >= requestedAmount) {
+      donationRequestEntity.setCompletionStatus(CompletionStatus.COMPLETE);
+      donationRequestRepository.save(donationRequestEntity);
+    }
     return modelMapper.map(createdDonationEntity, DonationDto.class);
   }
 

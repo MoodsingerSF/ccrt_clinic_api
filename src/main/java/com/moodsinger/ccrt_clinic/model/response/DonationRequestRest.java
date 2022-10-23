@@ -2,6 +2,9 @@ package com.moodsinger.ccrt_clinic.model.response;
 
 import java.util.Date;
 
+import com.moodsinger.ccrt_clinic.io.enums.CompletionStatus;
+import com.moodsinger.ccrt_clinic.io.enums.VerificationStatus;
+
 public class DonationRequestRest {
   private String requestId;
   private UserRest requestor;
@@ -9,6 +12,9 @@ public class DonationRequestRest {
   private double amount;
   private Date creationTime;
   private String description;
+  private String disease;
+  private VerificationStatus requestStatus;
+  private CompletionStatus completionStatus;
 
   public String getRequestId() {
     return requestId;
@@ -56,5 +62,29 @@ public class DonationRequestRest {
 
   public void setDescription(String description) {
     this.description = description;
+  }
+
+  public String getDisease() {
+    return disease;
+  }
+
+  public void setDisease(String disease) {
+    this.disease = disease;
+  }
+
+  public VerificationStatus getRequestStatus() {
+    return requestStatus;
+  }
+
+  public void setRequestStatus(VerificationStatus requestStatus) {
+    this.requestStatus = requestStatus;
+  }
+
+  public CompletionStatus getCompletionStatus() {
+    return completionStatus;
+  }
+
+  public void setCompletionStatus(CompletionStatus completionStatus) {
+    this.completionStatus = completionStatus;
   }
 }

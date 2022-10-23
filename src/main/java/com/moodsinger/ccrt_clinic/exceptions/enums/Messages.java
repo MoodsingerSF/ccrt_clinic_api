@@ -42,6 +42,7 @@ public enum Messages {
   FEE_CHANGING_REQUEST_CREATION_ERROR(
       "You already have a pending request. You can request another one once the pending request is resolved."),
   PRESCRIPTION_NOT_FOUND("Appointment has no prescription."),
+  AMOUNT_ERROR("Amount must be greater than zero."),
   PRESCRIPTION_ALREADY_EXISTS(
       "Doctor has already added a prescription. You can not add another one. Try modifying the previous one."),
   APPOINTMENT_VERIFICATION_CODE_MISMATCH(

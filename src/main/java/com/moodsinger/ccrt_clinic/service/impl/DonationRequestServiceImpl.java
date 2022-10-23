@@ -40,6 +40,10 @@ public class DonationRequestServiceImpl implements DonationRequestService {
   @Transactional
   @Override
   public DonationRequestDto createDonationRequest(DonationRequestDto donationRequestDto) {
+    if (donationRequestDto.getAmount() <= 0) {
+      throw new DonationRequestServiceException(MessageCodes.INVALID_REQUEST.name(), Messages.AMOUNT_ERROR.getMessage(),
+          HttpStatus.BAD_REQUEST);
+    }
     UserEntity requestor = userService.findUserEntity(donationRequestDto.getRequestorUserId());
     DonationRequestEntity donationRequestEntity = modelMapper.map(donationRequestDto, DonationRequestEntity.class);
     donationRequestEntity.setRequestor(requestor);
@@ -103,6 +107,14 @@ public class DonationRequestServiceImpl implements DonationRequestService {
       donationRequestDtos.add(modelMapper.map(donationRequestEntity, DonationRequestDto.class));
     }
     return donationRequestDtos;
+  }
+
+  @Override
+  public DonationRequestDto updateDescription(String donationRequestId, String description) {
+    DonationRequestEntity donationRequestEntity = findDonationRequest(donationRequestId);
+    donationRequestEntity.setDescription(description);
+    DonationRequestEntity updatedDonationRequestEntity = donationRequestRepository.save(donationRequestEntity);
+    return modelMapper.map(updatedDonationRequestEntity, DonationRequestDto.class);
   }
 
 }

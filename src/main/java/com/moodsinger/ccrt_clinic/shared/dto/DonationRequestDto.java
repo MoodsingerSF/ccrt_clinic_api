@@ -15,6 +15,7 @@ public class DonationRequestDto {
   private String description;
   private VerificationStatus requestStatus;
   private CompletionStatus completionStatus;
+  private String disease;
 
   public String getRequestId() {
     return requestId;
@@ -86,5 +87,13 @@ public class DonationRequestDto {
 
   public void setDescription(String description) {
     this.description = description;
+  }
+
+  public String getDisease() {
+    return disease;
+  }
+
+  public void setDisease(String disease) {
+    this.disease = disease;
   }
 }

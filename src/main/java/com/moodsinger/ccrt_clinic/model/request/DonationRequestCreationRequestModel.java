@@ -4,6 +4,8 @@ public class DonationRequestCreationRequestModel {
   private String requestorUserId;
   private String phoneNo;
   private double amount;
+  private String description;
+  private String disease;
 
   public String getRequestorUserId() {
     return requestorUserId;
@@ -27,5 +29,21 @@ public class DonationRequestCreationRequestModel {
 
   public void setAmount(double amount) {
     this.amount = amount;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public String getDisease() {
+    return disease;
+  }
+
+  public void setDisease(String disease) {
+    this.disease = disease;
   }
 }

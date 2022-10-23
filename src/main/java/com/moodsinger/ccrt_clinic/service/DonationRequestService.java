@@ -12,6 +12,8 @@ public interface DonationRequestService {
 
   DonationRequestDto updateRequestStatus(String donationRequestId, VerificationStatus requestStatus);
 
+  DonationRequestDto updateDescription(String donationRequestId, String description);
+
   DonationRequestDto updateCompletionStatus(String donationRequestId, CompletionStatus completionStatus);
 
   List<DonationRequestDto> retrieveDonationRequests(int page, int limit,

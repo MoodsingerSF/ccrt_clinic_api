@@ -41,6 +41,9 @@ public class DonationRequestEntity {
   @Column(nullable = false, length = 20)
   private String phoneNo;
 
+  @Column(nullable = false, length = 250)
+  private String disease;
+
   @Column(nullable = false)
   private double amount;
 
@@ -141,6 +144,14 @@ public class DonationRequestEntity {
 
   public void setDescription(String description) {
     this.description = description;
+  }
+
+  public String getDisease() {
+    return disease;
+  }
+
+  public void setDisease(String disease) {
+    this.disease = disease;
   }
 
 }
