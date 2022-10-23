@@ -24,4 +24,8 @@ public interface UserRepository extends PagingAndSortingRepository<UserEntity, L
 
   UserEntity findByResetPasswordToken(String token);
 
+  @Query(value = "SELECT * FROM users u WHERE is_doctor=true AND MATCH(search_column) AGAINST(:keyword)", nativeQuery = true, countQuery = "SELECT COUNT(*) FROM users u WHERE is_doctor=true AND MATCH(full_name) AGAINST(?keyword)")
+  Page<UserEntity> searchByName(
+      @Param("keyword") String keyword, Pageable pageable);
+
 }

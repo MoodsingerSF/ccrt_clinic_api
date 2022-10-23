@@ -13,11 +13,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.moodsinger.ccrt_clinic.model.response.BlogRest;
 // import com.moodsinger.ccrt_clinic.exceptions.model.ResponseMessage;
 import com.moodsinger.ccrt_clinic.model.response.SpecializationRest;
 import com.moodsinger.ccrt_clinic.model.response.UserRest;
 import com.moodsinger.ccrt_clinic.service.MiscService;
 import com.moodsinger.ccrt_clinic.service.SpecializationService;
+import com.moodsinger.ccrt_clinic.shared.dto.BlogDto;
 import com.moodsinger.ccrt_clinic.shared.dto.SpecializationDto;
 import com.moodsinger.ccrt_clinic.shared.dto.UserDto;
 
@@ -57,6 +59,30 @@ public class MiscController {
       specializationRests.add(modelMapper.map(specializationDto, SpecializationRest.class));
     }
     return specializationRests;
+  }
+
+  @GetMapping("/search/doctors")
+  public List<UserRest> searchDoctors(@RequestParam(name = "page", defaultValue = "0", required = false) int page,
+      @RequestParam(name = "limit", defaultValue = "15", required = false) int limit,
+      @RequestParam(name = "keyword", required = true) String keyword) {
+    List<UserDto> foundDoctors = miscService.searchDoctors(page, limit, keyword);
+    List<UserRest> foundDoctorRests = new ArrayList<>();
+    for (UserDto userDto : foundDoctors) {
+      foundDoctorRests.add(modelMapper.map(userDto, UserRest.class));
+    }
+    return foundDoctorRests;
+  }
+
+  @GetMapping("/search/blogs")
+  public List<BlogRest> searchBlogs(@RequestParam(name = "page", defaultValue = "0", required = false) int page,
+      @RequestParam(name = "limit", defaultValue = "15", required = false) int limit,
+      @RequestParam(name = "keyword", required = true) String keyword) {
+    List<BlogDto> foundBlogs = miscService.searchBlogs(page, limit, keyword);
+    List<BlogRest> foundBlogRests = new ArrayList<>();
+    for (BlogDto blogDto : foundBlogs) {
+      foundBlogRests.add(modelMapper.map(blogDto, BlogRest.class));
+    }
+    return foundBlogRests;
   }
 
 }

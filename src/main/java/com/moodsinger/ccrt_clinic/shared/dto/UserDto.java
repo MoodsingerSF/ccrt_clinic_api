@@ -1,5 +1,6 @@
 package com.moodsinger.ccrt_clinic.shared.dto;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -12,6 +13,7 @@ public class UserDto {
   private String userId;
   private String firstName;
   private String lastName;
+  private String fullName;
   private String email;
   private String previousPassword;
   private String password;
@@ -27,10 +29,10 @@ public class UserDto {
   private List<SpecializationDto> specializations;
   private Date birthDate;
   private String about;
-  private List<EducationDto> education;
-  private List<TrainingDto> trainings;
-  private List<ExperienceDto> experiences;
-  private List<AwardDto> awards;
+  private List<EducationDto> education = new ArrayList<>();
+  private List<TrainingDto> trainings = new ArrayList<>();
+  private List<ExperienceDto> experiences = new ArrayList<>();
+  private List<AwardDto> awards = new ArrayList<>();
   private double fee;
   private String adminUserId;
   private String resetPasswordToken;
@@ -252,5 +254,13 @@ public class UserDto {
 
   public void setResetPasswordToken(String resetPasswordToken) {
     this.resetPasswordToken = resetPasswordToken;
+  }
+
+  public String getFullName() {
+    return fullName;
+  }
+
+  public void setFullName(String fullName) {
+    this.fullName = fullName;
   }
 }

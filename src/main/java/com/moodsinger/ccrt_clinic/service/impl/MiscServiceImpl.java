@@ -12,8 +12,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.moodsinger.ccrt_clinic.io.entity.DoctorAppointmentCount;
 import com.moodsinger.ccrt_clinic.io.enums.AppointmentStatus;
 import com.moodsinger.ccrt_clinic.io.repository.AppointmentRepository;
+import com.moodsinger.ccrt_clinic.service.BlogService;
 import com.moodsinger.ccrt_clinic.service.MiscService;
 import com.moodsinger.ccrt_clinic.service.UserService;
+import com.moodsinger.ccrt_clinic.shared.dto.BlogDto;
 import com.moodsinger.ccrt_clinic.shared.dto.UserDto;
 
 @Service
@@ -24,6 +26,9 @@ public class MiscServiceImpl implements MiscService {
 
   @Autowired
   private UserService userService;
+
+  @Autowired
+  private BlogService blogService;
 
   @Transactional
   @Override
@@ -45,6 +50,19 @@ public class MiscServiceImpl implements MiscService {
       popularDoctorsDtos.add(userService.getUserByUserId(item.getUserId()));
     }
     return popularDoctorsDtos;
+  }
+
+  @Transactional
+  @Override
+  public List<UserDto> searchDoctors(int page, int limit, String keyword) {
+    return userService.searchDoctorsByName(keyword, page, limit);
+  }
+
+  @Transactional
+  @Override
+  public List<BlogDto> searchBlogs(int page, int limit, String keyword) {
+    return blogService.searchBlogsByTitleAndTags(keyword, page, limit);
+
   }
 
 }

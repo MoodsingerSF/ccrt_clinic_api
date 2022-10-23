@@ -69,4 +69,6 @@ public interface UserService extends UserDetailsService {
   void resetPassword(String userId, UserDto userDto);
 
   UserEntity findUserEntity(String userId);
+
+  List<UserDto> searchDoctorsByName(String keyword, int page, int limit);
 }

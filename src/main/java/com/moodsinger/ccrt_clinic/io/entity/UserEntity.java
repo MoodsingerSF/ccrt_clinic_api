@@ -42,6 +42,12 @@ public class UserEntity {
   @Column(nullable = false, length = 50)
   private String lastName;
 
+  @Column(nullable = true, length = 100)
+  private String fullName;
+
+  @Column(nullable = true, length = 100)
+  private String searchColumn;
+
   @Column(nullable = false, length = 120, unique = true)
   private String email;
 
@@ -77,17 +83,17 @@ public class UserEntity {
   @Column(nullable = true, length = 1000)
   private String about;
 
-  @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
-  private Set<ExperienceEntity> experiences;
+  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+  private Set<ExperienceEntity> experiences = new HashSet<>();
 
-  @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
-  private Set<EducationEntity> education;
+  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+  private Set<EducationEntity> education = new HashSet<>();
 
-  @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
-  private Set<TrainingEntity> trainings;
+  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+  private Set<TrainingEntity> trainings = new HashSet<>();
 
-  @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
-  private Set<AwardEntity> awards;
+  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+  private Set<AwardEntity> awards = new HashSet<>();
 
   @Column(nullable = true)
   private String resetPasswordToken;
@@ -107,6 +113,8 @@ public class UserEntity {
 
   @OneToMany(mappedBy = "requestor", fetch = FetchType.LAZY)
   private Set<DonationRequestEntity> donationRequests = new HashSet<>();
+
+  private boolean isDoctor = false;
 
   public long getId() {
     return this.id;
@@ -318,6 +326,30 @@ public class UserEntity {
 
   public void setDonationRequests(Set<DonationRequestEntity> donationRequests) {
     this.donationRequests = donationRequests;
+  }
+
+  public String getFullName() {
+    return fullName;
+  }
+
+  public void setFullName(String fullName) {
+    this.fullName = fullName;
+  }
+
+  public boolean isDoctor() {
+    return isDoctor;
+  }
+
+  public void setDoctor(boolean isDoctor) {
+    this.isDoctor = isDoctor;
+  }
+
+  public String getSearchColumn() {
+    return searchColumn;
+  }
+
+  public void setSearchColumn(String searchColumn) {
+    this.searchColumn = searchColumn;
   }
 
 }

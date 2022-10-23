@@ -23,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.moodsinger.ccrt_clinic.AppProperties;
 import com.moodsinger.ccrt_clinic.exceptions.UserServiceException;
 import com.moodsinger.ccrt_clinic.exceptions.enums.MessageCodes;
 import com.moodsinger.ccrt_clinic.exceptions.enums.Messages;
@@ -86,9 +85,6 @@ public class UserServiceImpl implements UserService {
   private BCryptPasswordEncoder bCryptPasswordEncoder;
 
   @Autowired
-  private AppProperties appProperties;
-
-  @Autowired
   private ModelMapper modelMapper;
 
   @Autowired
@@ -135,6 +131,7 @@ public class UserServiceImpl implements UserService {
     // adding public user id
     String userId = utils.generateUserId(30);
     userEntity.setUserId(userId);
+    userEntity.setFullName(userEntity.getFirstName() + " " + userEntity.getLastName());
     userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(userDetails.getPassword()));
     if (userDetails.getUserType().equals(Role.USER.name()) || userDetails.getUserType().equals(Role.ADMIN.name())) {
       userEntity.setVerificationStatus(VerificationStatus.ACCEPTED);
@@ -152,9 +149,18 @@ public class UserServiceImpl implements UserService {
     userEntity.setRoles(roles);
 
     if (userDetails.getUserType().equals(Role.DOCTOR.name())) {
-
+      userEntity.setDoctor(true);
       List<String> specializationList = userDetails.getSpecializationList();
       Set<String> uniqueSpecializations = new HashSet<>(specializationList);
+      StringBuilder stringBuilder = new StringBuilder("");
+      for (String s : uniqueSpecializations) {
+        stringBuilder.append(s);
+        stringBuilder.append(" ");
+      }
+
+      userEntity
+          .setSearchColumn(userEntity.getFirstName() + " " + userEntity.getLastName() + " " + stringBuilder.toString());
+
       Set<SpecializationEntity> specializations = new HashSet<>();
       for (String specialization : uniqueSpecializations) {
         SpecializationEntity specializationEntity = specializationService.getOrCreateSpecialization(specialization);
@@ -210,10 +216,30 @@ public class UserServiceImpl implements UserService {
       throw new UserServiceException(MessageCodes.USER_NOT_FOUND.name(),
           Messages.USER_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
     }
-    if (utils.isNonNullAndNonEmpty(updateDetails.getFirstName()))
+    if (utils.isNonNullAndNonEmpty(updateDetails.getFirstName())) {
       foundUserEntity.setFirstName(updateDetails.getFirstName());
-    if (utils.isNonNullAndNonEmpty(updateDetails.getLastName()))
+      foundUserEntity.setFullName(updateDetails.getFirstName() + " " + foundUserEntity.getLastName());
+      StringBuilder stringBuilder = new StringBuilder("");
+      for (SpecializationEntity s : foundUserEntity.getSpecializations()) {
+        stringBuilder.append(s.getName());
+        stringBuilder.append(" ");
+      }
+      foundUserEntity.setSearchColumn(
+          updateDetails.getFirstName() + " " + foundUserEntity.getLastName() + " " + stringBuilder.toString());
+
+    }
+    if (utils.isNonNullAndNonEmpty(updateDetails.getLastName())) {
       foundUserEntity.setLastName(updateDetails.getLastName());
+      foundUserEntity.setFullName(foundUserEntity.getFirstName() + " " + updateDetails.getLastName());
+      StringBuilder stringBuilder = new StringBuilder("");
+      for (SpecializationEntity s : foundUserEntity.getSpecializations()) {
+        stringBuilder.append(s.getName());
+        stringBuilder.append(" ");
+      }
+      foundUserEntity.setSearchColumn(
+          foundUserEntity.getFirstName() + " " + updateDetails.getLastName() + " " + stringBuilder.toString());
+
+    }
     if (utils.isNonNullAndNonEmpty(updateDetails.getAbout()))
       foundUserEntity.setAbout(updateDetails.getAbout());
     UserEntity updatedUserEntity = userRepository.save(foundUserEntity);
@@ -790,6 +816,17 @@ public class UserServiceImpl implements UserService {
           HttpStatus.NOT_FOUND);
     }
     return foundUserEntity;
+  }
+
+  @Override
+  public List<UserDto> searchDoctorsByName(String keyword, int page, int limit) {
+    Page<UserEntity> doctorsPage = userRepository.searchByName(keyword, PageRequest.of(page, limit));
+    List<UserEntity> foundDoctors = doctorsPage.getContent();
+    List<UserDto> foundUserDtos = new ArrayList<>();
+    for (UserEntity doctor : foundDoctors) {
+      foundUserDtos.add(modelMapper.map(doctor, UserDto.class));
+    }
+    return foundUserDtos;
   }
 
 }

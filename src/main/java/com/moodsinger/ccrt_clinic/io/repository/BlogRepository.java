@@ -28,4 +28,8 @@ public interface BlogRepository extends PagingAndSortingRepository<BlogEntity, L
         Page<BlogEntity> findAllByCreatorUserId(String userId, Pageable pageable);
 
         long countByVerificationStatus(VerificationStatus verificationStatus);
+
+        @Query(value = "SELECT * FROM blogs b WHERE verification_status='ACCEPTED' AND MATCH(search_column) AGAINST(:keyword)", nativeQuery = true, countQuery = "SELECT COUNT(*) FROM blogs b WHERE verification_status='ACCEPTED' AND MATCH(full_name) AGAINST(?keyword)")
+        Page<BlogEntity> searchByTitleAndTags(
+                        @Param("keyword") String keyword, Pageable pageable);
 }

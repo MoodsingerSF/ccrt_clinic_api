@@ -45,6 +45,9 @@ public class BlogEntity {
   @Column(nullable = false)
   private String title;
 
+  @Column(length = 1000)
+  private String searchColumn;
+
   @Column(nullable = false, length = 50000)
   private String description;
 
@@ -177,5 +180,13 @@ public class BlogEntity {
 
   public void setNumTimesRead(long numTimesRead) {
     this.numTimesRead = numTimesRead;
+  }
+
+  public String getSearchColumn() {
+    return searchColumn;
+  }
+
+  public void setSearchColumn(String searchColumn) {
+    this.searchColumn = searchColumn;
   }
 }

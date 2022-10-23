@@ -43,9 +43,6 @@ import com.moodsinger.ccrt_clinic.shared.dto.TagDto;
 @Service
 public class BlogServiceImpl implements BlogService {
 
-  // @Autowired
-  // private AppProperties appProperties;
-
   @Autowired
   private TagService tagService;
 
@@ -86,15 +83,20 @@ public class BlogServiceImpl implements BlogService {
       List<String> tags = blogDto.getTagStrings();
       Set<TagEntity> tagEntities = new HashSet<>();
       blogEntity.setTags(tagEntities);
+      StringBuilder stringBuilder = new StringBuilder("");
+
       if (tags != null && tags.size() != 0) {
         for (String tag : tags) {
           TagEntity newTagEntity = tagService.getOrCreateTag(new TagDto(tag));
           blogEntity.getTags().add(newTagEntity);
           newTagEntity.getBlogs().add(blogEntity);
+          stringBuilder.append(tag);
+          stringBuilder.append(" ");
         }
 
       }
 
+      blogEntity.setSearchColumn(blogDto.getTitle() + " " + stringBuilder.toString());
       BlogEntity createdBlogEntity = blogRepository.save(blogEntity);
       BlogDto createdBlogDto = modelMapper.map(createdBlogEntity, BlogDto.class);
       return createdBlogDto;
@@ -180,18 +182,23 @@ public class BlogServiceImpl implements BlogService {
             Messages.FILE_SAVE_ERROR.getMessage());
       }
     }
+    StringBuilder stringBuilder = new StringBuilder("");
     if (tags != null && !tags.isEmpty()) {
       Set<TagEntity> tagEntities = new HashSet<>();
       foundBlogEntity.setTags(tagEntities);
+
       if (tags != null && tags.size() != 0) {
         for (String tag : tags) {
           TagEntity newTagEntity = tagService.getOrCreateTag(new TagDto(tag));
           foundBlogEntity.getTags().add(newTagEntity);
           newTagEntity.getBlogs().add(foundBlogEntity);
+          stringBuilder.append(tag);
+          stringBuilder.append(" ");
         }
 
       }
     }
+    foundBlogEntity.setSearchColumn(title != null ? title : "" + " " + stringBuilder.toString());
     BlogEntity updatedBlogEntity = blogRepository.save(foundBlogEntity);
     BlogDto updatedBlog = modelMapper.map(updatedBlogEntity, BlogDto.class);
     return updatedBlog;
@@ -302,6 +309,17 @@ public class BlogServiceImpl implements BlogService {
     BlogEntity updatedBlogEntity = blogRepository.save(foundBlogEntity);
     BlogDto updatedBlogDto = modelMapper.map(updatedBlogEntity, BlogDto.class);
     return updatedBlogDto;
+  }
+
+  @Override
+  public List<BlogDto> searchBlogsByTitleAndTags(String keyword, int page, int limit) {
+    Page<BlogEntity> blogsPage = blogRepository.searchByTitleAndTags(keyword, PageRequest.of(page, limit));
+    List<BlogEntity> foundBlogs = blogsPage.getContent();
+    List<BlogDto> foundBlogDtos = new ArrayList<>();
+    for (BlogEntity blog : foundBlogs) {
+      foundBlogDtos.add(modelMapper.map(blog, BlogDto.class));
+    }
+    return foundBlogDtos;
   }
 
 }

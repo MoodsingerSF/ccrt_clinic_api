@@ -1,5 +1,6 @@
 package com.moodsinger.ccrt_clinic.model.response;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -9,6 +10,7 @@ public class UserRest {
   private String userId;
   private String firstName;
   private String lastName;
+  private String fullName;
   private String email;
   private String profileImageUrl;
   private Set<RoleDto> roles;
@@ -16,10 +18,10 @@ public class UserRest {
   private List<SpecializationRest> specializations;
   private String birthDate;
   private String about;
-  private List<EducationRest> education;
-  private List<TrainingRest> trainings;
-  private List<ExperienceRest> experiences;
-  private List<AwardRest> awards;
+  private List<EducationRest> education = new ArrayList<>();
+  private List<TrainingRest> trainings = new ArrayList<>();
+  private List<ExperienceRest> experiences = new ArrayList<>();
+  private List<AwardRest> awards = new ArrayList<>();
   private double fee;
 
   public String getUserId() {
@@ -140,6 +142,14 @@ public class UserRest {
 
   public void setSpecializations(List<SpecializationRest> specializations) {
     this.specializations = specializations;
+  }
+
+  public String getFullName() {
+    return fullName;
+  }
+
+  public void setFullName(String fullName) {
+    this.fullName = fullName;
   }
 
 }
