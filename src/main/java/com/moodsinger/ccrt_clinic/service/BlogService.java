@@ -9,29 +9,30 @@ import com.moodsinger.ccrt_clinic.model.request.BlogVerificationStatusUpdateRequ
 import com.moodsinger.ccrt_clinic.shared.dto.BlogDto;
 
 public interface BlogService {
-    BlogDto createBlog(BlogDto blogDto);
+	BlogDto createBlog(BlogDto blogDto);
 
-    List<BlogDto> getBlogs(int page, int limit, VerificationStatus verificationStatus, SortingCriteria sortingCriteria,
-            SortType sortType);
+	List<BlogDto> getBlogs(int page, int limit, VerificationStatus verificationStatus,
+			SortingCriteria sortingCriteria,
+			SortType sortType);
 
-    List<BlogDto> getBlogs(int page, int limit, String tag, VerificationStatus verificationStatus,
-            SortingCriteria sortingCriteria, SortType sortType);
+	List<BlogDto> getBlogs(int page, int limit, String tag, VerificationStatus verificationStatus,
+			SortingCriteria sortingCriteria, SortType sortType);
 
-    BlogDto getBlog(String blogId);
+	BlogDto getBlog(String blogId);
 
-    BlogDto updateBlog(String blogId, BlogDto blogDetails);
+	BlogDto updateBlog(String blogId, BlogDto blogDetails);
 
-    void deleteBlog(String blogId);
+	void deleteBlog(String blogId);
 
-    List<BlogDto> getRelatedBlogs(String blogId, int page, int limit);
+	List<BlogDto> getRelatedBlogs(String blogId, int page, int limit);
 
-    BlogDto updateBlogVerificationStatus(String blogId,
-            BlogVerificationStatusUpdateRequestModel blogVerificationStatusUpdateRequestModel);
+	BlogDto updateBlogVerificationStatus(String blogId,
+			BlogVerificationStatusUpdateRequestModel blogVerificationStatusUpdateRequestModel);
 
-    long getBlogCount(VerificationStatus verificationStatus);
+	long getBlogCount(VerificationStatus verificationStatus);
 
-    BlogDto updateNumberOfTimesRead(String blogId);
+	BlogDto updateNumberOfTimesRead(String blogId);
 
-    List<BlogDto> searchBlogsByTitleAndTags(String keyword, int page, int limit);
+	List<BlogDto> searchBlogsByTitleAndTags(String keyword, int page, int limit);
 
 }

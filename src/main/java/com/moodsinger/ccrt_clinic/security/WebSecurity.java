@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.boot.autoconfigure.kafka.KafkaProperties.Admin;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -99,6 +100,14 @@ public class WebSecurity {
         .antMatchers(HttpMethod.GET, "/misc/**")
         .permitAll()
         .antMatchers(HttpMethod.GET, "/specializations/**")
+        .permitAll()
+        .antMatchers(HttpMethod.POST, "/home-covers")
+        .hasAnyAuthority(Role.ADMIN.name())
+        .antMatchers(HttpMethod.DELETE, "/home-covers/{coverId}")
+        .hasAnyAuthority(Role.ADMIN.name())
+        .antMatchers(HttpMethod.PUT, "/home-covers/{coverId}")
+        .hasAnyAuthority(Role.ADMIN.name())
+        .antMatchers(HttpMethod.GET, "/home-covers")
         .permitAll()
         .antMatchers(HttpMethod.POST, SecurityConstants.LOG_IN_URL).permitAll().anyRequest()
         .authenticated().and().addFilter(new AuthenticationFilter(authenticationManager(authenticationConfiguration)))

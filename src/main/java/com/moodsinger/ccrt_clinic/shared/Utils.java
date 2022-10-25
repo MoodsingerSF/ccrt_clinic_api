@@ -29,6 +29,10 @@ public class Utils {
   private final String ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
   private final String DIGITS = "0123456789";
 
+  public String generateHomeCoverCoverId() {
+    return generateRandomString(20, ALPHABET);
+  }
+
   public String generateOtpCode(int length) {
     return generateRandomString(length, DIGITS);
   }

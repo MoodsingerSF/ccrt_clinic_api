@@ -47,6 +47,10 @@ public enum Messages {
       "Doctor has already added a prescription. You can not add another one. Try modifying the previous one."),
   APPOINTMENT_VERIFICATION_CODE_MISMATCH(
       "Appointment verification code didn't match. Please provide the correct code. If you don't have the code, please ask your patient for the code after the appointment finishes."),
+  TYPE_NOT_VALID("Home cover type is not valid."), ITEM_ID_NOT_VALID("Home cover item's id is not valid."),
+  VISIBILITY_TYPE_NOT_VALID("Home cover visibility type is not valid."),
+  HOME_COVER_NOT_FOUND("Home cover couldn't be found. It's either deleted or does not exist at all."),
+
   USER_TYPE_NOT_VALID("User type is not valid.");
 
   private String message;
