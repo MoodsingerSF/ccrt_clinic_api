@@ -85,6 +85,19 @@ public class AppointmentEntity {
   @Temporal(TemporalType.TIMESTAMP)
   private Date completionTime;
 
+  @Column(nullable = false, length = 10)
+  private String codeForPrescriptionViewForPatient;
+
+  @Column(nullable = false)
+  private boolean hasPatientEnteredPrescriptionViewCode = false;
+
+  @Column(nullable = false)
+  private boolean hasDoctorJoined = false;
+
+  @Temporal(TemporalType.TIMESTAMP)
+  @Column(nullable = true)
+  private Date doctorJoinTime;
+
   public long getId() {
     return id;
   }
@@ -203,6 +216,38 @@ public class AppointmentEntity {
 
   public void setFee(FeeEntity fee) {
     this.fee = fee;
+  }
+
+  public String getCodeForPrescriptionViewForPatient() {
+    return codeForPrescriptionViewForPatient;
+  }
+
+  public void setCodeForPrescriptionViewForPatient(String codeForPrescriptionViewForPatient) {
+    this.codeForPrescriptionViewForPatient = codeForPrescriptionViewForPatient;
+  }
+
+  public boolean isHasPatientEnteredPrescriptionViewCode() {
+    return hasPatientEnteredPrescriptionViewCode;
+  }
+
+  public void setHasPatientEnteredPrescriptionViewCode(boolean hasPatientEnteredPrescriptionViewCode) {
+    this.hasPatientEnteredPrescriptionViewCode = hasPatientEnteredPrescriptionViewCode;
+  }
+
+  public boolean isHasDoctorJoined() {
+    return hasDoctorJoined;
+  }
+
+  public void setHasDoctorJoined(boolean hasDoctorJoined) {
+    this.hasDoctorJoined = hasDoctorJoined;
+  }
+
+  public Date getDoctorJoinTime() {
+    return doctorJoinTime;
+  }
+
+  public void setDoctorJoinTime(Date doctorJoinTime) {
+    this.doctorJoinTime = doctorJoinTime;
   }
 
 }

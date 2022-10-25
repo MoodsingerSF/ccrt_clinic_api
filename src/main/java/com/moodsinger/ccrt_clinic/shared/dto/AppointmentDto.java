@@ -19,6 +19,9 @@ public class AppointmentDto {
   private Date creationTime;
   private Date cancellationTime;
   private Date completionTime;
+  private String codeForPrescriptionViewForPatient;
+  private boolean hasPatientEnteredPrescriptionViewCode;
+  private String userId;
 
   public String getSlotId() {
     return slotId;
@@ -130,6 +133,30 @@ public class AppointmentDto {
 
   public void setFee(FeeDto fee) {
     this.fee = fee;
+  }
+
+  public boolean isHasPatientEnteredPrescriptionViewCode() {
+    return hasPatientEnteredPrescriptionViewCode;
+  }
+
+  public void setHasPatientEnteredPrescriptionViewCode(boolean hasPatientEnteredPrescriptionViewCode) {
+    this.hasPatientEnteredPrescriptionViewCode = hasPatientEnteredPrescriptionViewCode;
+  }
+
+  public String getCodeForPrescriptionViewForPatient() {
+    return codeForPrescriptionViewForPatient;
+  }
+
+  public void setCodeForPrescriptionViewForPatient(String codeForPrescriptionViewForPatient) {
+    this.codeForPrescriptionViewForPatient = codeForPrescriptionViewForPatient;
+  }
+
+  public String getUserId() {
+    return userId;
+  }
+
+  public void setUserId(String userId) {
+    this.userId = userId;
   }
 
 }

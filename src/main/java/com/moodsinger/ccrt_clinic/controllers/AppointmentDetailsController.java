@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.moodsinger.ccrt_clinic.model.request.AppointmentCancelRequestModel;
 import com.moodsinger.ccrt_clinic.model.request.AppointmentEndRequestModel;
+import com.moodsinger.ccrt_clinic.model.request.AppointmentPrescriptionViewCodeRequestModel;
 import com.moodsinger.ccrt_clinic.model.request.PrescriptionCreationRequestModel;
 import com.moodsinger.ccrt_clinic.model.response.ResourceRest;
 import com.moodsinger.ccrt_clinic.model.response.AppointmentRest;
@@ -95,5 +98,14 @@ public class AppointmentDetailsController {
   public PrescriptionRest getPrescription(@PathVariable String appointmentId) {
     PrescriptionDto prescriptionDto = appointmentService.retrievePrescription(appointmentId);
     return modelMapper.map(prescriptionDto, PrescriptionRest.class);
+  }
+
+  @PostMapping("prescription-view-code")
+  public ResponseEntity<String> checkValidityOfPrescriptionViewCode(@PathVariable String appointmentId,
+      @RequestBody AppointmentPrescriptionViewCodeRequestModel appointmentPrescriptionViewCodeRequestModel) {
+    AppointmentDto appointmentDto = modelMapper.map(appointmentPrescriptionViewCodeRequestModel, AppointmentDto.class);
+    appointmentDto.setAppointmentId(appointmentId);
+    appointmentService.validatePrescriptionViewCode(appointmentDto);
+    return new ResponseEntity<>(HttpStatus.OK);
   }
 }

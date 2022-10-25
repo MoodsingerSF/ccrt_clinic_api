@@ -73,6 +73,10 @@ public class Utils {
     return generateRandomString(8, ALPHABET);
   }
 
+  public String generateCodeForPrescriptionView() {
+    return generateRandomString(8, ALPHABET);
+  }
+
   public String generateSlotId(int length) {
     return generateRandomString(length, ALPHABET);
   }

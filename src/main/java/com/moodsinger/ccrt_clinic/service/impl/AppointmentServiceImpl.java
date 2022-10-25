@@ -122,6 +122,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     appointmentEntity.setSlot(slot);
     String patientVerificationCode = utils.generatePatientVerificationCode();
     appointmentEntity.setPatientVerificationCode(patientVerificationCode);
+    appointmentEntity.setCodeForPrescriptionViewForPatient(utils.generateCodeForPrescriptionView());
     appointmentEntity.setStatus(AppointmentStatus.PENDING);
     AppointmentEntity createdAppointmentEntity = appointmentRepository.save(appointmentEntity);
 
@@ -200,11 +201,16 @@ public class AppointmentServiceImpl implements AppointmentService {
   @Override
   public AppointmentDto endAppointment(String appointmentId, AppointmentEndRequestModel appointmentEndRequestModel) {
     AppointmentEntity appointment = appointmentRepository.findByAppointmentId(appointmentId);
+
     if (appointment == null) {
       throw new AppointmentServiceException(MessageCodes.APPOINTMENT_NOT_FOUND.name(),
           Messages.APPOINTMENT_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
     }
     if (appointment.getStatus() == AppointmentStatus.PENDING) {
+      if (appointment.getPrescription() == null) {
+        throw new AppointmentServiceException(MessageCodes.PRESCRIPTION_NOT_ADDED.name(),
+            Messages.PRESCRIPTION_NOT_ADDED.getMessage(), HttpStatus.BAD_REQUEST);
+      }
       if (!appointmentEndRequestModel.getCode().equals(appointment.getPatientVerificationCode())) {
         throw new AppointmentServiceException(MessageCodes.APPOINTMENT_VERIFICATION_CODE_MISMATCH.name(),
             Messages.APPOINTMENT_VERIFICATION_CODE_MISMATCH.getMessage(), HttpStatus.BAD_REQUEST);
@@ -216,13 +222,17 @@ public class AppointmentServiceImpl implements AppointmentService {
       }
       List<RoleEntity> roleEntities = new ArrayList<>(user.getRoles());
       Role role = roleEntities.get(0).getName();
-      if (!appointment.getDoctor().getUserId().equals(appointmentEndRequestModel.getUserId()) && role != Role.ADMIN) {
+      UserEntity doctor = appointment.getDoctor();
+      UserEntity patient = appointment.getPatient();
+      if (!doctor.getUserId().equals(appointmentEndRequestModel.getUserId()) && role != Role.ADMIN) {
         throw new UserServiceException(MessageCodes.FORBIDDEN.name(),
             Messages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
       }
       appointment.setStatus(AppointmentStatus.FINISHED);
       appointment.setCompletionTime(new Date());
       AppointmentEntity updatedAppointmentEntity = appointmentRepository.save(appointment);
+      amazonSES.sendPrescriptionViewCode(patient.getEmail(), patient.getFirstName() + " " + patient.getLastName(),
+          appointment.getCodeForPrescriptionViewForPatient());
       return modelMapper.map(updatedAppointmentEntity, AppointmentDto.class);
     } else {
       throw new AppointmentServiceException(MessageCodes.FORBIDDEN.name(),
@@ -253,8 +263,10 @@ public class AppointmentServiceImpl implements AppointmentService {
         throw new AppointmentServiceException(MessageCodes.FORBIDDEN.name(),
             Messages.FORBIDDEN.getMessage(), HttpStatus.FORBIDDEN);
       }
+      // if patient, he/she will be able to cancel
       appointmentEntity.setStatus(AppointmentStatus.CANCELLED);
       appointmentEntity.setCancellationTime(new Date());
+      // send money back to patient
       AppointmentEntity updatedAppointmentEntity = appointmentRepository.save(appointmentEntity);
       amazonSES.sendAppointmentCancellationEmail(modelMapper.map(updatedAppointmentEntity, AppointmentDto.class));
       return modelMapper.map(updatedAppointmentEntity, AppointmentDto.class);
@@ -319,6 +331,11 @@ public class AppointmentServiceImpl implements AppointmentService {
           Messages.APPOINTMENT_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
     }
     if (appointmentEntity.getPrescription() == null) {
+      List<MedicationDto> medicationDtos = prescriptionDto.getMedications();
+      if (medicationDtos == null || medicationDtos.size() == 0) {
+        throw new AppointmentServiceException(MessageCodes.PRESCRIPTION_EMPTY.name(),
+            Messages.PRESCRIPTION_ALREADY_EXISTS.getMessage(), HttpStatus.FORBIDDEN);
+      }
       PrescriptionEntity prescriptionEntity = modelMapper.map(prescriptionDto, PrescriptionEntity.class);
       prescriptionEntity.setAppointment(appointmentEntity);
       prescriptionEntity.setPrescriptionId(utils.generatePrescriptionId());
@@ -326,7 +343,7 @@ public class AppointmentServiceImpl implements AppointmentService {
       appointmentEntity.setPrescription(createdPrescriptionEntity);
       appointmentRepository.save(appointmentEntity);
       List<MedicationEntity> medicationEntities = new ArrayList<>();
-      for (MedicationDto medicationDto : prescriptionDto.getMedications()) {
+      for (MedicationDto medicationDto : medicationDtos) {
         MedicationEntity medicationEntity = modelMapper.map(medicationDto,
             MedicationEntity.class);
 
@@ -362,6 +379,21 @@ public class AppointmentServiceImpl implements AppointmentService {
     // prescriptionDto.setDoctor(modelMapper.map(appointmentEntity.getDoctor(),
     // UserDto.class));
     return prescriptionDto;
+  }
+
+  @Override
+  public void validatePrescriptionViewCode(AppointmentDto appointmentDto) {
+    AppointmentEntity appointmentEntity = appointmentRepository.findByAppointmentId(appointmentDto.getAppointmentId());
+    if (appointmentEntity == null) {
+      throw new AppointmentServiceException(MessageCodes.APPOINTMENT_NOT_FOUND.name(),
+          Messages.APPOINTMENT_NOT_FOUND.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    if (!appointmentDto.getCodeForPrescriptionViewForPatient()
+        .equals(appointmentEntity.getCodeForPrescriptionViewForPatient())) {
+      throw new AppointmentServiceException(MessageCodes.PRESCRIPTION_VIEW_CODE_MISMATCH.name(),
+          Messages.PRESCRIPTION_VIEW_CODE_MISMATCH.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
   }
 
 }

@@ -49,8 +49,10 @@ public enum Messages {
       "Appointment verification code didn't match. Please provide the correct code. If you don't have the code, please ask your patient for the code after the appointment finishes."),
   TYPE_NOT_VALID("Home cover type is not valid."), ITEM_ID_NOT_VALID("Home cover item's id is not valid."),
   VISIBILITY_TYPE_NOT_VALID("Home cover visibility type is not valid."),
+  PRESCRIPTION_NOT_ADDED("Prescription isn't added. You must add a prescription before ending the meeting."),
+  PRESCRIPTION_EMPTY("Prescription can not be empty. You must add some medications."),
   HOME_COVER_NOT_FOUND("Home cover couldn't be found. It's either deleted or does not exist at all."),
-
+  PRESCRIPTION_VIEW_CODE_MISMATCH("Code didn't match."),
   USER_TYPE_NOT_VALID("User type is not valid.");
 
   private String message;

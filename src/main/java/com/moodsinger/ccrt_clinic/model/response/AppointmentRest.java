@@ -16,6 +16,7 @@ public class AppointmentRest {
   private UserRest patient;
   private UserRest doctor = null;
   private FeeRest fee;
+  private boolean hasPatientEnteredPrescriptionViewCode;
 
   public String getAppointmentId() {
     return appointmentId;
@@ -103,6 +104,14 @@ public class AppointmentRest {
 
   public void setFee(FeeRest fee) {
     this.fee = fee;
+  }
+
+  public boolean isHasPatientEnteredPrescriptionViewCode() {
+    return hasPatientEnteredPrescriptionViewCode;
+  }
+
+  public void setHasPatientEnteredPrescriptionViewCode(boolean hasPatientEnteredPrescriptionViewCode) {
+    this.hasPatientEnteredPrescriptionViewCode = hasPatientEnteredPrescriptionViewCode;
   }
 
 }

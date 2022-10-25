@@ -22,6 +22,7 @@ public class AmazonSES {
   private final String REGISTRATION_REQUEST_ACCEPTANCE_EMAIL_SUBJECT = "[CCRT Clinic Registration] [SUCCESS] Your registration request has been accepted successfully.";
   private final String REGISTRATION_REQUEST_REJECTION_EMAIL_SUBJECT = "[CCRT Clinic Registration] [REJECTION] Your registration request has been rejected.";
   private final String PASSWORD_RESET_CODE_EMAIL_SUBJECT = "[CCRT Clinic] Password reset code.";
+  private final String PRESCRIPTION_VIEW_CODE_EMAIL_SUBJECT = "[CCRT Clinic] Prescription view code.";
 
   public void sendVerificationEmail(String email, String code) {
     AmazonSimpleEmailService client = AmazonSimpleEmailServiceClientBuilder.standard().withRegion(Regions.AP_SOUTH_1)
@@ -85,9 +86,29 @@ public class AmazonSES {
         .withDestination(new Destination().withToAddresses(email))
         .withMessage(new Message()
             .withBody(new Body()
-                .withHtml(new Content().withCharset("UTF-8").withData(getPasswordResetCodeEmailBody(fullName, code)))
-                .withText(new Content().withCharset("UTF-8").withData(getPasswordResetCodeEmailText(fullName, code))))
+                .withHtml(new Content().withCharset("UTF-8").withData(getPrescriptionViewCodeEmailBody(fullName, code)))
+                .withText(
+                    new Content().withCharset("UTF-8").withData(getPrescriptionViewCodeEmailText(fullName, code))))
             .withSubject(new Content().withCharset("UTF-8").withData(PASSWORD_RESET_CODE_EMAIL_SUBJECT)))
+        .withSource(FROM);
+    try {
+      client.sendEmail(sendEmailRequest);
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+    }
+  }
+
+  public void sendPrescriptionViewCode(String email, String name, String code) {
+    AmazonSimpleEmailService client = AmazonSimpleEmailServiceClientBuilder.standard().withRegion(Regions.AP_SOUTH_1)
+        .build();
+
+    SendEmailRequest sendEmailRequest = new SendEmailRequest()
+        .withDestination(new Destination().withToAddresses(email))
+        .withMessage(new Message()
+            .withBody(new Body()
+                .withHtml(new Content().withCharset("UTF-8").withData(getPasswordResetCodeEmailBody(name, code)))
+                .withText(new Content().withCharset("UTF-8").withData(getPasswordResetCodeEmailText(name, code))))
+            .withSubject(new Content().withCharset("UTF-8").withData(PRESCRIPTION_VIEW_CODE_EMAIL_SUBJECT)))
         .withSource(FROM);
     try {
       client.sendEmail(sendEmailRequest);
@@ -355,4 +376,43 @@ public class AmazonSES {
     return stringBuilder.toString();
   }
 
+  private String getPrescriptionViewCodeEmailBody(String name, String code) {
+    StringBuilder stringBuilder = new StringBuilder("");
+    stringBuilder.append("<div>");
+    stringBuilder.append("<p>Dear ");
+    stringBuilder.append(name);
+    stringBuilder.append(",</p>");
+
+    stringBuilder.append("</br>");
+    stringBuilder.append("<p>");
+    stringBuilder.append(
+        "Your prescription view code is");
+    stringBuilder.append("</p>");
+    stringBuilder.append("</br>");
+    stringBuilder.append("<h1>");
+    stringBuilder.append(
+        code);
+    stringBuilder.append("</h1>");
+    stringBuilder.append("</br>");
+
+    stringBuilder.append("<p>Thanks,</p>");
+    stringBuilder.append("</br>");
+    stringBuilder.append("<p>CCRT Clinic</p>");
+    stringBuilder.append("</div>");
+    return stringBuilder.toString();
+  }
+
+  private String getPrescriptionViewCodeEmailText(String name, String code) {
+    StringBuilder stringBuilder = new StringBuilder("");
+    stringBuilder.append("Dear ");
+    stringBuilder.append(name);
+    stringBuilder.append(",\n");
+    stringBuilder.append(
+        "Your password reset code is \n");
+    stringBuilder.append(
+        code);
+    stringBuilder.append("Thanks\n");
+    stringBuilder.append("CCRT Clinic");
+    return stringBuilder.toString();
+  }
 }
