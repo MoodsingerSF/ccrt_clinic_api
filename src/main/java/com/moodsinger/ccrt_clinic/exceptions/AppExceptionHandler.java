@@ -12,15 +12,6 @@ import com.moodsinger.ccrt_clinic.exceptions.model.ResponseMessage;
 @ControllerAdvice
 public class AppExceptionHandler {
 
-  // @ExceptionHandler(value = { DisabledException.class })
-  // public ResponseEntity<ErrorMessage> handleDoctorScheduleServiceException(
-  // DisabledException exception) {
-  // ErrorMessage errorMessage = new ErrorMessage("REQUEST_PENDING_APPROVAL",
-  // exception.getMessage());
-  // return new ResponseEntity<ErrorMessage>(errorMessage, new HttpHeaders(),
-  // HttpStatus.LOCKED);
-  // }
-
   @ExceptionHandler(value = { UserServiceException.class })
   public ResponseEntity<ResponseMessage> handleUserServiceException(UserServiceException exception) {
     ResponseMessage errorMessage = new ResponseMessage("USER_SERVICE: " + exception.getCode(), exception.getMessage());

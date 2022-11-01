@@ -34,6 +34,7 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
       throws IOException, ServletException {
+    System.out.println("do filter interval");
     String authorizationHeader = request.getHeader(SecurityConstants.HEADER_STRING);
     if (authorizationHeader == null || !authorizationHeader.startsWith(SecurityConstants.TOKEN_PREFIX)) {
       chain.doFilter(request, response);
@@ -46,6 +47,7 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
   }
 
   private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
+    System.out.println("get authentication");
     String authorizationHeader = request.getHeader(SecurityConstants.HEADER_STRING);
     if (authorizationHeader != null) {
       String token = authorizationHeader.replace(SecurityConstants.TOKEN_PREFIX, "");
@@ -62,7 +64,7 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
         for (RoleDto role : roles) {
           authorities.add(new SimpleGrantedAuthority(role.getName().name()));
         }
-        return new UsernamePasswordAuthenticationToken(userDto.getEmail(), null, authorities);
+        return new UsernamePasswordAuthenticationToken(userDto.getUserId(), null, authorities);
       }
       return null;
     }

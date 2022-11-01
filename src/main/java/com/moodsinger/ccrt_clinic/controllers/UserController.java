@@ -59,6 +59,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -187,7 +188,11 @@ public class UserController {
   @GetMapping("/{userId}/blogs")
   public List<BlogRest> getUserBlogs(@PathVariable String userId,
       @RequestParam(name = "page", defaultValue = "0", required = false) int page,
-      @RequestParam(name = "limit", defaultValue = "15", required = false) int limit) {
+      @RequestParam(name = "limit", defaultValue = "15", required = false) int limit, Authentication authentication) {
+    if (!authentication.getName().equals(userId)) {
+      throw new UserServiceException(MessageCodes.FORBIDDEN.name(), Messages.FORBIDDEN.getMessage(),
+          HttpStatus.FORBIDDEN);
+    }
     List<BlogDto> blogDtos = userBlogService.getUserBlogs(userId, page, limit);
     List<BlogRest> blogRests = new ArrayList<>();
     for (BlogDto blogDto : blogDtos) {

@@ -4,7 +4,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.boot.autoconfigure.kafka.KafkaProperties.Admin;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -14,6 +15,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -24,6 +26,9 @@ import com.moodsinger.ccrt_clinic.io.enums.Role;
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurity {
+  @Autowired
+  @Qualifier("customAuthenticationEntryPoint")
+  AuthenticationEntryPoint authEntryPoint;
 
   public WebSecurity() {
   }
@@ -110,7 +115,9 @@ public class WebSecurity {
         .antMatchers(HttpMethod.GET, "/home-covers")
         .permitAll()
         .antMatchers(HttpMethod.POST, SecurityConstants.LOG_IN_URL).permitAll().anyRequest()
-        .authenticated().and().addFilter(new AuthenticationFilter(authenticationManager(authenticationConfiguration)))
+        .authenticated().and().exceptionHandling()
+        .authenticationEntryPoint(authEntryPoint).and()
+        .addFilter(new AuthenticationFilter(authenticationManager(authenticationConfiguration)))
         .addFilter(new AuthorizationFilter(authenticationManager(authenticationConfiguration)))
         .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     // .and().formLogin()
