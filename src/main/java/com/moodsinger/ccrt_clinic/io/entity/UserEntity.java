@@ -83,16 +83,16 @@ public class UserEntity {
   @Column(nullable = true, length = 1000)
   private String about;
 
-  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
   private Set<ExperienceEntity> experiences = new HashSet<>();
 
-  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
   private Set<EducationEntity> education = new HashSet<>();
 
-  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
   private Set<TrainingEntity> trainings = new HashSet<>();
 
-  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
   private Set<AwardEntity> awards = new HashSet<>();
 
   @Column(nullable = true)

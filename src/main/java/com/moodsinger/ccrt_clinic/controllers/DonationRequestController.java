@@ -40,7 +40,7 @@ public class DonationRequestController {
   @PostMapping
   public DonationRequestRest createDonationRequest(
       @RequestBody DonationRequestCreationRequestModel donationRequestCreationRequestModel) {
-
+    // if(donationRequestCreationRequestModel.get)
     DonationRequestDto createdDonationRequestDto = donationRequestService
         .createDonationRequest(modelMapper.map(donationRequestCreationRequestModel, DonationRequestDto.class));
     return modelMapper.map(createdDonationRequestDto, DonationRequestRest.class);

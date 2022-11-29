@@ -75,6 +75,8 @@ public class WebSecurity {
         .permitAll()
         .antMatchers(HttpMethod.GET, "/users")
         .permitAll()
+        .antMatchers(HttpMethod.POST, "/donations")
+        .permitAll()
         .antMatchers(HttpMethod.PUT, "/blogs/{blogId}/num-times-read")
         .permitAll()
         .antMatchers(HttpMethod.POST, "/otp")
