@@ -1,6 +1,9 @@
 package com.moodsinger.ccrt_clinic.shared;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
@@ -10,7 +13,10 @@ import com.amazonaws.services.simpleemail.model.Content;
 import com.amazonaws.services.simpleemail.model.Destination;
 import com.amazonaws.services.simpleemail.model.Message;
 import com.amazonaws.services.simpleemail.model.SendEmailRequest;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moodsinger.ccrt_clinic.shared.dto.AppointmentDto;
+import com.moodsinger.ccrt_clinic.shared.dto.EmailTemplate;
 import com.moodsinger.ccrt_clinic.shared.dto.SlotDto;
 import com.moodsinger.ccrt_clinic.shared.dto.UserDto;
 
@@ -23,123 +29,168 @@ public class AmazonSES {
   private final String REGISTRATION_REQUEST_REJECTION_EMAIL_SUBJECT = "[CCRT Clinic Registration] [REJECTION] Your registration request has been rejected.";
   private final String PASSWORD_RESET_CODE_EMAIL_SUBJECT = "[CCRT Clinic] Password reset code.";
   private final String PRESCRIPTION_VIEW_CODE_EMAIL_SUBJECT = "[CCRT Clinic] Prescription view code.";
+  WebClient webClient = WebClient.create("http://178.128.101.29:8002");
 
   public void sendVerificationEmail(String email, String code) {
-    AmazonSimpleEmailService client = AmazonSimpleEmailServiceClientBuilder.standard().withRegion(Regions.AP_SOUTH_1)
-        .build();
 
-    SendEmailRequest sendEmailRequest = new SendEmailRequest()
-        .withDestination(new Destination().withToAddresses(email))
-        .withMessage(new Message()
-            .withBody(new Body().withHtml(new Content().withCharset("UTF-8").withData(getHTMLBody(code)))
-                .withText(new Content().withCharset("UTF-8").withData(getTextBody(code))))
-            .withSubject(new Content().withCharset("UTF-8").withData(SUBJECT)))
-        .withSource(FROM);
-    client.sendEmail(sendEmailRequest);
+    try {
+      String endpoint = "/api/v1/send-email";
+      HttpHeaders headers = new HttpHeaders();
+      headers.set("Content-Type", "application/json");
+      EmailTemplate emailTemplate = new EmailTemplate(email, SUBJECT, getTextBody(code), "html", getHTMLBody(code));
+      ObjectMapper objectMapper = new ObjectMapper();
+      String jsonString;
+      jsonString = objectMapper.writeValueAsString(emailTemplate);
+      webClient.post()
+          .uri(endpoint)
+          .headers(httpHeaders -> httpHeaders.addAll(headers))
+          .body(BodyInserters.fromValue(jsonString))
+          .retrieve()
+          .bodyToMono(String.class)
+          .block();
+    } catch (JsonProcessingException e) {
+      e.printStackTrace();
+    }
 
   }
 
   public void sendRegistrationRequestAcceptanceEmail(String email, String name) {
-    AmazonSimpleEmailService client = AmazonSimpleEmailServiceClientBuilder.standard().withRegion(Regions.AP_SOUTH_1)
-        .build();
 
-    SendEmailRequest sendEmailRequest = new SendEmailRequest()
-        .withDestination(new Destination().withToAddresses(email))
-        .withMessage(new Message()
-            .withBody(new Body()
-                .withHtml(new Content().withCharset("UTF-8").withData(getRegistrationRequestAcceptanceEmailBody(name)))
-                .withText(new Content().withCharset("UTF-8").withData(getRegistrationRequestAcceptanceEmailText(name))))
-            .withSubject(new Content().withCharset("UTF-8").withData(REGISTRATION_REQUEST_ACCEPTANCE_EMAIL_SUBJECT)))
-        .withSource(FROM);
     try {
-      client.sendEmail(sendEmailRequest);
-    } catch (Exception e) {
-      System.out.println(e.getMessage());
+      String endpoint = "/api/v1/send-email";
+      HttpHeaders headers = new HttpHeaders();
+      headers.set("Content-Type", "application/json");
+      EmailTemplate emailTemplate = new EmailTemplate(email, REGISTRATION_REQUEST_ACCEPTANCE_EMAIL_SUBJECT,
+          getRegistrationRequestAcceptanceEmailText(name), "html", getRegistrationRequestAcceptanceEmailBody(name));
+      ObjectMapper objectMapper = new ObjectMapper();
+      String jsonString;
+      jsonString = objectMapper.writeValueAsString(emailTemplate);
+      webClient.post()
+          .uri(endpoint)
+          .headers(httpHeaders -> httpHeaders.addAll(headers))
+          .body(BodyInserters.fromValue(jsonString))
+          .retrieve()
+          .bodyToMono(String.class)
+          .block();
+    } catch (JsonProcessingException e) {
+      e.printStackTrace();
     }
   }
 
   public void sendRegistrationRequestRejectionEmail(String email, String name) {
-    AmazonSimpleEmailService client = AmazonSimpleEmailServiceClientBuilder.standard().withRegion(Regions.AP_SOUTH_1)
-        .build();
 
-    SendEmailRequest sendEmailRequest = new SendEmailRequest()
-        .withDestination(new Destination().withToAddresses(email))
-        .withMessage(new Message()
-            .withBody(new Body()
-                .withHtml(new Content().withCharset("UTF-8").withData(getRegistrationRequestRejectionEmailBody(name)))
-                .withText(new Content().withCharset("UTF-8").withData(getRegistrationRequestRejectionEmailText(name))))
-            .withSubject(new Content().withCharset("UTF-8").withData(REGISTRATION_REQUEST_REJECTION_EMAIL_SUBJECT)))
-        .withSource(FROM);
     try {
-      client.sendEmail(sendEmailRequest);
-    } catch (Exception e) {
-      System.out.println(e.getMessage());
+      String endpoint = "/api/v1/send-email";
+      HttpHeaders headers = new HttpHeaders();
+      headers.set("Content-Type", "application/json");
+      EmailTemplate emailTemplate = new EmailTemplate(email, REGISTRATION_REQUEST_REJECTION_EMAIL_SUBJECT,
+          getRegistrationRequestRejectionEmailText(name), "html", getRegistrationRequestRejectionEmailBody(name));
+      ObjectMapper objectMapper = new ObjectMapper();
+      String jsonString;
+      jsonString = objectMapper.writeValueAsString(emailTemplate);
+      webClient.post()
+          .uri(endpoint)
+          .headers(httpHeaders -> httpHeaders.addAll(headers))
+          .body(BodyInserters.fromValue(jsonString))
+          .retrieve()
+          .bodyToMono(String.class)
+          .block();
+    } catch (JsonProcessingException e) {
+      e.printStackTrace();
     }
   }
 
   public void sendPasswordResetCode(UserDto userDto, String code) {
-    AmazonSimpleEmailService client = AmazonSimpleEmailServiceClientBuilder.standard().withRegion(Regions.AP_SOUTH_1)
-        .build();
-    String email = userDto.getEmail();
-    String fullName = userDto.getFirstName() + " " + userDto.getLastName();
-    SendEmailRequest sendEmailRequest = new SendEmailRequest()
-        .withDestination(new Destination().withToAddresses(email))
-        .withMessage(new Message()
-            .withBody(new Body()
-                .withHtml(new Content().withCharset("UTF-8").withData(getPrescriptionViewCodeEmailBody(fullName, code)))
-                .withText(
-                    new Content().withCharset("UTF-8").withData(getPrescriptionViewCodeEmailText(fullName, code))))
-            .withSubject(new Content().withCharset("UTF-8").withData(PASSWORD_RESET_CODE_EMAIL_SUBJECT)))
-        .withSource(FROM);
+
     try {
-      client.sendEmail(sendEmailRequest);
-    } catch (Exception e) {
-      System.out.println(e.getMessage());
+      String email = userDto.getEmail();
+      String fullName = userDto.getFirstName() + " " + userDto.getLastName();
+      String endpoint = "/api/v1/send-email";
+      HttpHeaders headers = new HttpHeaders();
+      headers.set("Content-Type", "application/json");
+      EmailTemplate emailTemplate = new EmailTemplate(email, PASSWORD_RESET_CODE_EMAIL_SUBJECT,
+          getPrescriptionViewCodeEmailText(fullName, code), "html", getPrescriptionViewCodeEmailBody(fullName, code));
+      ObjectMapper objectMapper = new ObjectMapper();
+      String jsonString;
+      jsonString = objectMapper.writeValueAsString(emailTemplate);
+      webClient.post()
+          .uri(endpoint)
+          .headers(httpHeaders -> httpHeaders.addAll(headers))
+          .body(BodyInserters.fromValue(jsonString))
+          .retrieve()
+          .bodyToMono(String.class)
+          .block();
+    } catch (JsonProcessingException e) {
+      e.printStackTrace();
     }
   }
 
   public void sendPrescriptionViewCode(String email, String name, String code) {
-    AmazonSimpleEmailService client = AmazonSimpleEmailServiceClientBuilder.standard().withRegion(Regions.AP_SOUTH_1)
-        .build();
 
-    SendEmailRequest sendEmailRequest = new SendEmailRequest()
-        .withDestination(new Destination().withToAddresses(email))
-        .withMessage(new Message()
-            .withBody(new Body()
-                .withHtml(new Content().withCharset("UTF-8").withData(getPasswordResetCodeEmailBody(name, code)))
-                .withText(new Content().withCharset("UTF-8").withData(getPasswordResetCodeEmailText(name, code))))
-            .withSubject(new Content().withCharset("UTF-8").withData(PRESCRIPTION_VIEW_CODE_EMAIL_SUBJECT)))
-        .withSource(FROM);
     try {
-      client.sendEmail(sendEmailRequest);
-    } catch (Exception e) {
-      System.out.println(e.getMessage());
+
+      String endpoint = "/api/v1/send-email";
+      HttpHeaders headers = new HttpHeaders();
+      headers.set("Content-Type", "application/json");
+      EmailTemplate emailTemplate = new EmailTemplate(email, PRESCRIPTION_VIEW_CODE_EMAIL_SUBJECT,
+          getPasswordResetCodeEmailText(name, code), "html", getPasswordResetCodeEmailBody(name, code));
+      ObjectMapper objectMapper = new ObjectMapper();
+      String jsonString;
+      jsonString = objectMapper.writeValueAsString(emailTemplate);
+      webClient.post()
+          .uri(endpoint)
+          .headers(httpHeaders -> httpHeaders.addAll(headers))
+          .body(BodyInserters.fromValue(jsonString))
+          .retrieve()
+          .bodyToMono(String.class)
+          .block();
+    } catch (JsonProcessingException e) {
+      e.printStackTrace();
     }
   }
 
   public void sendMeetingLink(String doctorEmail, String patientEmail, String code, String link) {
-    AmazonSimpleEmailService client = AmazonSimpleEmailServiceClientBuilder.standard().withRegion(Regions.AP_SOUTH_1)
-        .build();
 
-    SendEmailRequest sendPatientEmailRequest = new SendEmailRequest()
-        .withDestination(new Destination().withToAddresses(patientEmail))
-        .withMessage(new Message()
-            .withBody(
-                new Body().withHtml(new Content().withCharset("UTF-8").withData(getMeetingHTMLBody(code, link, true)))
-                    .withText(new Content().withCharset("UTF-8").withData(getMeetingTextBody(code, link, true))))
-            .withSubject(new Content().withCharset("UTF-8").withData(APPOINTMENT_SUBJECT)))
-        .withSource(FROM);
+    try {
 
-    SendEmailRequest sendDoctorEmailRequest = new SendEmailRequest()
-        .withDestination(new Destination().withToAddresses(doctorEmail))
-        .withMessage(new Message()
-            .withBody(
-                new Body().withHtml(new Content().withCharset("UTF-8").withData(getMeetingHTMLBody(code, link, false)))
-                    .withText(new Content().withCharset("UTF-8").withData(getMeetingTextBody(code, link, false))))
-            .withSubject(new Content().withCharset("UTF-8").withData(APPOINTMENT_SUBJECT)))
-        .withSource(FROM);
-    client.sendEmail(sendDoctorEmailRequest);
-    client.sendEmail(sendPatientEmailRequest);
+      String endpoint = "/api/v1/send-email";
+      HttpHeaders headers = new HttpHeaders();
+      headers.set("Content-Type", "application/json");
+      EmailTemplate emailTemplate = new EmailTemplate(patientEmail, APPOINTMENT_SUBJECT,
+          getMeetingTextBody(code, link, true), "html", getMeetingHTMLBody(code, link, true));
+      ObjectMapper objectMapper = new ObjectMapper();
+      String jsonString;
+      jsonString = objectMapper.writeValueAsString(emailTemplate);
+      webClient.post()
+          .uri(endpoint)
+          .headers(httpHeaders -> httpHeaders.addAll(headers))
+          .body(BodyInserters.fromValue(jsonString))
+          .retrieve()
+          .bodyToMono(String.class)
+          .block();
+    } catch (JsonProcessingException e) {
+      e.printStackTrace();
+    }
+    try {
+
+      String endpoint = "/api/v1/send-email";
+      HttpHeaders headers = new HttpHeaders();
+      headers.set("Content-Type", "application/json");
+      EmailTemplate emailTemplate = new EmailTemplate(doctorEmail, APPOINTMENT_SUBJECT,
+          getMeetingTextBody(code, link, true), "html", getMeetingHTMLBody(code, link, true));
+      ObjectMapper objectMapper = new ObjectMapper();
+      String jsonString;
+      jsonString = objectMapper.writeValueAsString(emailTemplate);
+      webClient.post()
+          .uri(endpoint)
+          .headers(httpHeaders -> httpHeaders.addAll(headers))
+          .body(BodyInserters.fromValue(jsonString))
+          .retrieve()
+          .bodyToMono(String.class)
+          .block();
+    } catch (JsonProcessingException e) {
+      e.printStackTrace();
+    }
   }
 
   public void sendAppointmentCancellationEmail(AppointmentDto appointmentDto) {
@@ -149,34 +200,51 @@ public class AmazonSES {
     String doctorEmail = doctor.getEmail();
     String patientName = patient.getFirstName() + " " + patient.getLastName();
     String doctorName = doctor.getFirstName() + " " + doctor.getLastName();
-    AmazonSimpleEmailService client = AmazonSimpleEmailServiceClientBuilder.standard().withRegion(Regions.AP_SOUTH_1)
-        .build();
 
-    SendEmailRequest sendPatientEmailRequest = new SendEmailRequest()
-        .withDestination(new Destination().withToAddresses(patientEmail))
-        .withMessage(new Message()
-            .withBody(
-                new Body()
-                    .withHtml(new Content().withCharset("UTF-8")
-                        .withData(getAppointmentCancellationEmailBody(patientName, appointmentDto)))
-                    .withText(new Content().withCharset("UTF-8")
-                        .withData(getAppointmentCancellationEmailText(patientName, appointmentDto))))
-            .withSubject(new Content().withCharset("UTF-8").withData(APPOINTMENT_SUBJECT)))
-        .withSource(FROM);
+    try {
 
-    SendEmailRequest sendDoctorEmailRequest = new SendEmailRequest()
-        .withDestination(new Destination().withToAddresses(doctorEmail))
-        .withMessage(new Message()
-            .withBody(
-                new Body()
-                    .withHtml(new Content().withCharset("UTF-8")
-                        .withData(getAppointmentCancellationEmailBody(doctorName, appointmentDto)))
-                    .withText(new Content().withCharset("UTF-8")
-                        .withData(getAppointmentCancellationEmailText(doctorName, appointmentDto))))
-            .withSubject(new Content().withCharset("UTF-8").withData(APPOINTMENT_SUBJECT)))
-        .withSource(FROM);
-    client.sendEmail(sendDoctorEmailRequest);
-    client.sendEmail(sendPatientEmailRequest);
+      String endpoint = "/api/v1/send-email";
+      HttpHeaders headers = new HttpHeaders();
+      headers.set("Content-Type", "application/json");
+      EmailTemplate emailTemplate = new EmailTemplate(patientEmail, APPOINTMENT_SUBJECT,
+          getAppointmentCancellationEmailText(patientName, appointmentDto), "html",
+          getAppointmentCancellationEmailBody(patientName, appointmentDto));
+      ObjectMapper objectMapper = new ObjectMapper();
+      String jsonString;
+      jsonString = objectMapper.writeValueAsString(emailTemplate);
+      webClient.post()
+          .uri(endpoint)
+          .headers(httpHeaders -> httpHeaders.addAll(headers))
+          .body(BodyInserters.fromValue(jsonString))
+          .retrieve()
+          .bodyToMono(String.class)
+          .block();
+    } catch (JsonProcessingException e) {
+      e.printStackTrace();
+    }
+
+    try {
+
+      String endpoint = "/api/v1/send-email";
+      HttpHeaders headers = new HttpHeaders();
+      headers.set("Content-Type", "application/json");
+      EmailTemplate emailTemplate = new EmailTemplate(doctorEmail, APPOINTMENT_SUBJECT,
+          getAppointmentCancellationEmailText(doctorName, appointmentDto), "html",
+          getAppointmentCancellationEmailBody(patientName, appointmentDto));
+      ObjectMapper objectMapper = new ObjectMapper();
+      String jsonString;
+      jsonString = objectMapper.writeValueAsString(emailTemplate);
+      webClient.post()
+          .uri(endpoint)
+          .headers(httpHeaders -> httpHeaders.addAll(headers))
+          .body(BodyInserters.fromValue(jsonString))
+          .retrieve()
+          .bodyToMono(String.class)
+          .block();
+    } catch (JsonProcessingException e) {
+      e.printStackTrace();
+    }
+
   }
 
   private String getAppointmentCancellationEmailBody(String name, AppointmentDto appointmentDto) {
