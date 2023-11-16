@@ -93,7 +93,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
   @Transactional
   @Override
-  public AppointmentDto createAppointment(AppointmentDto appointmentDto) {
+  synchronized public AppointmentDto createAppointment(AppointmentDto appointmentDto) {
     UserEntity patient = userRepository.findByUserId(appointmentDto.getPatientUserId());
     if (patient == null)
       throw new AppointmentServiceException(MessageCodes.USER_NOT_FOUND.name(),

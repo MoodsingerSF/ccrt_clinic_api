@@ -46,7 +46,7 @@ public class DonationServiceImpl implements DonationService {
 
   @Transactional
   @Override
-  public DonationDto createDonation(DonationDto donationDto) {
+  synchronized public DonationDto createDonation(DonationDto donationDto) {
     if (donationDto.getAmount() <= 0) {
       throw new DonationRequestServiceException(MessageCodes.INVALID_REQUEST.name(), Messages.AMOUNT_ERROR.getMessage(),
           HttpStatus.BAD_REQUEST);
